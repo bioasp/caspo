@@ -39,10 +39,12 @@ def main(args):
     dataset = component.getMultiAdapter((midas, disc, point), learn.IDataset)
 
     with component.getMultiAdapter((graph, dataset), learn.ILearner) as learner:
-        learner.learn()
+        learner.learn(args.fit, args.size)
+        print "\n=========\n"
         for net in learner:
             for var, clauses in net.mapping.iteritems():
                 print "%s -> %s" %(var, clauses)
+            print "\n=========\n"
 
 if __name__ == '__main__':
     
