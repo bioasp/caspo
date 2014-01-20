@@ -58,39 +58,36 @@ class Dataset2TermSet(asp.TermSetAdapter):
             for name, value in obs.iteritems():
                 self.termset.add(asp.Term('obs', [i, name, value]))
 
-class PotasscoLearner(object):
+
+class GraphDataset2TermSet(asp.TermSetAdapter):
     component.adapts(core.IGraph, IDataset)
-    interface.implements(ILearner)
     
     def __init__(self, graph, dataset):
-        super(PotasscoLearner, self).__init__()
-        self.graph = graph
-        self.dataset = dataset
+        super(GraphDataset2TermSet, self).__init__()
         #CNO prepocessing goes here
         names = component.getUtility(core.ILogicalNames)
-        names.load(self.graph)
+        names.load(graph)
         
-        termset = asp.interfaces.ITermSet(names)
-        termset = termset.union(asp.ITermSet(self.dataset))
-        self.__instance = termset.to_file()
-        
-    def __enter__(self):
-        return self
-        
-    def __exit__(self, type, value, traceback):
-        os.unlink(self.__instance)
-        
+        self.termset = asp.interfaces.ITermSet(names)
+        self.termset = self.termset.union(asp.ITermSet(dataset))
+
+class PotasscoLearner(object):
+    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver)
+    interface.implements(ILearner)
+    
+    def __init__(self, termset, gringo, clasp):
+        super(PotasscoLearner, self).__init__()
+        self.termset = termset
+        self.gringo = gringo
+        self.clasp = clasp
+        self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+                
+    @asp.cleanrun
     def learn(self, fit=0, size=0):
         reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-        
-        programs = [self.__instance, reg.get_encoding('full')]
-        
-        grounder = component.getUtility(potassco.IGringoGrounder)
-        solver = component.getUtility(potassco.IClaspSolver)
-        self.grover = component.getMultiAdapter((grounder, solver), asp.IDefaultGrounderSolver)
+        programs = [self.termset.to_file(), reg.get_encoding('learn.full')]
         
         self.grover.run("#hide. #show dnf/2.", grounder_args=programs, solver_args=["--quiet=1"])
-
         optimum = iter(self.grover).next()
         tolerance = ['-c maxrss=%s' % int(optimum.score[0] + optimum.score[0]*fit), '-c maxsize=%s' % (optimum.score[1] + size)]
         

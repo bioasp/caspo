@@ -21,20 +21,24 @@ from utilities import *
 from adapters import *
 from impl import *
 
+from pyzcasp import asp, potassco
 from caspo import core
 
 from zope import component
+from zope.component.factory import Factory
+from zope.component.interfaces import IFactory
 
 gsm = component.getGlobalSiteManager()
 
 gsm.registerAdapter(Midas2Dataset)
 gsm.registerAdapter(Dataset2TermSet)
-gsm.registerAdapter(PotasscoLearner)
+gsm.registerAdapter(GraphDataset2TermSet)
+gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver), ILearner)
 gsm.registerUtility(MidasReader(), IMidasReader)
-gsm.registerUtility(Round(), IDiscretization, 'round')
-gsm.registerUtility(Floor(), IDiscretization, 'floor')
-gsm.registerUtility(Ceil(), IDiscretization, 'ceil')
+gsm.registerUtility(Factory(Round), IFactory, 'round')
+gsm.registerUtility(Factory(Floor), IFactory, 'floor')
+gsm.registerUtility(Factory(Ceil), IFactory, 'ceil')
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-reg.register_encoding('full', root + '/encodings/encoding.lp')
+reg.register_encoding('learn.full', root + '/encodings/encoding.lp')

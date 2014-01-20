@@ -21,7 +21,7 @@ import os, sys, argparse, pkg_resources
 
 from zope import component
 
-from pyzcasp import potassco
+from pyzcasp import asp, potassco
 from caspo import core, learn
  
 def main(args):
@@ -30,7 +30,7 @@ def main(args):
     graph = core.interfaces.IGraph(sif)
     
     midas = component.getUtility(learn.IMidasReader)
-    disc = component.getUtility(learn.IDiscretization, args.discretization)
+    disc = component.createObject(args.discretization)
     point = learn.TimePoint(args.timepoint)
     
     midas.read(args.midas)
@@ -38,13 +38,17 @@ def main(args):
     
     dataset = component.getMultiAdapter((midas, disc, point), learn.IDataset)
 
-    with component.getMultiAdapter((graph, dataset), learn.ILearner) as learner:
-        learner.learn(args.fit, args.size)
+    grounder = component.getUtility(asp.IGrounder)
+    solver = component.getUtility(asp.ISolver)
+    instance = component.getMultiAdapter((graph, dataset), asp.ITermSet)
+        
+    learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
+    learner.learn(args.fit, args.size)
+    print "\n=========\n"
+    for net in learner:
+        for var, clauses in net.mapping.iteritems():
+            print "%s -> %s" %(var, clauses)
         print "\n=========\n"
-        for net in learner:
-            for var, clauses in net.mapping.iteritems():
-                print "%s -> %s" %(var, clauses)
-            print "\n=========\n"
 
 if __name__ == '__main__':
     
@@ -83,10 +87,10 @@ if __name__ == '__main__':
     
     gsm = component.getGlobalSiteManager()
 
-    gringo = potassco.GringoGrounder(args.gringo)
-    gsm.registerUtility(gringo, potassco.IGringoGrounder)
+    grounder = potassco.GringoGrounder(args.gringo)
+    gsm.registerUtility(grounder, potassco.IGringoGrounder)
     
-    clasp = potassco.ClaspSolver(args.clasp)
-    gsm.registerUtility(clasp, potassco.IClaspSolver)
+    solver = potassco.ClaspSolver(args.clasp)
+    gsm.registerUtility(solver, potassco.IClaspSolver)
     
     main(args)

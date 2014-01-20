@@ -29,7 +29,7 @@ class IMidasReader(core.IFileReader):
 
 class IDiscretization(interface.Interface):
     """
-    Dicretization object
+    Dicretization function
     """
     
     factor = interface.Attribute("Discretization factor")
@@ -58,9 +58,6 @@ class ILearner(interface.Interface):
     """
     Learner of Boolean logic models
     """
-    
-    graph = interface.Attribute("Prior knowledge graph")
-    dataset = interface.Attribute("Experimental dataset")
     
     def learn(self, fit, size):
         """"""
