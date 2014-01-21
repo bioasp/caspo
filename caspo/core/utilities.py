@@ -41,7 +41,17 @@ class FileReader(File):
     
     def __iter__(self):
         return iter(self.fd)
-        
+
+class CsvReader(FileReader):
+    interface.implements(ICsvReader)
+    
+    def read(self, filename):
+        super(CsvReader, self).read(filename)
+        self.reader = csv.DictReader(self.fd)
+    
+    def __iter__(self):
+        return iter(self.reader)
+
 class SifReader(FileReader):
     interface.implements(ISifReader)
     

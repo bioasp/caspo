@@ -120,7 +120,7 @@ class LogicalNetwork2TermSet(asp.TermSetAdapter):
         
         for var in network.variables:
             var_name = names.get_variable_name(var)
-            self.termset.add(asp.Term('variable', [var, var_name]))
+            self.termset.add(asp.Term('formula', [var, var_name]))
             for clause in network.mapping[var]:
                 clause_name = names.get_clause_name(clause)
                 self.termset.add(asp.Term('dnf', [var_name, clause_name]))
@@ -143,7 +143,10 @@ class LogicalNetworkAdapter(object):
     @property
     def mapping(self):
         return self.network.mapping
-
+        
+    def iterformulas(self):
+        return self.network.iterformulas()
+        
 class TermSet2LogicalNetwork(LogicalNetworkAdapter):
     component.adapts(asp.ITermSet)
     
@@ -165,7 +168,7 @@ class LogicalMapping2LogicalNetwork(LogicalNetworkAdapter):
                 clause, target = m.split('=')
                 self.network.mapping[target].add(Clause.from_str(clause))
         
-class LogicalNetworksReader2LogicalNetworkSet(set):
+class LogicalNetworksReader2LogicalNetworkSet(object):
     component.adapts(ILogicalNetworksReader)
     interface.implements(ILogicalNetworkSet)
     
@@ -173,6 +176,55 @@ class LogicalNetworksReader2LogicalNetworkSet(set):
         super(LogicalNetworksReader2LogicalNetworkSet, self).__init__()
         names = component.getUtility(ILogicalNames)
         names.load(reader.graph)
+        self.networks = set()
+        self.__formulas_seq = list()
+        self.__formulas = dict()
         
         for mapping in reader:
-            self.add(ILogicalNetwork(mapping))
+            network = ILogicalNetwork(mapping)
+            self.networks.add(network)
+            for formula in network.mapping.itervalues():
+                fform = frozenset(formula)
+                if fform not in self.__formulas:
+                    formula_name = len(self.__formulas_seq)
+                    self.__formulas_seq.append(fform)
+                    self.__formulas[fform] = formula_name
+                    
+    def get_formula_name(self, clauses):
+        return self.__formulas[frozenset(clauses)]
+        
+    def __iter__(self):
+        return iter(self.networks)
+
+class LogicalNetworkInSet2TermSet(asp.TermSetAdapter):
+    component.adapts(ILogicalNetwork, ILogicalNetworkSet)
+    
+    def __init__(self, network, networkset):
+        super(LogicalNetworkInSet2TermSet, self).__init__()
+        
+        names = component.getUtility(ILogicalNames)
+        
+        for var, formula in network.mapping.iteritems():
+            formula_name = networkset.get_formula_name(formula)
+            self.termset.add(asp.Term('formula', [var, formula_name]))
+            for clause in network.mapping[var]:
+                clause_name = names.get_clause_name(clause)
+                self.termset.add(asp.Term('dnf', [formula_name, clause_name]))
+                for lit in clause:
+                    self.termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
+                                
+class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
+    component.adapts(ILogicalNetworkSet)
+    
+    def __init__(self, networks):
+        super(LogicalNetworkSet2TermSet, self).__init__()
+        
+        names = component.getUtility(ILogicalNames)
+        for var in names.variables:
+            self.termset.add(asp.Term('variable', [var]))
+        
+        for i, network in enumerate(networks):
+            for formula in network.mapping.itervalues():
+                self.termset.add(asp.Term('model', [i, networks.get_formula_name(formula)]))
+                
+            self.termset = self.termset.union(component.getMultiAdapter((network, networks), asp.ITermSet))

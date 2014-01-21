@@ -36,7 +36,12 @@ class IFileReader(interface.Interface):
 
     def __iter__(self):
         """"""
-        
+
+class ICsvReader(IFileReader):
+    """
+    CSV file reader
+    """
+
 class ISifReader(IFileReader):
     """
     SIF file reader
@@ -147,6 +152,11 @@ class ILogicalNetworkSet(interface.Interface):
     """
     Set of Logical Networks
     """
+    
+    networks = interface.Attribute("")
+    
+    def get_formula_name(clauses):
+        """"""
 
     def __iter__(self):
         """"""

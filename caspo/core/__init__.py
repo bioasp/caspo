@@ -36,6 +36,9 @@ gsm.registerAdapter(TermSet2LogicalNetwork)
 gsm.registerAdapter(LogicalMapping2LogicalNetwork)
 gsm.registerAdapter(LogicalNetworksReader2LogicalNetworkSet)
 
+gsm.registerAdapter(LogicalNetworkInSet2TermSet)
+gsm.registerAdapter(LogicalNetworkSet2TermSet)
+
 gsm.registerUtility(SifReader(), ISifReader)
 gsm.registerUtility(LogicalNetworksReader(), ILogicalNetworksReader)
 gsm.registerUtility(LogicalNames(), ILogicalNames)
