@@ -92,7 +92,7 @@ class PotasscoDisjunctiveController(object):
         self.termset = termset
         self.gringo = gringo
         self.clasp = clasp
-        self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+        self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver)
             
     @asp.cleanrun        
     def control(self, size=0):
@@ -100,15 +100,12 @@ class PotasscoDisjunctiveController(object):
         
         programs = [self.termset.to_file(), reg.get_encoding('control.full')]
         
-        grounding = self.gringo.execute("#minimize[intervention(_)].", '-', '--reify', '-c maxsize=%s' % size, *programs)
-        
-        reg = component.getUtility(asp.IEncodingRegistry, 'potassco')
-        meta = reg.get_encoding('meta')
-        metaD = reg.get_encoding('metaD')
-        metaO = reg.get_encoding('metaO')
-        opt = asp.TermSet([asp.Term('optimize',[1,1,'incl'], False)])
-        
-        self.grover.run(grounding, grounder_args=[meta, metaD, metaO, opt.to_file()], solver_args=["0"])
+        self.grover.optimize = asp.TermSet([asp.Term('optimize',[1,1,'incl'], False)])
+        stdin="""
+        #hide.
+        #show hold(atom(intervention(_,_))).
+        """
+        self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=["0"])
         
     def __iter__(self):
         return iter(self.grover)
@@ -136,7 +133,7 @@ class PotasscoHeuristicController(object):
         #show intervention/2.
         #show _heuristic/3.
         """     
-        self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=['0', '-e record'])
+        self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=['0', '-e record', '--opt-ignore'])
 
     def __iter__(self):
         return iter(self.grover)

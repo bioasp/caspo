@@ -25,3 +25,5 @@ eval(M,Z,V,-1) :- free(M,Z,V,D), eval_clause(M,Z,C,-1) :        dnf(D,C), model(
 
 #const max=0.
 :- max>0, max + 1 #count{ intervention(_) }.
+
+#minimize[intervention(_)].
