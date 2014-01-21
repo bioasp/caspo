@@ -67,3 +67,11 @@ class IController(interface.Interface):
 
     def __iter__(self):
         """"""
+
+class IStrategy(interface.Interface):
+    """
+    """
+    
+class IStrategySet(interface.Interface):
+    """
+    """

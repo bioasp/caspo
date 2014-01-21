@@ -33,3 +33,9 @@ class Goals(frozenset):
 
 class Scenario(namedtuple('Scenario', ['constraints', 'goals'])):
     interface.implements(IScenario)
+
+class Strategy(frozenset):
+    interface.implements(IStrategy)
+    
+    def __init__(self, literals=[]):
+        super(Strategy, self).__init__(frozenset(literals))

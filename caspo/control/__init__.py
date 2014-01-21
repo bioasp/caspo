@@ -31,6 +31,7 @@ gsm.registerAdapter(MultiScenario2TermSet)
 gsm.registerAdapter(NetworksMultiScenario2TermSet)
 gsm.registerAdapter(PotasscoDisjunctiveController, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspDSolver), IController)
 gsm.registerAdapter(PotasscoHeuristicController, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver), IController)
+gsm.registerAdapter(TermSet2Strategy)
 
 gsm.registerUtility(ConstraintsReader(), IConstraintsReader)
 gsm.registerUtility(GoalsReader(), IGoalsReader)

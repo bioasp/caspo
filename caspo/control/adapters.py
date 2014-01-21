@@ -108,7 +108,8 @@ class PotasscoDisjunctiveController(object):
         self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=["0"])
         
     def __iter__(self):
-        return iter(self.grover)
+        for termset in self.grover:
+            yield IStrategy(termset)
 
 class PotasscoHeuristicController(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver)
@@ -133,4 +134,18 @@ class PotasscoHeuristicController(object):
         self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=['0', '-e record', '--opt-ignore'])
 
     def __iter__(self):
-        return iter(self.grover)
+        for ts in self.grover:
+            yield IStrategy(asp.TermSet(filter(lambda t: len(t.args) == 2, ts)))
+
+class TermSet2Strategy(object):
+    component.adapts(asp.ITermSet)
+    interface.implements(IStrategy)
+    
+    def __init__(self, termset):
+        self.strategy = Strategy(map(lambda term: core.Literal(term.arg(0),term.arg(1)), termset))
+        
+    def __iter__(self):
+        return iter(self.strategy)
+        
+    def __str__(self):
+        return str(self.strategy)

@@ -44,8 +44,7 @@ def main(args):
     controller.control(args.size)
     print "\n=========\n"
     for strategy in controller:
-        for t in strategy:
-            print t
+        print strategy
         print "\n=========\n"
 
 if __name__ == '__main__':
