@@ -38,3 +38,4 @@ gsm.registerUtility(GoalsReader(), IGoalsReader)
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
 reg.register_encoding('control.full', root + '/encodings/encoding.lp')
+reg.register_encoding('control.heuristic', root + '/encodings/heuristic.lp')

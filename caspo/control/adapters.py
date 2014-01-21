@@ -124,14 +124,11 @@ class PotasscoHeuristicController(object):
     @asp.cleanrun            
     def control(self, size=0):
         reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-        
-        programs = [self.termset.to_file(), reg.get_encoding('control.full')]
+
+        programs = [self.termset.to_file(), reg.get_encoding('control.full'), reg.get_encoding('control.heuristic')]
         stdin = """
-        _heuristic(intervention(V),false,1) :- closure(V,S), candidate(V).
         #hide.
-        #show intervention/1.
         #show intervention/2.
-        #show _heuristic/3.
         """     
         self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=['0', '-e record', '--opt-ignore'])
 
