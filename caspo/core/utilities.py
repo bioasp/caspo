@@ -40,6 +40,7 @@ class FileReader(File):
         super(FileReader, self).open(filename)
     
     def __iter__(self):
+        self.fd.seek(0)
         return iter(self.fd)
 
 class CsvReader(FileReader):
@@ -50,6 +51,7 @@ class CsvReader(FileReader):
         self.reader = csv.DictReader(self.fd)
     
     def __iter__(self):
+        self.fd.seek(0)
         return iter(self.reader)
 
 class SifReader(FileReader):

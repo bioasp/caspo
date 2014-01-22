@@ -25,6 +25,7 @@ class ConstraintsReader(core.CsvReader):
     interface.implements(IConstraintsReader)
         
     def __iter__(self):
+        self.fd.seek(0)
         for row in self.reader:
             cl = map(lambda (k,v): core.Literal(k,int(v)), filter(lambda (k,v): v!='0', row.iteritems()))
             yield Constraints(cl)
@@ -33,6 +34,7 @@ class GoalsReader(core.CsvReader):
     interface.implements(IGoalsReader)
         
     def __iter__(self):
+        self.fd.seek(0)
         for row in self.reader:
             gl = map(lambda (k,v): core.Literal(k,int(v)), filter(lambda (k,v): v!='0', row.iteritems()))
             yield Goals(gl)
