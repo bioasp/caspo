@@ -38,6 +38,7 @@ gsm.registerUtility(MidasReader(), IMidasReader)
 gsm.registerUtility(Factory(Round), IFactory, 'round')
 gsm.registerUtility(Factory(Floor), IFactory, 'floor')
 gsm.registerUtility(Factory(Ceil), IFactory, 'ceil')
+gsm.registerUtility(DefaultCompressor(), IGraphCompressor)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry, 'caspo')

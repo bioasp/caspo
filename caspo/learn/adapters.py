@@ -64,9 +64,10 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
     
     def __init__(self, graph, dataset):
         super(GraphDataset2TermSet, self).__init__()
-        #CNO prepocessing goes here
+        
+        compressor = component.getUtility(IGraphCompressor)
         names = component.getUtility(core.ILogicalNames)
-        names.load(graph)
+        names.load(compressor.compress(graph, dataset.setup))
         
         self._termset = asp.interfaces.ITermSet(names)
         self._termset = self._termset.union(asp.ITermSet(dataset))
