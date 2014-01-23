@@ -89,13 +89,13 @@ class Setup2TermSet(asp.TermSetAdapter):
         super(Setup2TermSet, self).__init__()
         
         for s in setup.stimuli:
-            self.termset.add(asp.Term('stimulus', [s]))
+            self._termset.add(asp.Term('stimulus', [s]))
             
         for i in setup.inhibitors:
-            self.termset.add(asp.Term('inhibitor', [i]))
+            self._termset.add(asp.Term('inhibitor', [i]))
             
         for r in setup.readouts:
-            self.termset.add(asp.Term('readout', [r]))
+            self._termset.add(asp.Term('readout', [r]))
 
 class LogicalNames2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNames)
@@ -104,11 +104,11 @@ class LogicalNames2TermSet(asp.TermSetAdapter):
         super(LogicalNames2TermSet, self).__init__()
         
         for var_name, var in names.itervariables():
-            self.termset.add(asp.Term('node', [var, var_name]))
+            self._termset.add(asp.Term('node', [var, var_name]))
             for clause_name, clause in names.iterclauses(var):
-                self.termset.add(asp.Term('hyper', [var_name, clause_name, len(clause)]))
+                self._termset.add(asp.Term('hyper', [var_name, clause_name, len(clause)]))
                 for lit in clause:
-                    self.termset.add(asp.Term('edge', [clause_name, lit.variable, lit.signature]))
+                    self._termset.add(asp.Term('edge', [clause_name, lit.variable, lit.signature]))
 
 class LogicalNetwork2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNetwork)
@@ -120,12 +120,12 @@ class LogicalNetwork2TermSet(asp.TermSetAdapter):
         
         for var in network.variables:
             var_name = names.get_variable_name(var)
-            self.termset.add(asp.Term('formula', [var, var_name]))
+            self._termset.add(asp.Term('formula', [var, var_name]))
             for clause in network.mapping[var]:
                 clause_name = names.get_clause_name(clause)
-                self.termset.add(asp.Term('dnf', [var_name, clause_name]))
+                self._termset.add(asp.Term('dnf', [var_name, clause_name]))
                 for lit in clause:
-                    self.termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
+                    self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
 
 class LogicalNetworkAdapter(object):
     interface.implements(ILogicalNetwork)
@@ -133,19 +133,19 @@ class LogicalNetworkAdapter(object):
     def __init__(self):
         super(LogicalNetworkAdapter, self).__init__()
         
-        self.names = component.getUtility(ILogicalNames)
-        self.network = LogicalNetwork(self.names.variables)
+        names = component.getUtility(ILogicalNames)
+        self._network = LogicalNetwork(names.variables)
                 
     @property
     def variables(self):
-        return self.network.variables
+        return self._network.variables
         
     @property
     def mapping(self):
-        return self.network.mapping
+        return self._network.mapping
         
     def iterformulas(self):
-        return self.network.iterformulas()
+        return self._network.iterformulas()
         
 class TermSet2LogicalNetwork(LogicalNetworkAdapter):
     component.adapts(asp.ITermSet)
@@ -153,9 +153,10 @@ class TermSet2LogicalNetwork(LogicalNetworkAdapter):
     def __init__(self, termset):
         super(TermSet2LogicalNetwork, self).__init__()
         
+        names = component.getUtility(ILogicalNames)
         for term in termset:
             if term.pred == 'dnf':
-                self.network.mapping[self.names.variables[term.arg(0)]].add(self.names.clauses[term.arg(1)])
+                self._network.mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
 
 class LogicalMapping2LogicalNetwork(LogicalNetworkAdapter):
     component.adapts(ILogicalMapping)
@@ -166,7 +167,7 @@ class LogicalMapping2LogicalNetwork(LogicalNetworkAdapter):
         for m,v in mapping.iteritems():
             if v == '1':
                 clause, target = m.split('=')
-                self.network.mapping[target].add(Clause.from_str(clause))
+                self._network.mapping[target].add(Clause.from_str(clause))
         
 class LogicalNetworksReader2LogicalNetworkSet(object):
     component.adapts(ILogicalNetworksReader)
@@ -206,12 +207,12 @@ class LogicalNetworkInSet2TermSet(asp.TermSetAdapter):
         
         for var, formula in network.mapping.iteritems():
             formula_name = networkset.get_formula_name(formula)
-            self.termset.add(asp.Term('formula', [var, formula_name]))
+            self._termset.add(asp.Term('formula', [var, formula_name]))
             for clause in network.mapping[var]:
                 clause_name = names.get_clause_name(clause)
-                self.termset.add(asp.Term('dnf', [formula_name, clause_name]))
+                self._termset.add(asp.Term('dnf', [formula_name, clause_name]))
                 for lit in clause:
-                    self.termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
+                    self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
                                 
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNetworkSet)
@@ -221,10 +222,10 @@ class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
         
         names = component.getUtility(ILogicalNames)
         for var in names.variables:
-            self.termset.add(asp.Term('variable', [var]))
+            self._termset.add(asp.Term('variable', [var]))
         
         for i, network in enumerate(networks):
             for formula in network.mapping.itervalues():
-                self.termset.add(asp.Term('model', [i, networks.get_formula_name(formula)]))
+                self._termset.add(asp.Term('model', [i, networks.get_formula_name(formula)]))
                 
-            self.termset = self.termset.union(component.getMultiAdapter((network, networks), asp.ITermSet))
+            self._termset = self._termset.union(component.getMultiAdapter((network, networks), asp.ITermSet))

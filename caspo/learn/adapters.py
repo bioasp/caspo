@@ -48,15 +48,15 @@ class Dataset2TermSet(asp.TermSetAdapter):
     def __init__(self, dataset):
         super(Dataset2TermSet, self).__init__()
         
-        self.termset = self.termset.union(asp.interfaces.ITermSet(dataset.setup))
-        self.termset.add(asp.Term('dfactor', [dataset.factor]))
+        self._termset = self._termset.union(asp.interfaces.ITermSet(dataset.setup))
+        self._termset.add(asp.Term('dfactor', [dataset.factor]))
         
         for i, cond, obs in dataset:
             for name, value in cond.iteritems():
-                self.termset.add(asp.Term('exp', [i, name, value]))
+                self._termset.add(asp.Term('exp', [i, name, value]))
                 
             for name, value in obs.iteritems():
-                self.termset.add(asp.Term('obs', [i, name, value]))
+                self._termset.add(asp.Term('obs', [i, name, value]))
 
 
 class GraphDataset2TermSet(asp.TermSetAdapter):
@@ -68,8 +68,8 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
         names = component.getUtility(core.ILogicalNames)
         names.load(graph)
         
-        self.termset = asp.interfaces.ITermSet(names)
-        self.termset = self.termset.union(asp.ITermSet(dataset))
+        self._termset = asp.interfaces.ITermSet(names)
+        self._termset = self._termset.union(asp.ITermSet(dataset))
 
 class PotasscoLearner(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver)

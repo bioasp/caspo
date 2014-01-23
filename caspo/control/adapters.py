@@ -54,10 +54,10 @@ class ScenarioInMultiScenario2TermSet(asp.TermSetAdapter):
         scenario_name = multiscenario.get_scenario_name(scenario)
         constraints, goals = scenario
         for v,s in constraints:
-            self.termset.add(asp.Term('constrained', [scenario_name, v, s]))
+            self._termset.add(asp.Term('constrained', [scenario_name, v, s]))
             
         for v,s in goals:
-            self.termset.add(asp.Term('goal', [scenario_name, v, s]))
+            self._termset.add(asp.Term('goal', [scenario_name, v, s]))
 
 class MultiScenario2TermSet(asp.TermSetAdapter):
     component.adapts(IMultiScenario)
@@ -66,8 +66,8 @@ class MultiScenario2TermSet(asp.TermSetAdapter):
         super(MultiScenario2TermSet, self).__init__()
         
         for scenario in multiscenario.scenarios:
-            self.termset.add(asp.Term('scenario', [multiscenario.get_scenario_name(scenario)]))
-            self.termset = self.termset.union(component.getMultiAdapter((scenario, multiscenario), asp.ITermSet))
+            self._termset.add(asp.Term('scenario', [multiscenario.get_scenario_name(scenario)]))
+            self._termset = self._termset.union(component.getMultiAdapter((scenario, multiscenario), asp.ITermSet))
 
 class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
     component.adapts(core.ILogicalNetworkSet, IMultiScenario)
@@ -78,10 +78,10 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
         names = component.getUtility(core.ILogicalNames)
         for var in names.variables:
             if var not in multiscenario.exclude:
-                self.termset.add(asp.Term('candidate', [var]))
+                self._termset.add(asp.Term('candidate', [var]))
             
-        self.termset = self.termset.union(asp.interfaces.ITermSet(networks))
-        self.termset = self.termset.union(asp.ITermSet(multiscenario))    
+        self._termset = self._termset.union(asp.interfaces.ITermSet(networks))
+        self._termset = self._termset.union(asp.ITermSet(multiscenario))    
 
 class PotasscoDisjunctiveController(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspDSolver)
