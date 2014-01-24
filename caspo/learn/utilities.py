@@ -39,6 +39,7 @@ class MidasReader(core.FileReader):
         self.__cues = []
         self.__data = []
         cond = {}
+        times = []
         for row in self.reader:
             cond = {}
             for s in self.stimuli:
@@ -49,7 +50,9 @@ class MidasReader(core.FileReader):
             obs = defaultdict(dict)
             for r in self.readouts:
                 if not math.isnan(float(row['DV:' + r])):
-                    obs[int(row['DA:' + r])][r] = float(row['DV:' + r])
+                    time = int(row['DA:' + r])
+                    times.append(time)
+                    obs[time][r] = float(row['DV:' + r])
                     
             if cond in self.__cues:
                 index = self.__cues.index(cond)
@@ -57,6 +60,8 @@ class MidasReader(core.FileReader):
             else:
                 self.__cues.append(cond)
                 self.__data.append(obs)
+                
+        self.times = frozenset(times)
     
     def __iter__(self):
         return iter(zip(self.__cues, self.__data))

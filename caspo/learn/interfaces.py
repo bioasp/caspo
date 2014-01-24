@@ -26,6 +26,7 @@ class IMidasReader(core.IFileReader):
     stimuli = interface.Attribute("Stimuli cues")
     inhibitors = interface.Attribute("Inhibitors cues")
     readouts = interface.Attribute("Readouts")
+    times = interface.Attribute("Time points")
 
 class IDiscretization(interface.Interface):
     """
