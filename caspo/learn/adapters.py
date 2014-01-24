@@ -88,11 +88,11 @@ class PotasscoLearner(object):
         reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
         programs = [self.termset.to_file(), reg.get_encoding('learn.full')]
         
-        self.grover.run("#hide. #show dnf/2.", grounder_args=programs, solver_args=["--quiet=1"])
+        self.grover.run("#hide. #show dnf/2.", grounder_args=programs, solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2"])
         optimum = iter(self.grover).next()
         tolerance = ['-c maxrss=%s' % int(optimum.score[0] + optimum.score[0]*fit), '-c maxsize=%s' % (optimum.score[1] + size)]
         
-        self.grover.run("#hide. #show dnf/2.", grounder_args=programs + tolerance, solver_args=["--opt-ignore", "0"])
+        self.grover.run("#hide. #show dnf/2.", grounder_args=programs + tolerance, solver_args=["--opt-ignore", "0", "--conf=jumpy"])
         
     def __iter__(self):
         for termset in self.grover:

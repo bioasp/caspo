@@ -86,101 +86,71 @@ class DefaultCompressor(object):
     interface.implements(IGraphCompressor)
     
     def compress(self, graph, setup):
-        self.pos_forward = defaultdict(set)
-        self.pos_backward = defaultdict(set)
-        self.neg_forward = defaultdict(set)
-        self.neg_backward = defaultdict(set)
-
+        self._forward = defaultdict(set)
+        self._backward = defaultdict(set)
+        
         designated = setup.stimuli + setup.inhibitors + setup.readouts
         marked = graph.nodes.difference(designated)
     
         for source,target,sign in graph.edges:
-            if sign == 1:
-                self.pos_forward[source].add(target)
-                self.pos_backward[target].add(source)
-            else:
-                self.neg_forward[source].add(target)
-                self.neg_backward[target].add(source)
+            self._forward[source].add((target, sign))
+            self._backward[target].add((source, sign))
 
-        rnodes = self.reduce(marked)
-        
+        compressed = self.__compress(marked)
+
         edges = set()
-        for source, targets in self.pos_forward.iteritems():
-            for target in targets:
-                edges.add((source, target, 1))
-    
-        for source, targets in self.neg_forward.iteritems():
-            for target in targets:
-                edges.add((source, target, -1))
-                
-        return core.Graph(graph.nodes.difference(rnodes), edges)
+        for source, targets in self._forward.iteritems():
+            for target, sign in targets:
+                edges.add((source, target, sign))
         
-    def reduce(self, marked, removed=set()):
-        iremoved = set()
+        return core.Graph(graph.nodes.difference(compressed), edges)
+        
+    def __compress(self, marked, compressed=set()):
+        icompressed = set()
 
-        for node in marked:
-            backward = self.pos_backward[node].union(self.neg_backward[node])
-            forward = self.pos_forward[node].union(self.neg_forward[node])
-            if len(backward) <= 1 and len(backward.difference(forward)) > 0:
-                self.remove(node)
-                iremoved.add(node)
+        for node in sorted(marked):
+            backward = list(self._backward[node])
+            forward = list(self._forward[node])
             
-            elif len(forward) <= 1 and len(forward.difference(backward)) > 0:
-                self.remove(node)
-                iremoved.add(node)
+            if not backward or (len(backward) == 1 and not filter(lambda e: e[0] == backward[0][0], forward)):
+                self.__merge_source_targets(node)
+                icompressed.add(node)
             
-        if not iremoved:
-            return removed
+            elif not forward or (len(forward) == 1 and not filter(lambda e: e[0] == forward[0][0], backward)):
+                self.__merge_target_sources(node)
+                icompressed.add(node)
+            
+        if icompressed:
+            return self.__compress(marked.difference(icompressed), compressed.union(icompressed))
         else:
-            return self.reduce(marked.difference(iremoved), removed.union(iremoved))
+            return compressed
             
-    def remove(self, node):
-        
-        for source in self.pos_backward[node]:
-            
-            if node in self.pos_forward[source]:
-                self.pos_forward[source].remove(node)
+    def __merge_source_targets(self, node):
+        source = None
+        if self._backward[node]:
+            source, sign = self._backward[node].pop()
+            self._forward[source].remove((node, sign))
                 
-            if node in self.neg_forward[source]:
-                self.neg_forward[source].remove(node)
-        
-            self.pos_forward[source] = self.pos_forward[source].union(self.pos_forward[node])
-            self.neg_forward[source] = self.neg_forward[source].union(self.neg_forward[node])
+        for target,s in self._forward[node]:
+            if source:
+                self._forward[source].add((target, sign*s))
+                self._backward[target].add((source, sign*s))
+            
+            self._backward[target].remove((node, s))
+                    
+        del self._forward[node]
 
-        for source in self.neg_backward[node]:
-            
-            if node in self.pos_forward[source]:
-                self.pos_forward[source].remove(node)
-                
-            if node in self.neg_forward[source]:
-                self.neg_forward[source].remove(node)
-            
-            self.neg_forward[source] = self.neg_forward[source].union(self.pos_forward[node])
-            self.pos_forward[source] = self.pos_forward[source].union(self.neg_forward[node])
+    def __merge_target_sources(self, node):
+        target = None
+        if self._forward[node]:
+            target, sign = self._forward[node].pop()
+            self._backward[target].remove((node, sign))
 
-        for target in self.pos_forward[node]:
-            
-            if node in self.pos_backward[target]:
-                self.pos_backward[target].remove(node)
+        for source, s in self._backward[node]:
+            if target:
+                self._forward[source].add((target, sign*s))
+                self._backward[target].add((source, sign*s))
                 
-            if node in self.neg_backward[target]:
-                self.neg_backward[target].remove(node)
-            
-            self.pos_backward[target] = self.pos_backward[target].union(self.pos_backward[node])
-            self.neg_backward[target] = self.neg_backward[target].union(self.neg_backward[node])
-    
-        for target in self.neg_forward[node]:
-            
-            if node in self.pos_backward[target]:
-                self.pos_backward[target].remove(node)
-            if node in self.neg_backward[target]:
-                self.neg_backward[target].remove(node)
-            
-            self.neg_backward[target] = self.neg_backward[target].union(self.pos_backward[node])
-            self.pos_backward[target] = self.pos_backward[target].union(self.neg_backward[node])
-    
-        del self.pos_forward[node]
-        del self.neg_forward[node]
-        del self.pos_backward[node]
-        del self.neg_backward[node]
-        
+            self._forward[source].remove((node, s))
+
+        del self._backward[node]
