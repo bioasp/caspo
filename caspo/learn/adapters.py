@@ -65,9 +65,8 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
     def __init__(self, graph, dataset):
         super(GraphDataset2TermSet, self).__init__()
         
-        compressor = component.getUtility(IGraphCompressor)
         names = component.getUtility(core.ILogicalNames)
-        names.load(compressor.compress(graph, dataset.setup))
+        names.load(component.getMultiAdapter((graph, dataset.setup), core.IGraph))
         
         self._termset = asp.interfaces.ITermSet(names)
         self._termset = self._termset.union(asp.ITermSet(dataset))

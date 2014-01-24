@@ -30,12 +30,12 @@ gsm.registerAdapter(Sif2Graph)
 gsm.registerAdapter(LogicalHeaderMapping2Graph)
 gsm.registerAdapter(Graph2TermSet)
 gsm.registerAdapter(Setup2TermSet)
+gsm.registerAdapter(CompressedGraph)
 gsm.registerAdapter(LogicalNames2TermSet)
 gsm.registerAdapter(LogicalNetwork2TermSet)
 gsm.registerAdapter(TermSet2LogicalNetwork)
 gsm.registerAdapter(LogicalMapping2LogicalNetwork)
 gsm.registerAdapter(LogicalNetworksReader2LogicalNetworkSet)
-
 gsm.registerAdapter(LogicalNetworkInSet2TermSet)
 gsm.registerAdapter(LogicalNetworkSet2TermSet)
 

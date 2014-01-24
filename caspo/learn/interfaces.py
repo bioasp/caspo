@@ -53,15 +53,7 @@ class IDataset(interface.Interface):
     
     def __iter__(self):
         """"""
-
-class IGraphCompressor(interface.Interface):
-    """
-    """
-    
-    def compress(self, graph, setup):
-        """
-        """
-        
+                
 class ILearner(interface.Interface):
     """
     Learner of Boolean logic models
