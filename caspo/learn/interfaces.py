@@ -19,7 +19,7 @@
 from zope import interface
 from caspo import core
     
-class IMidasReader(core.IFileReader):
+class IMidasReader(core.ICsvReader):
     """
     MIDAS file reader
     """

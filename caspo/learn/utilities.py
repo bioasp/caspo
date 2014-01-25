@@ -22,13 +22,11 @@ from zope import component
 
 from interfaces import *
 
-class MidasReader(core.FileReader):
+class MidasReader(core.CsvReader):
     interface.implements(IMidasReader)
     
     def read(self, filename):
-        super(MidasReader, self).read(filename)
-        self.reader = csv.DictReader(self.fd)
-        
+        super(MidasReader, self).read(filename)        
         #Header without the CellLine column
         species = self.reader.fieldnames[1:]
     
@@ -38,15 +36,21 @@ class MidasReader(core.FileReader):
         
         self.__cues = []
         self.__data = []
-        cond = {}
+        
         times = []
         for row in self.reader:
-            cond = {}
+            literals = []
             for s in self.stimuli:
-                cond[s] = int(row['TR:' + s] or 0)
+                if row['TR:' + s] == '1':
+                    literals.append(core.Literal(s,1))
+                else:
+                    literals.append(core.Literal(s,-1))
+                    
             for i in self.inhibitors:
-                cond[i] = (int(row['TR:' + i + 'i'] or 0) + 1) % 2
+                if row['TR:' + i + 'i'] == '1':
+                    literals.append(core.Literal(i,-1))
 
+            clamping = core.Clamping(literals)
             obs = defaultdict(dict)
             for r in self.readouts:
                 if not math.isnan(float(row['DV:' + r])):
@@ -54,11 +58,11 @@ class MidasReader(core.FileReader):
                     times.append(time)
                     obs[time][r] = float(row['DV:' + r])
                     
-            if cond in self.__cues:
-                index = self.__cues.index(cond)
+            if clamping in self.__cues:
+                index = self.__cues.index(clamping)
                 self.__data[index].update(obs)
             else:
-                self.__cues.append(cond)
+                self.__cues.append(clamping)
                 self.__data.append(obs)
                 
         self.times = frozenset(times)

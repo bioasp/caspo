@@ -16,15 +16,16 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 import os
-from zope import component
+from zope import component, interface
 
 from pyzcasp import asp, potassco
 
+from caspo import core
 from interfaces import *
 
 class Midas2Dataset(object):
     component.adapts(IMidasReader, IDiscretization, ITimePoint)
-    interface.implements(IDataset)
+    interface.implements(IDataset, core.IClampingList)
     
     def __init__(self, midas, discretize, point):
         super(Midas2Dataset, self).__init__()
@@ -41,6 +42,10 @@ class Midas2Dataset(object):
     def __iter__(self):
         for i, (cond, obs) in enumerate(zip(self.cues, self.readouts)):
             yield i, cond, obs
+            
+    @property
+    def clampings(self):
+        return self.cues
 
 class Dataset2TermSet(asp.TermSetAdapter):
     component.adapts(IDataset)
@@ -52,12 +57,11 @@ class Dataset2TermSet(asp.TermSetAdapter):
         self._termset.add(asp.Term('dfactor', [dataset.factor]))
         
         for i, cond, obs in dataset:
-            for name, value in cond.iteritems():
-                self._termset.add(asp.Term('exp', [i, name, value]))
-                
+            self._termset.add(asp.Term('exp', [i]))
+            self._termset = self._termset.union(component.getMultiAdapter((cond, dataset), asp.ITermSet))
+            
             for name, value in obs.iteritems():
                 self._termset.add(asp.Term('obs', [i, name, value]))
-
 
 class GraphDataset2TermSet(asp.TermSetAdapter):
     component.adapts(core.IGraph, IDataset)
@@ -95,4 +99,6 @@ class PotasscoLearner(object):
         
     def __iter__(self):
         for termset in self.grover:
-            yield core.ILogicalNetwork(termset)
+            network = core.ILogicalNetwork(termset)
+            interface.directlyProvides(network, core.IBooleLogicNetwork)
+            yield network
