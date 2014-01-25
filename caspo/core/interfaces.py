@@ -134,6 +134,40 @@ class ILogicalNetwork(interface.Interface):
     variables = interface.Attribute("Variables in the network")
     mapping = interface.Attribute("Mapping from variables to sets of clauses")
     
+class IClamping(interface.Interface):
+    """
+    """
+    
+class IClampingList(interface.Interface):
+    """
+    """
+    
+    clampings = interface.Attribute("List of clampings")
+    
+class IBooleLogicNetwork(ILogicalNetwork):
+    """
+    Boolean logic network
+    """
+    
+class IFixPoint(interface.Interface):
+    """
+    """
+    
+    def __getitem__(self, item):
+        """"""
+        
+class IFixPointer(interface.Interface):
+    """
+    """
+    
+    def fixpoint(self, clamping):
+        """
+        """
+
+class IBooleFixPointer(IFixPointer):
+    """
+    """
+    
 class ILogicalMapping(interface.Interface):
     """
     """
@@ -160,5 +194,3 @@ class ILogicalNetworkSet(interface.Interface):
 
     def __iter__(self):
         """"""
-    
-    

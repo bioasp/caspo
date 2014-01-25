@@ -82,4 +82,9 @@ class LogicalNetwork(object):
     def __init__(self, variables=[], mapping=None):
         self.variables = variables
         self.mapping = mapping or defaultdict(set)
-        
+
+class Clamping(frozenset):
+    interface.implements(IClamping)
+    
+    def __init__(self, literals=[]):
+        super(Clamping, self).__init__(frozenset(literals))

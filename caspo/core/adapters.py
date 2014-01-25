@@ -20,7 +20,7 @@ from collections import defaultdict
 
 from zope import component
 
-from pyzcasp import asp
+from pyzcasp import asp, potassco
 
 from interfaces import *
 from impl import *
@@ -303,3 +303,64 @@ class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
                 self._termset.add(asp.Term('model', [i, networks.get_formula_name(formula)]))
                 
             self._termset = self._termset.union(component.getMultiAdapter((network, networks), asp.ITermSet))
+            
+class TermSet2FixPoint(object):
+    interface.implements(IFixPoint)
+    component.adapts(asp.ITermSet)
+    
+    def __init__(self, termset):
+        self.__fixpoint = defaultdict(int)
+        for term in termset:
+            self.__fixpoint[term.arg(0)] = term.arg(1)
+        
+    def __getitem__(self, item):
+        return self.__fixpoint[item]
+                    
+class ClampingTerm2TermSet(asp.TermSetAdapter):
+    component.adapts(IClamping, asp.ITerm)
+    
+    def __init__(self, clamping, term):
+        super(ClampingTerm2TermSet, self).__init__()
+        
+        for var, val in clamping:
+            self._termset.add(asp.Term(term.pred, [var, val]))
+
+class ClampingTermInClampingList2TermSet(asp.TermSetAdapter):
+    component.adapts(IClamping, IClampingList, asp.ITerm)
+    
+    def __init__(self, clamping, clist, term):
+        super(ClampingTermInClampingList2TermSet, self).__init__()
+        
+        name = clist.clampings.index(clamping)
+        for var, val in clamping:
+            self._termset.add(asp.Term(term.pred, [name, var, val]))
+            
+class Clamping2TermSet(ClampingTerm2TermSet):
+    component.adapts(IClamping)
+    
+    def __init__(self, clamping):
+        super(Clamping2TermSet, self).__init__(clamping, asp.Term('clamped'))
+
+class ClampingInClampingList2TermSet(ClampingTermInClampingList2TermSet):
+    component.adapts(IClamping, IClampingList)
+    
+    def __init__(self, clamping, clist):
+        super(ClampingInClampingList2TermSet, self).__init__(clamping, clist, asp.Term('clamped'))
+
+class BooleLogicNetwork2FixPointer(object):
+    interface.implements(IBooleFixPointer)
+    component.adapts(IBooleLogicNetwork, potassco.IGringoGrounder, potassco.IClaspSolver)
+    
+    def __init__(self, network, gringo, clasp):
+        self.termset = asp.ITermSet(network)
+        self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+        
+    @asp.cleanrun
+    def fixpoint(self, clamping):
+        reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
+        termset = asp.ITermSet(clamping).union(self.termset)
+        programs = [termset.to_file(), reg.get_encoding('core.boole')]
+        
+        self.grover.run("#hide. #show eval(V,1).", grounder_args=programs)
+        
+        return IFixPoint(iter(self.grover).next())
