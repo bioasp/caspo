@@ -29,12 +29,9 @@ def main(args):
     networks_reader.read(args.networks)
     networks = core.ILogicalNetworkSet(networks_reader)
     
-    constraints = component.getUtility(control.IConstraintsReader)
-    constraints.read(args.constraints)
-    goals = component.getUtility(control.IGoalsReader)
-    goals.read(args.goals)
-    
-    multiscenario = component.getMultiAdapter((constraints, goals), control.IMultiScenario)
+    scenarios = component.getUtility(control.IMultiScenarioReader)
+    scenarios.read(args.scenarios)    
+    multiscenario = control.IMultiScenario(scenarios)
     
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISubsetMinimalSolver)
@@ -52,11 +49,8 @@ if __name__ == '__main__':
     parser.add_argument("networks",
                         help="family of networks in csv format (as the output from caspo-learn.py)")
 
-    parser.add_argument("constraints",
-                        help="side constraints in csv format")
-                        
-    parser.add_argument("goals",
-                        help="goals in csv format")
+    parser.add_argument("scenarios",
+                        help="intervention scenarios in csv format")
                         
     parser.add_argument("--solver", dest="solver", default="hclasp", choices=["hclasp","claspD"],
                         help="solver (Default to 'hclasp')", metavar="H")

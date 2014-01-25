@@ -20,42 +20,19 @@ from zope import interface
 from pyzcasp import asp
 from caspo import core
 
-class IConstraintsReader(core.ICsvReader):
-    """
-    Marker interface
-    """
-
-class IGoalsReader(core.ICsvReader):
-    """
-    Marker interface
-    """
-    
-class IConstraints(interface.Interface):
+class IMultiScenarioReader(core.ICsvReader):
     """
     """
-    
-    def iteritems(self):
-        """"""
-        
-class IGoals(interface.Interface):
-    """
-    """
-    
-    def iteritems(self):
-        """"""
-
-class IScenario(interface.Interface):
-    """
-    """
-    
-    constraints = interface.Attribute("Side constraints")
-    goals = interface.Attribute("Goals")
 
 class IMultiScenario(interface.Interface):
     """
     """
+    constraints = interface.Attribute("")
+    goals = interface.Attribute("")
+    exclude = interface.Attribute("")
     
-    scenarios = interface.Attribute("")
+    def __iter__(self):
+        """"""
 
 class IController(interface.Interface):
     """

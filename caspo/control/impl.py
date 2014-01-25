@@ -17,22 +17,24 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
 from zope import interface
+
+from caspo import core
+
 from interfaces import *
 
-class Constraints(frozenset):
-    interface.implements(IConstraints)
+class ConstraintsList(list):
+    interface.implements(core.IClampingList)
     
-    def __init__(self, literals=[]):
-        super(Constraints, self).__init__(frozenset(literals))
+    @property
+    def clampings(self):
+        return self
 
-class Goals(frozenset):
-    interface.implements(IGoals)
+class GoalsList(list):
+    interface.implements(core.IClampingList)
     
-    def __init__(self, literals=[]):
-        super(Goals, self).__init__(frozenset(literals))
-
-class Scenario(namedtuple('Scenario', ['constraints', 'goals'])):
-    interface.implements(IScenario)
+    @property
+    def clampings(self):
+        return self
 
 class Strategy(frozenset):
     interface.implements(IStrategy)

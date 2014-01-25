@@ -22,52 +22,37 @@ from caspo import core
 from interfaces import *
 from impl import *
 
-class ScenariosReaders2MultiScenario(object):
-    component.adapts(IConstraintsReader, IGoalsReader)
+class MultiScenarioReader2MultiScenario(object):
+    component.adapts(IMultiScenarioReader)
     interface.implements(IMultiScenario)
     
-    def __init__(self, constraints, goals):
-        super(ScenariosReaders2MultiScenario, self).__init__()
+    def __init__(self, scenarios):
+        super(MultiScenarioReader2MultiScenario, self).__init__()
         
-        self.scenarios = set()
-        self.__scenarios = dict()
-        self.exclude = set()
-        for c,g in zip(constraints, goals):
-            scenario = Scenario(c, g)
-            self.exclude = self.exclude.union(set(map(lambda (v,s): v, c)))
-            self.exclude = self.exclude.union(set(map(lambda (v,s): v, g)))
-            
-            if scenario not in self.scenarios:
-                scenario_name = len(self.scenarios)
-                self.__scenarios[scenario] = scenario_name
-                self.scenarios.add(scenario)
-                
-    def get_scenario_name(self, scenario):
-        return self.__scenarios[scenario]
-
-class ScenarioInMultiScenario2TermSet(asp.TermSetAdapter):
-    component.adapts(IScenario, IMultiScenario)
-    
-    def __init__(self, scenario, multiscenario):
-        super(ScenarioInMultiScenario2TermSet, self).__init__()
+        self.exclude = set(scenarios.constraints + scenarios.goals)
         
-        scenario_name = multiscenario.get_scenario_name(scenario)
-        constraints, goals = scenario
-        for v,s in constraints:
-            self._termset.add(asp.Term('constrained', [scenario_name, v, s]))
+        self.constraints = ConstraintsList()
+        self.goals = GoalsList()
+        
+        for c, g in scenarios:
+            self.constraints.append(c)
+            self.goals.append(g)
             
-        for v,s in goals:
-            self._termset.add(asp.Term('goal', [scenario_name, v, s]))
+    def __iter__(self):
+        for i, (constraints, goals) in enumerate(zip(self.constraints, self.goals)):
+            yield i, constraints, goals
 
 class MultiScenario2TermSet(asp.TermSetAdapter):
     component.adapts(IMultiScenario)
     
-    def __init__(self, multiscenario):
+    def __init__(self, ms):
         super(MultiScenario2TermSet, self).__init__()
         
-        for scenario in multiscenario.scenarios:
-            self._termset.add(asp.Term('scenario', [multiscenario.get_scenario_name(scenario)]))
-            self._termset = self._termset.union(component.getMultiAdapter((scenario, multiscenario), asp.ITermSet))
+        for i, c, g in ms:
+            self._termset.add(asp.Term('scenario', [i]))
+            
+            self._termset = self._termset.union(component.getMultiAdapter((c, ms.constraints, asp.Term('constrained')), asp.ITermSet))
+            self._termset = self._termset.union(component.getMultiAdapter((g, ms.goals, asp.Term('goal')), asp.ITermSet))
 
 class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
     component.adapts(core.ILogicalNetworkSet, IMultiScenario)
