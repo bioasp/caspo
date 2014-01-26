@@ -41,4 +41,9 @@ gsm.registerUtility(Factory(Ceil), IFactory, 'ceil')
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-reg.register_encoding('learn.full', root + '/encodings/encoding.lp')
+reg.register_encoding('learn.guess', root + '/encodings/guess.lp')
+reg.register_encoding('learn.fixpoint', root + '/encodings/fixpoint.lp')
+reg.register_encoding('learn.rss', root + '/encodings/residual.lp')
+reg.register_encoding('learn.opt', root + '/encodings/optimization.lp')
+reg.register_encoding('learn.rescale', root + '/encodings/rescale.lp')
+reg.register_encoding('learn.enum', root + '/encodings/enumeration.lp')

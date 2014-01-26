@@ -48,19 +48,19 @@ def main(args):
     learner.learn(args.fit, args.size)
     print "\n=========\n"
     for net in learner:
-        pointer = component.getMultiAdapter((net, grounder, solver), core.IBooleFixPointer)
-        n = 0
-        rss = 0.
-        for cond, obs in midas:    
-            fixpoint = pointer.fixpoint(cond)
-            for var, val in obs[point.time].iteritems():
-                rss += pow(fixpoint[var] - val, 2)
-                n += 1
+    #    pointer = component.getMultiAdapter((net, grounder, solver), core.IBooleFixPointer)
+    #    n = 0
+    #    rss = 0.
+    #    for cond, obs in midas:    
+    #        fixpoint = pointer.fixpoint(cond)
+    #        for var, val in obs[point.time].iteritems():
+    #            rss += pow(fixpoint[var] - val, 2)
+    #            n += 1
             
-        print rss / n        
-        #for var, clauses in net.mapping.iteritems():
-        #    print "%s -> %s" %(var, clauses)
-        #print "\n=========\n"
+    #    print rss / n
+        for var, clauses in net.mapping.iteritems():
+            print "%s -> %s" %(var, clauses)
+        print "\n=========\n"
 
 if __name__ == '__main__':
     

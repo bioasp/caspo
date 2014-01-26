@@ -82,16 +82,29 @@ class PotasscoLearner(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
+        self.clasp = clasp
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
         reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-        programs = [self.termset.to_file(), reg.get_encoding('learn.full')]
+
+        guess = reg.get_encoding('learn.guess')
+        fixpoint = reg.get_encoding('learn.fixpoint')
+        rss = reg.get_encoding('learn.rss')
         
-        self.grover.run("#hide. #show dnf/2.", grounder_args=programs, solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2"])
+        programs = [self.termset.to_file(), guess, fixpoint, rss, reg.get_encoding('learn.opt')]
+        self.grover.run("#hide. #show formula/2. #show dnf/2. #show clause/3.", grounder_args=programs, solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"])
         optimum = iter(self.grover).next()
-        tolerance = ['-c maxrss=%s' % int(optimum.score[0] + optimum.score[0]*fit), '-c maxsize=%s' % (optimum.score[1] + size)]
+        opt_size = optimum.score[1]
+        
+        programs = [self.termset.union(optimum).to_file(), fixpoint, rss, reg.get_encoding('learn.rescale')]
+        self.grover.run("#hide.", grounder_args=programs, solver_args=["--quiet=0,1"])
+        optimum = iter(self.grover).next()
+        opt_rss = optimum.score[0]
+        
+        programs = [self.termset.to_file(), guess, fixpoint, rss, reg.get_encoding('learn.enum')]
+        tolerance = ['-c maxrss=%s' % int(opt_rss + opt_rss*fit), '-c maxsize=%s' % (opt_size + size)]
         
         self.grover.run("#hide. #show dnf/2.", grounder_args=programs + tolerance, solver_args=["--opt-ignore", "0", "--conf=jumpy"])
         
