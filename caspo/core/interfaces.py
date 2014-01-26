@@ -101,19 +101,13 @@ class IClause(interface.Interface):
     def __str__(self):
         """"""
         
-class ILogicalNames(interface.Interface):
+class INames(interface.Interface):
     """
     """
     
     variables = interface.Attribute("")
     clauses = interface.Attribute("")
-    
-    def itervariables(self):
-        """"""
-    
-    def iterclauses(self, var):
-        """"""
-        
+
     def get_variable(self, name):
         """"""
         
@@ -125,6 +119,20 @@ class ILogicalNames(interface.Interface):
         
     def get_clause_name(self, clause):
         """"""
+
+        
+class ILogicalNames(INames):
+    """
+    """
+
+    def iterclauses(self, var):
+        """"""
+        
+class ILogicalSetNames(INames):
+    """
+    """
+    
+    formulas = interface.Attribute("")
                 
 class ILogicalNetwork(interface.Interface):
     """
@@ -167,13 +175,6 @@ class IFixPointer(interface.Interface):
 class IBooleFixPointer(IFixPointer):
     """
     """
-    
-class ILogicalMapping(interface.Interface):
-    """
-    """
-    
-    def iteritems(self):
-        """"""
         
 class ILogicalHeaderMapping(interface.Interface):
     """
@@ -189,8 +190,5 @@ class ILogicalNetworkSet(interface.Interface):
     
     networks = interface.Attribute("")
     
-    def get_formula_name(clauses):
-        """"""
-
     def __iter__(self):
         """"""

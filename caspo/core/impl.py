@@ -40,9 +40,6 @@ class Setup(object):
         
 class LogicalHeaderMapping(list):
     interface.implements(ILogicalHeaderMapping)
-
-class LogicalMapping(dict):
-    interface.implements(ILogicalMapping)
     
 class Literal(namedtuple('Literal', ['variable', 'signature'])):
     interface.implements(ILiteral)
@@ -81,7 +78,10 @@ class LogicalNetwork(object):
     
     def __init__(self, variables=[], mapping=None):
         self.variables = variables
-        self.mapping = mapping or defaultdict(set)
+        self.mapping = {}
+        if mapping:
+            for v, f in mapping.iteritems():
+                self.mapping[v] = frozenset(f)
 
 class Clamping(frozenset):
     interface.implements(IClamping)
