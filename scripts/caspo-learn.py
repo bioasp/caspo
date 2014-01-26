@@ -30,10 +30,7 @@ def main(args):
     graph = core.interfaces.IGraph(sif)
     
     midas = component.getUtility(learn.IMidasReader)
-    midas.read(args.midas)
-    if args.timepoint not in midas.times:
-        raise ValueError("The time-point %s does not exists in the MIDAS file at %s. Available time-points are: %s" % (args.timepoint, args.midas, list(midas.times)))
-        
+    midas.read(args.midas)        
     disc = component.createObject(args.discretization)
     disc.factor = args.factor
     point = learn.TimePoint(args.timepoint)

@@ -29,6 +29,9 @@ class Midas2Dataset(object):
     
     def __init__(self, midas, discretize, point):
         super(Midas2Dataset, self).__init__()
+        if point.time not in midas.times:
+            raise ValueError("The time-point %s does not exists in the MIDAS file. Available time-points are: %s" % (point.time, list(midas.times)))
+        
         self.cues = []
         self.readouts = []
         
@@ -82,7 +85,6 @@ class PotasscoLearner(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
-        self.clasp = clasp
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
                 
     @asp.cleanrun
