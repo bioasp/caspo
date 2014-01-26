@@ -82,8 +82,6 @@ class PotasscoLearner(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
-        self.gringo = gringo
-        self.clasp = clasp
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
                 
     @asp.cleanrun

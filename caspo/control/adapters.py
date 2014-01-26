@@ -65,7 +65,7 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
             if var not in multiscenario.exclude:
                 self._termset.add(asp.Term('candidate', [var]))
             
-        self._termset = self._termset.union(asp.interfaces.ITermSet(networks))
+        self._termset = self._termset.union(asp.ITermSet(networks))
         self._termset = self._termset.union(asp.ITermSet(multiscenario))    
 
 class PotasscoDisjunctiveController(object):
@@ -75,8 +75,6 @@ class PotasscoDisjunctiveController(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoDisjunctiveController, self).__init__()
         self.termset = termset
-        self.gringo = gringo
-        self.clasp = clasp
         self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver)
             
     @asp.cleanrun        
@@ -103,8 +101,6 @@ class PotasscoHeuristicController(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoHeuristicController, self).__init__()
         self.termset = termset
-        self.gringo = gringo
-        self.clasp = clasp
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
 
     @asp.cleanrun            
