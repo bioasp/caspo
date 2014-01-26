@@ -60,7 +60,7 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
     def __init__(self, networks, multiscenario):
         super(NetworksMultiScenario2TermSet, self).__init__()
         
-        names = component.getUtility(core.ILogicalNames)
+        names = component.getUtility(core.ILogicalSetNames)
         for var in names.variables:
             if var not in multiscenario.exclude:
                 self._termset.add(asp.Term('candidate', [var]))
