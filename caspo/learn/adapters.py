@@ -96,14 +96,17 @@ class PotasscoLearner(object):
         rss = reg.get_encoding('learn.rss')
         
         programs = [self.termset.to_file(), guess, fixpoint, rss, reg.get_encoding('learn.opt')]
-        self.grover.run("#hide. #show formula/2. #show dnf/2. #show clause/3.", grounder_args=programs, solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"])
-        optimum = iter(self.grover).next()
-        opt_size = optimum.score[1]
+        solutions = self.grover.run("#hide. #show formula/2. #show dnf/2. #show clause/3.", 
+                            grounder_args=programs, 
+                            solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"],
+                            lazy=False)
         
-        programs = [self.termset.union(optimum).to_file(), fixpoint, rss, reg.get_encoding('learn.rescale')]
-        self.grover.run(grounder_args=programs, solver_args=["--quiet=0,1"])
-        optimum = iter(self.grover).next()
-        opt_rss = optimum.score[0]
+        opt_size = solutions[0].score[1]
+        
+        programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, reg.get_encoding('learn.rescale')]
+        solutions = self.grover.run(grounder_args=programs, solver_args=["--quiet=0,1"], lazy=False)
+        
+        opt_rss = solutions[0].score[0]
         
         programs = [self.termset.to_file(), guess, fixpoint, rss, reg.get_encoding('learn.enum')]
         tolerance = ['-c maxrss=%s' % int(opt_rss + opt_rss*fit), '-c maxsize=%s' % (opt_size + size)]
