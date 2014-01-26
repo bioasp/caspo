@@ -133,6 +133,9 @@ class ILogicalSetNames(INames):
     """
     
     formulas = interface.Attribute("")
+    
+    def get_formula_name(self, formula):
+        """"""
                 
 class ILogicalNetwork(interface.Interface):
     """
