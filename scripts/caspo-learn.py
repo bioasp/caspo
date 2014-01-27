@@ -36,10 +36,11 @@ def main(args):
     point = learn.TimePoint(args.timepoint)
     
     dataset = component.getMultiAdapter((midas, disc, point), learn.IDataset)
+    zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
 
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISolver)
-    instance = component.getMultiAdapter((graph, dataset), asp.ITermSet)
+    instance = component.getMultiAdapter((zipgraph, dataset), asp.ITermSet)
         
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)

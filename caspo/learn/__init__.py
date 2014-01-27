@@ -34,6 +34,8 @@ gsm.registerAdapter(Midas2Dataset, (IMidasReader, IDiscretization, ITimePoint), 
 gsm.registerAdapter(Dataset2TermSet)
 gsm.registerAdapter(GraphDataset2TermSet)
 gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver), ILearner)
+gsm.registerAdapter(CompressedGraph)
+
 gsm.registerUtility(MidasReader(), IMidasReader)
 gsm.registerUtility(Factory(Round), IFactory, 'round')
 gsm.registerUtility(Factory(Floor), IFactory, 'floor')
