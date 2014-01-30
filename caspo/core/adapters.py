@@ -160,7 +160,7 @@ class LogicalNetworksReader2LogicalNetworkSet(object):
     
     def __init__(self, reader):
         super(LogicalNetworksReader2LogicalNetworkSet, self).__init__()
-        names = component.getUtility(ILogicalSetNames)
+        names = component.getUtility(ILogicalNames)
         names.load(reader.graph)
         
         self.networks = set()
@@ -171,39 +171,26 @@ class LogicalNetworksReader2LogicalNetworkSet(object):
     def __iter__(self):
         return iter(self.networks)
 
-class LogicalNetworkInSet2TermSet(asp.TermSetAdapter):
-    component.adapts(ILogicalNetwork, ILogicalNetworkSet)
-    
-    def __init__(self, network, networkset):
-        super(LogicalNetworkInSet2TermSet, self).__init__()
-        
-        names = component.getUtility(ILogicalSetNames)
-        
-        for var, formula in network.mapping.iteritems():
-            formula_name = names.get_formula_name(formula)
-            self._termset.add(asp.Term('formula', [var, formula_name]))
-            for clause in formula:
-                clause_name = names.get_clause_name(clause)
-                self._termset.add(asp.Term('dnf', [formula_name, clause_name]))
-                for lit in clause:
-                    self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
-                                
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNetworkSet)
     
     def __init__(self, networks):
         super(LogicalNetworkSet2TermSet, self).__init__()
         
-        names = component.getUtility(ILogicalSetNames)
+        names = component.getUtility(ILogicalNames)
         for var in names.variables:
             self._termset.add(asp.Term('variable', [var]))
         
         for i, network in enumerate(networks):
-            for formula in network.mapping.itervalues():
-                self._termset.add(asp.Term('model', [i, names.get_formula_name(formula)]))
+            for var,formula in network.mapping.iteritems():
+                formula_name = names.get_formula_name(formula)
+                self._termset.add(asp.Term('formula', [i, var, names.get_formula_name(formula)]))
+                for clause in formula:
+                    clause_name = names.get_clause_name(clause)
+                    self._termset.add(asp.Term('dnf', [formula_name, clause_name]))
+                    for lit in clause:
+                        self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
                 
-            self._termset = self._termset.union(component.getMultiAdapter((network, networks), asp.ITermSet))
-            
 class TermSet2FixPoint(object):
     interface.implements(IFixPoint)
     component.adapts(asp.ITermSet)
@@ -257,10 +244,11 @@ class BooleLogicNetwork2FixPointer(object):
         
     @asp.cleanrun
     def fixpoint(self, clamping):
-        reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+
         termset = asp.ITermSet(clamping).union(self.termset)
-        programs = [termset.to_file(), reg.get_encoding('core.boole')]
+        programs = [termset.to_file(), encodings('caspo.core.boole')]
         
-        self.grover.run("#hide. #show eval(V,1).", grounder_args=programs)
+        models = self.grover.run("#hide. #show eval(V,1).", grounder_args=programs, lazy=False)
         
-        return IFixPoint(iter(self.grover).next())
+        return IFixPoint(models[0])

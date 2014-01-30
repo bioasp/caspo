@@ -83,6 +83,9 @@ class LogicalNetwork(object):
             for v, f in mapping.iteritems():
                 self.mapping[v] = frozenset(f)
 
+class LogicalNetworkSet(set):
+    interface.implements(ILogicalNetworkSet)
+
 class Clamping(frozenset):
     interface.implements(IClamping)
     

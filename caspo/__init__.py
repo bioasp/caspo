@@ -15,9 +15,3 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
-
-from pyzcasp import asp
-from zope.component import getGlobalSiteManager
-
-gsm = getGlobalSiteManager()
-gsm.registerUtility(asp.EncodingRegistry(), asp.IEncodingRegistry, 'caspo')

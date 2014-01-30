@@ -100,13 +100,13 @@ class IClause(interface.Interface):
         
     def __str__(self):
         """"""
-        
-class INames(interface.Interface):
-    """
-    """
     
+class ILogicalNames(interface.Interface):
+    """
+    """
     variables = interface.Attribute("")
     clauses = interface.Attribute("")
+    formulas = interface.Attribute("")
 
     def get_variable(self, name):
         """"""
@@ -119,23 +119,12 @@ class INames(interface.Interface):
         
     def get_clause_name(self, clause):
         """"""
-
         
-class ILogicalNames(INames):
-    """
-    """
-
-    def iterclauses(self, var):
-        """"""
-        
-class ILogicalSetNames(INames):
-    """
-    """
-    
-    formulas = interface.Attribute("")
-    
     def get_formula_name(self, formula):
         """"""
+        
+    def iterclauses(self, var):
+        """"""    
                 
 class ILogicalNetwork(interface.Interface):
     """

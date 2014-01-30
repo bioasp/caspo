@@ -94,49 +94,25 @@ class LogicalNetworksReader(CsvReader):
     def __iter__(self):
         return iter(self.networks)
         
-class Names(object):
-    interface.implements(INames)
-    
-    def __init__(self):
-        self._variables = list()
-        self._clauses_seq = list()
-        self._clauses = dict()
-        
-    def load(self, graph):
-        self._variables = list(graph.nodes)
-                
-    def get_variable(self, name):
-        return self._variables[name]
-        
-    def get_clause(self, name):
-        return self._clauses_seq[name]
-        
-    def get_variable_name(self, variable):
-        return self._variables.index(variable)
-        
-    def get_clause_name(self, clause):
-        return self._clauses[clause]
-
-    @property
-    def variables(self):
-        return self._variables
-        
-    @property
-    def clauses(self):
-        return self._clauses_seq
-
-
-class LogicalNames(Names):
+class LogicalNames(object):
     interface.implements(ILogicalNames)
     
     def __init__(self):
-        super(LogicalNames, self).__init__()
+        self.__reset()
+
+    def __reset(self):
+        self.__variables = list()
+        self.__clauses_seq = list()
+        self.__clauses = dict()    
         self.__mappings = defaultdict(list)
-    
-    def load(self, graph):
-        super(LogicalNames, self).load(graph)
+        self.__formulas_seq = list()
+        self.__formulas = dict()
         
-        for v in self._variables:
+    def load(self, graph):
+        self.__reset()
+        self.__variables = list(graph.nodes)
+        
+        for v in self.__variables:
             preds = list(graph.predecessors(v))
             l = len(preds)
             for litset in chain.from_iterable(combinations(preds, r+1) for r in xrange(l)):
@@ -152,42 +128,49 @@ class LogicalNames(Names):
                         
                 if valid:
                     clause = Clause(literals)
-                    if clause not in self._clauses:
-                        clause_name = len(self._clauses_seq)
-                        self._clauses_seq.append(clause)
-                        self._clauses[clause] = clause_name
+                    if clause not in self.__clauses:
+                        clause_name = len(self.__clauses_seq)
+                        self.__clauses_seq.append(clause)
+                        self.__clauses[clause] = clause_name
                     
                     self.__mappings[v].append(clause)
        
 
     def iterclauses(self, var):
         for clause in self.__mappings[var]:
-            yield self._clauses[clause], clause
-
-class LogicalSetNames(Names):
-    interface.implements(ILogicalSetNames)
-    
-    def __init__(self):
-        super(LogicalSetNames, self).__init__()
-        self.__formulas_seq = list()
-        self.__formulas = dict()
-        
+            yield self.__clauses[clause], clause
+            
     def add(self, formulas):
         for formula in formulas:
             if formula not in self.__formulas:
                 formula_name = len(self.__formulas_seq)
                 self.__formulas_seq.append(formula)
                 self.__formulas[formula] = formula_name
+
+    def get_variable(self, name):
+        return self.__variables[name]
         
-            for clause in formula:
-                if clause not in self._clauses:
-                    clause_name = len(self._clauses_seq)
-                    self._clauses_seq.append(clause)
-                    self._clauses[clause] = clause_name
+    def get_clause(self, name):
+        return self.__clauses_seq[name]
+        
+    def get_variable_name(self, variable):
+        return self.__variables.index(variable)
+        
+    def get_clause_name(self, clause):
+        return self.__clauses[clause]
+        
+    def get_formula_name(self, formula):
+        return self.__formulas[formula]
+
+    @property
+    def variables(self):
+        return self.__variables
+        
+    @property
+    def clauses(self):
+        return self.__clauses_seq
             
     @property
     def formulas(self):
         return self.__formulas_seq
         
-    def get_formula_name(self, formula):
-        return self.__formulas[formula]

@@ -20,7 +20,7 @@ from interfaces import *
 from adapters import *
 from utilities import *
 
-from pyzcasp import asp
+from pyzcasp import asp, potassco
 
 from zope.component import getGlobalSiteManager
 from zope import interface
@@ -34,7 +34,6 @@ gsm.registerAdapter(LogicalNames2TermSet)
 gsm.registerAdapter(LogicalNetwork2TermSet)
 gsm.registerAdapter(TermSet2LogicalNetwork)
 gsm.registerAdapter(LogicalNetworksReader2LogicalNetworkSet)
-gsm.registerAdapter(LogicalNetworkInSet2TermSet)
 gsm.registerAdapter(LogicalNetworkSet2TermSet)
 gsm.registerAdapter(TermSet2FixPoint)
 gsm.registerAdapter(ClampingTerm2TermSet)
@@ -46,9 +45,8 @@ gsm.registerAdapter(BooleLogicNetwork2FixPointer)
 gsm.registerUtility(SifReader(), ISifReader)
 gsm.registerUtility(LogicalNetworksReader(), ILogicalNetworksReader)
 gsm.registerUtility(LogicalNames(), ILogicalNames)
-gsm.registerUtility(LogicalSetNames(), ILogicalSetNames)
 
 root = __file__.rsplit('/', 1)[0]
-reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-reg.register_encoding('core.boole', root + '/encodings/boole.lp')
+reg = component.getUtility(asp.IEncodingRegistry)
+reg.register('caspo.core.boole', root + '/encodings/boole.lp', potassco.IGringoGrounder)
 
