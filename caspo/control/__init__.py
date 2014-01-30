@@ -21,7 +21,7 @@ from adapters import *
 from impl import *
 
 from zope import component
-from pyzcasp import asp
+from pyzcasp import asp, potassco
 
 gsm = component.getGlobalSiteManager()
 
@@ -35,6 +35,6 @@ gsm.registerAdapter(TermSet2Strategy)
 gsm.registerUtility(MultiScenarioReader(), IMultiScenarioReader)
 
 root = __file__.rsplit('/', 1)[0]
-reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-reg.register_encoding('control.full', root + '/encodings/encoding.lp')
-reg.register_encoding('control.heuristic', root + '/encodings/heuristic.lp')
+reg = component.getUtility(asp.IEncodingRegistry)
+reg.register('caspo.control.full', root + '/encodings/encoding.lp', potassco.IGringoGrounder)
+reg.register('caspo.control.heuristic', root + '/encodings/heuristic.lp', potassco.IGringoGrounder)

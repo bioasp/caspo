@@ -60,7 +60,7 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
     def __init__(self, networks, multiscenario):
         super(NetworksMultiScenario2TermSet, self).__init__()
         
-        names = component.getUtility(core.ILogicalSetNames)
+        names = component.getUtility(core.ILogicalNames)
         for var in names.variables:
             if var not in multiscenario.exclude:
                 self._termset.add(asp.Term('candidate', [var]))
@@ -75,13 +75,14 @@ class PotasscoDisjunctiveController(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoDisjunctiveController, self).__init__()
         self.termset = termset
+        self.gringo = gringo
         self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver)
             
     @asp.cleanrun        
     def control(self, size=0):
-        reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
         
-        programs = [self.termset.to_file(), reg.get_encoding('control.full')]
+        programs = [self.termset.to_file(), encodings('caspo.control.full')]
         
         self.grover.optimize = asp.TermSet([asp.Term('optimize',[1,1,asp.NativeAtom('incl')])])
         stdin="""
@@ -105,14 +106,16 @@ class PotasscoHeuristicController(object):
 
     @asp.cleanrun            
     def control(self, size=0):
-        reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-
-        programs = [self.termset.to_file(), reg.get_encoding('control.full'), reg.get_encoding('control.heuristic')]
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+        
+        programs = [self.termset.to_file(), encodings('caspo.control.full'), encodings('caspo.control.heuristic')]
         stdin = """
         #hide.
         #show intervention/2.
         """     
-        self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=['0', '-e record', '--opt-ignore'])
+        self.grover.run(stdin, 
+            grounder_args=programs + ['-c maxsize=%s' % size], 
+            solver_args=['0', '-e record', '--opt-ignore'])
 
     def __iter__(self):
         for ts in self.grover:
