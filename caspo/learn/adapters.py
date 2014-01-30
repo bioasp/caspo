@@ -82,7 +82,7 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
 
 class PotasscoLearner(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver)
-    interface.implements(ILearner)
+    interface.implements(ILearner, core.ILogicalNetworkSet)
     
     def __init__(self, termset, gringo, clasp):
         super(PotasscoLearner, self).__init__()
@@ -91,13 +91,16 @@ class PotasscoLearner(object):
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
-        reg = component.getUtility(asp.IEncodingRegistry, 'caspo')
-
-        guess = reg.get_encoding('learn.guess')
-        fixpoint = reg.get_encoding('learn.fixpoint')
-        rss = reg.get_encoding('learn.rss')
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
         
-        programs = [self.termset.to_file(), guess, fixpoint, rss, reg.get_encoding('learn.opt')]
+        guess = encodings('caspo.learn.guess')
+        fixpoint = encodings('caspo.learn.fixpoint')
+        rss = encodings('caspo.learn.rss')
+        opt = encodings('caspo.learn.opt')
+        rescale = encodings('caspo.learn.rescale')
+        enum = encodings('caspo.learn.enum')
+        
+        programs = [self.termset.to_file(), guess, fixpoint, rss, opt]
         solutions = self.grover.run("#hide. #show formula/2. #show dnf/2. #show clause/3.", 
                             grounder_args=programs, 
                             solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"],
@@ -105,15 +108,17 @@ class PotasscoLearner(object):
         
         opt_size = solutions[0].score[1]
         
-        programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, reg.get_encoding('learn.rescale')]
+        programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, rescale]
         solutions = self.grover.run(grounder_args=programs, solver_args=["--quiet=0,1"], lazy=False)
         
         opt_rss = solutions[0].score[0]
         
-        programs = [self.termset.to_file(), guess, fixpoint, rss, reg.get_encoding('learn.enum')]
+        programs = [self.termset.to_file(), guess, fixpoint, rss, enum]
         tolerance = ['-c maxrss=%s' % int(opt_rss + opt_rss*fit), '-c maxsize=%s' % (opt_size + size)]
         
-        self.grover.run("#hide. #show dnf/2.", grounder_args=programs + tolerance, solver_args=["--opt-ignore", "0", "--conf=jumpy"])
+        self.grover.run("#hide. #show dnf/2.", 
+                grounder_args=programs + tolerance, 
+                solver_args=["--opt-ignore", "0", "--conf=jumpy"])
         
     def __iter__(self):
         for termset in self.grover:
@@ -193,3 +198,58 @@ class CompressedGraph(core.GraphAdapter):
             self._forward[source].remove((node, s))
 
         del self._backward[node]
+
+class BooleLogicNetwork2LogicalBehavior(object):
+    component.adapts(core.IBooleLogicNetwork)
+    interface.implements(ILogicalBehavior)
+    
+    def __init__(self, network):
+        self.representative = network
+        self.networks = set()
+        
+class LogicalNetworkSet2LogicalBehaviorSet(object):
+    component.adapts(core.ILogicalNetworkSet, core.IGraph, core.ISetup)
+    interface.implements(ILogicalBehaviorSet)
+    
+    def __init__(self, networks, graph, setup):
+        self.behaviors = set()
+        
+        grounder = component.getUtility(asp.IGrounder)
+        solver = component.getUtility(asp.ISolver)    
+        self.grover = component.getMultiAdapter((grounder, solver), asp.IGrounderSolver)
+
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(grounder)
+        self.io = encodings('caspo.learn.io')
+        
+        self.setupts = asp.ITermSet(setup)
+
+        names = component.getUtility(core.ILogicalNames)        
+        for network in networks:
+            names.add(network.mapping.itervalues())
+            self.add(ILogicalBehavior(network))
+    
+    @asp.cleanrun        
+    def add(self, behavior):
+        found = False
+        for b in self.behaviors:
+            if self.__io_eq__(b, behavior):
+                b.networks.add(behavior)
+                found = True
+                break
+                
+        if not found:
+            self.behaviors.add(behavior)
+    
+    def __io_eq__(self, e, n):
+        pair = core.LogicalNetworkSet([e.representative, n.representative])
+        termset = self.setupts.union(asp.ITermSet(pair))
+        
+        result = self.grover.run(grounder_args=[termset.to_file(), self.io], lazy=False)
+        return not self.grover.solver.SATISFIABLE
+        
+    def __iter__(self):
+        return iter(self.behaviors)
+        
+    def __len__(self):
+        return len(self.behaviors)
+        

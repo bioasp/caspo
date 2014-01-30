@@ -44,20 +44,22 @@ def main(args):
         
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)
-    print "\n=========\n"
-    for net in learner:
-    #    pointer = component.getMultiAdapter((net, grounder, solver), core.IBooleFixPointer)
-    #    n = 0
-    #    rss = 0.
-    #    for cond, obs in midas:    
-    #        fixpoint = pointer.fixpoint(cond)
-    #        for var, val in obs[point.time].iteritems():
-    #            rss += pow(fixpoint[var] - val, 2)
-    #            n += 1
+    print "Models %s" % solver.__getstats__()['Models']
+    behaviors =  component.getMultiAdapter((learner, zipgraph, dataset.setup), learn.ILogicalBehaviorSet)
+    
+    print "Behaviors %s" % len(behaviors)
+    for io in behaviors:
+        print 1 + len(io.networks)
+        pointer = component.getMultiAdapter((io.representative, grounder, solver), core.IBooleFixPointer)
+        n = 0
+        rss = 0.
+        for cond, obs in midas:    
+            fixpoint = pointer.fixpoint(cond)
+            for var, val in obs[point.time].iteritems():
+                rss += pow(fixpoint[var] - val, 2)
+                n += 1
             
-    #    print rss / n
-        for var, clauses in net.mapping.iteritems():
-            print "%s -> %s" %(var, clauses)
+        print rss / n
         print "\n=========\n"
 
 if __name__ == '__main__':

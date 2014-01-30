@@ -65,3 +65,17 @@ class ILearner(interface.Interface):
 
     def __iter__(self):
         """"""
+        
+class ILogicalBehavior(core.IBooleLogicNetwork):
+    """
+    """
+    
+    representative = interface.Attribute("")
+    networks = interface.Attribute("")
+
+class ILogicalBehaviorSet(interface.Interface):
+    """
+    """
+    
+    behaviors = interface.Attribute("")
+    
