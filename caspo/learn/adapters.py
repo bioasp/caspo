@@ -245,7 +245,7 @@ class LogicalNetworkSet2LogicalBehaviorSet(object):
         termset = self.setupts.union(asp.ITermSet(pair))
         
         result = self.grover.run(grounder_args=[termset.to_file(), self.io], lazy=False)
-        return not self.grover.solver.SATISFIABLE
+        return self.grover.solver.unsat
         
     def __iter__(self):
         return iter(self.behaviors)
