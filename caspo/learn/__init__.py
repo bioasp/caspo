@@ -51,4 +51,6 @@ reg.register('caspo.learn.rss', root + '/encodings/residual.lp', potassco.IGring
 reg.register('caspo.learn.opt', root + '/encodings/optimization.lp', potassco.IGringoGrounder)
 reg.register('caspo.learn.rescale', root + '/encodings/rescale.lp', potassco.IGringoGrounder)
 reg.register('caspo.learn.enum', root + '/encodings/enumeration.lp', potassco.IGringoGrounder)
-reg.register('caspo.learn.io', root + '/encodings/behaviors.lp', asp.IGrounder)
+reg.register('caspo.learn.guess-clamping', root + '/encodings/guess_clamping.lp', potassco.IGringoGrounder)
+reg.register('caspo.learn.fixpoint-models', root + '/encodings/fixpoint_models.lp', potassco.IGringoGrounder)
+reg.register('caspo.learn.diff', root + '/encodings/diff.lp', potassco.IGringoGrounder)

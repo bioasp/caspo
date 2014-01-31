@@ -44,9 +44,12 @@ def main(args):
         
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)
-    print "Models %s" % solver.__getstats__()['Models']
-    behaviors =  component.getMultiAdapter((learner, zipgraph, dataset.setup), learn.ILogicalBehaviorSet)
     
+    print "Models %s" % solver.__getstats__()['Models']
+    behaviors =  component.getMultiAdapter((learner, dataset.setup, grounder, solver), learn.ILogicalBehaviorSet)
+    clampings = list(behaviors.core())
+    print len(clampings) / (float)(2**(len(behaviors.active_cues)))
+
     print "Behaviors %s" % len(behaviors)
     for io in behaviors:
         print 1 + len(io.networks)
