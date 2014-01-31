@@ -41,6 +41,7 @@ gsm.registerAdapter(ClampingTermInClampingList2TermSet)
 gsm.registerAdapter(Clamping2TermSet)
 gsm.registerAdapter(ClampingInClampingList2TermSet)
 gsm.registerAdapter(BooleLogicNetwork2FixPointer)
+gsm.registerAdapter(TermSet2Clamping)
 
 gsm.registerUtility(SifReader(), ISifReader)
 gsm.registerUtility(LogicalNetworksReader(), ILogicalNetworksReader)

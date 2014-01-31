@@ -138,6 +138,9 @@ class IClamping(interface.Interface):
     """
     """
     
+    def __iter__(self):
+        """"""
+    
 class IClampingList(interface.Interface):
     """
     """

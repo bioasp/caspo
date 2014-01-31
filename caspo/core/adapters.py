@@ -252,3 +252,19 @@ class BooleLogicNetwork2FixPointer(object):
         models = self.grover.run("#hide. #show eval(V,1).", grounder_args=programs, lazy=False)
         
         return IFixPoint(models[0])
+
+class TermSet2Clamping(object):
+    component.adapts(asp.ITermSet)
+    interface.implements(IClamping)
+    
+    def __init__(self, termset):
+        literals = []
+        for term in termset:
+            if term.pred == 'clamped':
+                literals.append(Literal(term.arg(0), term.arg(1)))
+                
+        self.clamping = Clamping(literals)
+        
+    def __iter__(self):
+        return iter(self.clamping)
+        
