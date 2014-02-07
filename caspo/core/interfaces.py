@@ -151,26 +151,7 @@ class IBooleLogicNetwork(ILogicalNetwork):
     """
     Boolean logic network
     """
-    
-class IFixPoint(interface.Interface):
-    """
-    """
-    
-    def __getitem__(self, item):
-        """"""
-        
-class IFixPointer(interface.Interface):
-    """
-    """
-    
-    def fixpoint(self, clamping):
-        """
-        """
-
-class IBooleFixPointer(IFixPointer):
-    """
-    """
-        
+            
 class ILogicalHeaderMapping(interface.Interface):
     """
     """
@@ -187,3 +168,7 @@ class ILogicalNetworkSet(interface.Interface):
     
     def __iter__(self):
         """"""
+        
+class IBooleLogicNetworkSet(ILogicalNetworkSet):
+    """
+    """

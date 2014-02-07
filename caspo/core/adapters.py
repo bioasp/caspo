@@ -139,12 +139,10 @@ class TermSet2LogicalNetwork(object):
         super(TermSet2LogicalNetwork, self).__init__()
         
         names = component.getUtility(ILogicalNames)
-        mapping = defaultdict(set)
+        self._mapping = defaultdict(set)
         for term in termset:
             if term.pred == 'dnf':
-                mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
-                
-        self._network = LogicalNetwork(names.variables, mapping)
+                self._mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
         
     @property
     def variables(self):
@@ -153,7 +151,20 @@ class TermSet2LogicalNetwork(object):
     @property
     def mapping(self):
         return self._network.mapping
+
+class TermSet2BooleLogicNetwork(TermSet2LogicalNetwork):
+    component.adapts(asp.ITermSet)
+    interface.implements(IBooleLogicNetwork)
+    
+    def __init__(self, termset):
+        super(TermSet2BooleLogicNetwork, self).__init__(termset)
+        names = component.getUtility(ILogicalNames)        
+        self._network = BooleLogicNetwork(names.variables, self._mapping)
         
+    def prediction(self, var, clamping):
+        return self._network.prediction(var, clamping)
+
+
 class LogicalNetworksReader2LogicalNetworkSet(object):
     component.adapts(ILogicalNetworksReader)
     interface.implements(ILogicalNetworkSet)
@@ -190,18 +201,6 @@ class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
                     self._termset.add(asp.Term('dnf', [formula_name, clause_name]))
                     for lit in clause:
                         self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
-                
-class TermSet2FixPoint(object):
-    interface.implements(IFixPoint)
-    component.adapts(asp.ITermSet)
-    
-    def __init__(self, termset):
-        self.__fixpoint = defaultdict(int)
-        for term in termset:
-            self.__fixpoint[term.arg(0)] = term.arg(1)
-        
-    def __getitem__(self, item):
-        return self.__fixpoint[item]
                     
 class ClampingTerm2TermSet(asp.TermSetAdapter):
     component.adapts(IClamping, asp.ITerm)
@@ -233,25 +232,6 @@ class ClampingInClampingList2TermSet(ClampingTermInClampingList2TermSet):
     
     def __init__(self, clamping, clist):
         super(ClampingInClampingList2TermSet, self).__init__(clamping, clist, asp.Term('clamped'))
-
-class BooleLogicNetwork2FixPointer(object):
-    interface.implements(IBooleFixPointer)
-    component.adapts(IBooleLogicNetwork, potassco.IGringoGrounder, potassco.IClaspSolver)
-    
-    def __init__(self, network, gringo, clasp):
-        self.termset = asp.ITermSet(network)
-        self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
-        
-    @asp.cleanrun
-    def fixpoint(self, clamping):
-        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
-
-        termset = asp.ITermSet(clamping).union(self.termset)
-        programs = [termset.to_file(), encodings('caspo.core.boole')]
-        
-        models = self.grover.run("#hide. #show eval(V,1).", grounder_args=programs, lazy=False)
-        
-        return IFixPoint(models[0])
 
 class TermSet2Clamping(object):
     component.adapts(asp.ITermSet)

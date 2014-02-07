@@ -82,9 +82,40 @@ class LogicalNetwork(object):
         if mapping:
             for v, f in mapping.iteritems():
                 self.mapping[v] = frozenset(f)
+                
+class BooleLogicNetwork(LogicalNetwork):
+    interface.implements(IBooleLogicNetwork)
+    
+    def prediction(self, var, clamping):
+        dc = dict(clamping)
+        if var in dc:
+            return (dc[var] == 1 and 1) or 0
+        elif var not in self.mapping:
+            return 0
+        else:
+            value = 0
+            for clause in self.mapping[var]:
+                cv = 1
+                for src, sign in clause:
+                    if sign == 1:
+                        cv = cv and self.prediction(src, clamping)
+                    else:
+                        cv = cv and not self.prediction(src, clamping)
+                
+                    if not cv:
+                        break
+                    
+                value = value or cv
+                if value:
+                    break
+                
+            return value        
 
 class LogicalNetworkSet(set):
     interface.implements(ILogicalNetworkSet)
+
+class BooleLogicNetworkSet(LogicalNetworkSet):
+    interface.implements(IBooleLogicNetworkSet)
 
 class Clamping(frozenset):
     interface.implements(IClamping)
