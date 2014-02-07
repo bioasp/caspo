@@ -82,15 +82,18 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
 
 class PotasscoLearner(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver)
-    interface.implements(ILearner, core.ILogicalNetworkSet)
+    interface.implements(ILearner, core.IBooleLogicNetworkSet)
     
     def __init__(self, termset, gringo, clasp):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+        self._networks = set()
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
+        self._networks = set()
+        self._len_networks = 0
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
         
         guess = encodings('caspo.learn.guess')
@@ -119,12 +122,23 @@ class PotasscoLearner(object):
         self.grover.run("#hide. #show dnf/2.", 
                 grounder_args=programs + tolerance, 
                 solver_args=["--opt-ignore", "0", "--conf=jumpy"])
+                
+        self._len_networks = self.grover.solver.__getstats__()['Models']
+                
+    def __len__(self):
+        return self._len_networks
         
     def __iter__(self):
-        for termset in self.grover:
-            network = core.ILogicalNetwork(termset)
-            interface.directlyProvides(network, core.IBooleLogicNetwork)
-            yield network
+        if self._networks:
+            for network in self._networks:
+                yield network
+        else:
+            names = component.getUtility(core.ILogicalNames)
+            for termset in self.grover:
+                network = core.IBooleLogicNetwork(termset)
+                names.add(network.mapping.itervalues())
+                self._networks.add(network)
+                yield network
             
 class CompressedGraph(core.GraphAdapter):
     component.adapts(core.IGraph, core.ISetup)
@@ -207,16 +221,116 @@ class BooleLogicNetwork2LogicalBehavior(object):
         self.representative = network
         self.networks = set()
         
+    def __len__(self):
+        return 1 + len(self.networks)
+        
+    @property
+    def variables(self):
+        return self.representative.variables
+
+    @property
+    def mapping(self):
+        return self.representative.mapping
+        
+    def prediction(self, var, clamping):
+        return self.representative.prediction(var, clamping)
+        
 class LogicalNetworkSet2LogicalBehaviorSet(object):
-    component.adapts(core.ILogicalNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver)
-    interface.implements(ILogicalBehaviorSet)
+    component.adapts(core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver)
+    interface.implements(ILogicalBehaviorSet, core.IBooleLogicNetworkSet)
     
     def __init__(self, networks, setup, grounder, solver):
         self.behaviors = set()
+        self.networks = networks
+        
         self.grover = component.getMultiAdapter((grounder, solver), asp.IGrounderSolver)
         self.setup = setup
-        self.__io_discovery__(networks)
+        self.__io_discovery__()
 
+    @asp.cleanrun
+    def __io_discovery__(self):
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+        clamping = encodings('caspo.learn.guess-clamping')
+        fixpoint = encodings('caspo.learn.fixpoint-models')
+        diff = encodings('caspo.learn.diff')
+        stdin = """
+        :- not diff.
+        """
+        setup = asp.ITermSet(self.setup)
+        for network in self.networks:
+            found = False
+            for eb in self.behaviors:
+                pair = core.BooleLogicNetworkSet([eb.representative, network])
+                
+                instance = setup.union(asp.ITermSet(pair))
+                self.grover.run(stdin, 
+                        grounder_args=[instance.to_file(), clamping, fixpoint, diff], 
+                        solver_args=["--quiet"])
+                    
+                if self.grover.solver.unsat:
+                    eb.networks.add(network)
+                    found = True
+                    break
+
+            if not found:
+                self.behaviors.add(ILogicalBehavior(network))
+        
+    def __iter__(self):
+        return iter(self.behaviors)
+        
+    def __len__(self):
+        return len(self.networks)
+
+class BooleLogicNetworkSet2Analytics(object):
+    component.adapts(core.IBooleLogicNetworkSet, asp.IGrounder, asp.ISolver)
+    interface.implements(IAnalytics)
+    
+    def __init__(self, networks, grounder, solver):
+        self.networks = networks
+        self.grounder = grounder
+        self.solver = solver
+        
+        self.__occu = defaultdict(lambda: defaultdict(int))
+        self.nmodels = 0
+        
+        for network in networks:
+            self.nmodels += 1
+            for target, formula in network.mapping.iteritems():
+                for clause in formula:
+                    self.__occu[target][clause] += 1
+        
+    def frequencies(self):
+        for target, clauses in self.__occu.iteritems():
+            for clause, occu in clauses.iteritems():
+                yield target, clause, occu / float(self.nmodels)
+        
+    def frequency(self, clause, target):
+        return self.__occu[target][clause] / float(self.nmodels)
+        
+    @asp.cleanrun
+    def combinatorics(self):
+        pass
+
+
+class LogicalNetworkSet2LogicalPredictorSet(object):
+    component.adapts(core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver)
+    interface.implements(ILogicalPredictorSet)
+    
+    
+    def __init__(self, networks, setup, grounder, solver):
+        self.networks = networks
+        self.setup = setup
+        self.grover = component.getMultiAdapter((grounder, solver), asp.IGrounderSolver)
+        
+        cues = set(self.setup.stimuli + self.setup.inhibitors)
+        self.active_cues = set()
+        for network in self.networks:
+            for formula in network.mapping.itervalues():
+                for clause in formula:
+                    self.active_cues = self.active_cues.union(map(lambda (l,s): l, filter(lambda (l,s): l in cues, clause)))
+    
+        self.inactive_cues = cues.difference(self.active_cues)
+        
     @asp.cleanrun
     def core(self):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
@@ -229,56 +343,25 @@ class LogicalNetworkSet2LogicalBehaviorSet(object):
         #hide.
         #show clamped/2.
         """
-        representatives = core.LogicalNetworkSet(map(lambda b: b.representative, self.behaviors))
-
         setup = asp.ITermSet(self.setup)
-        instance = setup.union(asp.ITermSet(representatives))
+        instance = setup.union(asp.ITermSet(self.networks))
         self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], solver_args=["0"])
-        
-        cues = set(self.setup.stimuli + self.setup.inhibitors)
-        self.active_cues = set()
-        for behavior in self.behaviors:
-            for formula in behavior.representative.mapping.itervalues():
-                for clause in formula:
-                    self.active_cues = self.active_cues.union(map(lambda (l,s): l, filter(lambda (l,s): l in cues, clause)))
-    
-        self.inactive_cues = cues.difference(self.active_cues)
-        
+                
         for termset in self.grover:                    
             yield core.IClamping(termset)
         
-    @asp.cleanrun
-    def __io_discovery__(self, networks):
-        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
-        clamping = encodings('caspo.learn.guess-clamping')
-        fixpoint = encodings('caspo.learn.fixpoint-models')
-        diff = encodings('caspo.learn.diff')
-        stdin = """
-        :- not diff.
-        """
-        setup = asp.ITermSet(self.setup)
-        names = component.getUtility(core.ILogicalNames)        
-        for network in networks:
-            names.add(network.mapping.itervalues())
-            nb = ILogicalBehavior(network)
+    def mse(self, midas, time, wfn=None):
+        if not wfn:
+            wfn = lambda net: 1
             
-            found = False
-            for eb in self.behaviors:
-                pair = core.LogicalNetworkSet([eb.representative, nb.representative])
+        rss = 0
+        norm = len(self.networks)
+        for cond, obs in midas:
+            for var, val in obs[time].iteritems():
+                weight = 0.
+                for network in self.networks:
+                    weight += network.prediction(var, cond) * wfn(network)
                 
-                instance = setup.union(asp.ITermSet(pair))
-                self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], solver_args=["--quiet"])
-                if self.grover.solver.unsat:
-                    eb.networks.add(nb)
-                    found = True
-                    break
-
-            if not found:
-                self.behaviors.add(nb)
+                rss += pow(weight / norm - val, 2)
         
-    def __iter__(self):
-        return iter(self.behaviors)
-        
-    def __len__(self):
-        return len(self.behaviors)
-        
+        return rss / midas.nobs[time]

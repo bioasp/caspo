@@ -46,24 +46,20 @@ def main(args):
     learner.learn(args.fit, args.size)
     
     print "Models %s" % solver.__getstats__()['Models']
+    
     behaviors =  component.getMultiAdapter((learner, dataset.setup, grounder, solver), learn.ILogicalBehaviorSet)
-    clampings = list(behaviors.core())
-    print len(clampings) / (float)(2**(len(behaviors.active_cues)))
-
-    print "Behaviors %s" % len(behaviors)
-    for io in behaviors:
-        print 1 + len(io.networks)
-        pointer = component.getMultiAdapter((io.representative, grounder, solver), core.IBooleFixPointer)
-        n = 0
-        rss = 0.
-        for cond, obs in midas:    
-            fixpoint = pointer.fixpoint(cond)
-            for var, val in obs[point.time].iteritems():
-                rss += pow(fixpoint[var] - val, 2)
-                n += 1
-            
-        print rss / n
-        print "\n=========\n"
+    #print len(behaviors)
+    #print behaviors.mse(midas, args.timepoint)
+        
+    #analytics = component.getMultiAdapter((learner, grounder, solver), learn.IAnalytics)
+    #for target, clause, freq in analytics.frequencies():
+    #    print target, clause, freq
+        
+    #print "---"
+    predictor = component.getMultiAdapter((learner, dataset.setup, grounder, solver), learn.ILogicalPredictorSet)
+    print predictor.mse(midas, args.timepoint)
+    clampings = list(predictor.core())
+    print len(clampings) / (float)(2**(len(predictor.active_cues)))
 
 if __name__ == '__main__':
     

@@ -38,6 +38,7 @@ class MidasReader(core.CsvReader):
         self.__data = []
         
         times = []
+        self.nobs = defaultdict(int)
         for row in self.reader:
             literals = []
             for s in self.stimuli:
@@ -57,6 +58,7 @@ class MidasReader(core.CsvReader):
                     time = int(row['DA:' + r])
                     times.append(time)
                     obs[time][r] = float(row['DV:' + r])
+                    self.nobs[time] += 1
                     
             if clamping in self.__cues:
                 index = self.__cues.index(clamping)

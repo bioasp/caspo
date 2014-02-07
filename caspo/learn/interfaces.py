@@ -79,3 +79,33 @@ class ILogicalBehaviorSet(interface.Interface):
     
     behaviors = interface.Attribute("")
     
+    
+class IAnalytics(interface.Interface):
+    """
+    """
+    
+    def frequencies(self):
+        """"""
+        
+    def frequency(self, clause, target):
+        """"""
+        
+    def combinatorics(self):
+        """"""
+
+class ILogicalPredictorSet(interface.Interface):
+    """
+    """
+    
+    def core(self):
+        """"""
+    
+    def mse(self, data, time):
+        """"""
+        
+    def variances(self):
+        """"""
+    
+    
+        
+    
