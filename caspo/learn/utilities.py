@@ -68,6 +68,7 @@ class MidasReader(core.CsvReader):
                 self.__data.append(obs)
                 
         self.times = frozenset(times)
+        self.nexps = len(self.__cues)
     
     def __iter__(self):
         return iter(zip(self.__cues, self.__data))

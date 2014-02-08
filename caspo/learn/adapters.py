@@ -25,6 +25,8 @@ from pyzcasp import asp, potassco
 from caspo import core
 from interfaces import *
 
+import numpy
+
 class Midas2Dataset(object):
     component.adapts(IMidasReader, IDiscretization, ITimePoint)
     interface.implements(IDataset, core.IClampingList)
@@ -279,7 +281,7 @@ class LogicalNetworkSet2LogicalBehaviorSet(object):
         return iter(self.behaviors)
         
     def __len__(self):
-        return len(self.networks)
+        return len(self.behaviors)
 
 class BooleLogicNetworkSet2Analytics(object):
     component.adapts(core.IBooleLogicNetworkSet, asp.IGrounder, asp.ISolver)
@@ -349,19 +351,48 @@ class LogicalNetworkSet2LogicalPredictorSet(object):
                 
         for termset in self.grover:                    
             yield core.IClamping(termset)
-        
-    def mse(self, midas, time, wfn=None):
-        if not wfn:
-            wfn = lambda net: 1
             
-        rss = 0
-        norm = len(self.networks)
-        for cond, obs in midas:
-            for var, val in obs[time].iteritems():
-                weight = 0.
-                for network in self.networks:
-                    weight += network.prediction(var, cond) * wfn(network)
+    def variances(self, fn=None):
+        fn = fn or (lambda net: 1)
+        n = len(self.networks)
+        weights = numpy.zeros(n, dtype=int)
+        for i,network in enumerate(self.networks):
+            weights[i] = fn(network)
+            
+        for clamping in self.setup.iterclampings(self.active_cues):
+            row = {}
+            for readout in self.setup.readouts:
+                predictions = numpy.zeros(n, dtype=int)
+                for i,network in enumerate(self.networks):
+                    predictions[i] = network.prediction(readout, clamping)
                 
-                rss += pow(weight / norm - val, 2)
+                average = numpy.average(predictions, weights=weights)
+                variance = numpy.average((predictions-average)**2, weights=weights)
+                row[readout] = variance
+            
+            yield row
+            
+    def mse(self, midas, time, fn=None):
+        fn = fn or (lambda net: 1)
+        n = len(self.networks)
+
+        norm = 0.
+        for network in self.networks:
+            norm += fn(network)
+            
+        predictions = numpy.empty((midas.nexps, len(midas.readouts)))
+        observations = numpy.empty((midas.nexps, len(midas.readouts)))
+        predictions[:] = numpy.nan
+        observations[:] = numpy.nan
+        for i, (cond, obs) in enumerate(midas):
+            for j, (var, val) in enumerate(obs[time].iteritems()):
+                weight = 0
+                for network in self.networks:
+                    weight += network.prediction(var, cond) * fn(network)
+                    
+                predictions[i][j] = weight / norm
+                observations[i][j] = val
         
+        rss = numpy.nansum((predictions - observations) ** 2)
         return rss / midas.nobs[time]
+        

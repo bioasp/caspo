@@ -27,6 +27,8 @@ class IMidasReader(core.ICsvReader):
     inhibitors = interface.Attribute("Inhibitors cues")
     readouts = interface.Attribute("Readouts")
     times = interface.Attribute("Time points")
+    nobs = interface.Attribute("Number of observations per time point")
+    nexps = interface.Attribute("Number of experiments")
 
 class IDiscretization(interface.Interface):
     """
