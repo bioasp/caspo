@@ -18,7 +18,8 @@ setup(name='caspo',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          "pyzcasp"
+          "pyzcasp",
+          "numpy"
       ],
       scripts = ['scripts/caspo-learn.py', 'scripts/caspo-control.py'],
       entry_points="""
