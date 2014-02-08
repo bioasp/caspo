@@ -1,0 +1,4 @@
+include caspo/learn/encodings/*.lp
+include caspo/control/encodings/*.lp
+include LICENSE
+include README.md
