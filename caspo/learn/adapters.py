@@ -17,7 +17,7 @@
 # -*- coding: utf-8 -*-
 import os
 from collections import defaultdict
-
+from itertools import combinations
 from zope import component, interface
 
 from pyzcasp import asp, potassco
@@ -293,25 +293,48 @@ class BooleLogicNetworkSet2Analytics(object):
         self.solver = solver
         
         self.__occu = defaultdict(lambda: defaultdict(int))
-        self.nmodels = 0
         
         for network in networks:
-            self.nmodels += 1
             for target, formula in network.mapping.iteritems():
                 for clause in formula:
                     self.__occu[target][clause] += 1
         
     def frequencies(self):
+        n = float(len(self.networks))
         for target, clauses in self.__occu.iteritems():
             for clause, occu in clauses.iteritems():
-                yield target, clause, occu / float(self.nmodels)
+                yield target, clause, occu / n
         
     def frequency(self, clause, target):
-        return self.__occu[target][clause] / float(self.nmodels)
+        return self.__occu[target][clause] / float(len(self.networks))
         
-    @asp.cleanrun
+    def __mutuals__(self, candidates, mutually):
+        pairs = set()
+        for (t1,c1),(t2,c2) in combinations(candidates, 2):
+            valid = True
+            for network in self.networks:
+                has_m1 = t1 in network.mapping and c1 in network.mapping[t1]
+                has_m2 = t2 in network.mapping and c2 in network.mapping[t2]
+                if not mutually(has_m1,has_m2):
+                    valid = False
+                    break
+                    
+            if valid:
+                pairs.add(((t1,c1),(t2,c2)))
+                
+        return pairs
+        
     def combinatorics(self):
-        pass
+        n = len(self.networks)
+        candidates = set()
+        for target, clauses in self.__occu.iteritems():
+            for clause, occu in clauses.iteritems():
+                if occu < n:
+                    candidates.add((target, clause))
+        
+        exclusive = self.__mutuals__(candidates, lambda b1,b2: b1 != b2)
+        inclusive = self.__mutuals__(candidates, lambda b1,b2: b1 == b2)
+        return exclusive, inclusive
 
 
 class LogicalNetworkSet2LogicalPredictorSet(object):
@@ -367,7 +390,7 @@ class LogicalNetworkSet2LogicalPredictorSet(object):
                     predictions[i] = network.prediction(readout, clamping)
                 
                 average = numpy.average(predictions, weights=weights)
-                variance = numpy.average((predictions-average)**2, weights=weights)
+                variance = numpy.average((predictions-average) ** 2, weights=weights)
                 row[readout] = variance
             
             yield row
