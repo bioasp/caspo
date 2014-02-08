@@ -44,8 +44,3 @@ gsm.registerAdapter(TermSet2Clamping)
 gsm.registerUtility(SifReader(), ISifReader)
 gsm.registerUtility(LogicalNetworksReader(), ILogicalNetworksReader)
 gsm.registerUtility(LogicalNames(), ILogicalNames)
-
-root = __file__.rsplit('/', 1)[0]
-reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.core.boole', root + '/encodings/boole.lp', potassco.IGringoGrounder)
-

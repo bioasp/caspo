@@ -17,6 +17,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict, namedtuple
+from itertools import chain, combinations
 from interfaces import *
 
 class Graph(object):
@@ -38,6 +39,24 @@ class Setup(object):
         self.inhibitors = inhibitors
         self.readouts = readouts
         
+    def iterclampings(self, cues=None):
+        s = cues or list(self.stimuli + self.inhibitors)
+        it = chain.from_iterable(combinations(s, r) for r in xrange(len(s) + 1))
+
+        literals_tpl = {}
+        for stimulus in self.stimuli:
+            literals_tpl[stimulus] = -1
+        
+        for c in it:
+            literals = literals_tpl.copy() 
+            for cues in c:
+                if cues in self.stimuli:
+                    literals[cues] = 1
+                else:
+                    literals[cues] = -1
+                    
+            yield Clamping(literals.iteritems())
+
 class LogicalHeaderMapping(list):
     interface.implements(ILogicalHeaderMapping)
     
