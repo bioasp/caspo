@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
+# along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
 from zope import interface
@@ -67,47 +67,3 @@ class ILearner(interface.Interface):
 
     def __iter__(self):
         """"""
-        
-class ILogicalBehavior(core.IBooleLogicNetwork):
-    """
-    """
-    
-    representative = interface.Attribute("")
-    networks = interface.Attribute("")
-
-class ILogicalBehaviorSet(interface.Interface):
-    """
-    """
-    
-    behaviors = interface.Attribute("")
-    
-    
-class IAnalytics(interface.Interface):
-    """
-    """
-    
-    def frequencies(self):
-        """"""
-        
-    def frequency(self, clause, target):
-        """"""
-        
-    def combinatorics(self):
-        """"""
-
-class ILogicalPredictorSet(interface.Interface):
-    """
-    """
-    
-    def core(self):
-        """"""
-    
-    def mse(self, data, time):
-        """"""
-        
-    def variances(self):
-        """"""
-    
-    
-        
-    

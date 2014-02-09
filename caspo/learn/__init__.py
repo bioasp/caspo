@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
+# along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
 from interfaces import *
@@ -35,10 +35,6 @@ gsm.registerAdapter(Dataset2TermSet)
 gsm.registerAdapter(GraphDataset2TermSet)
 gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver), ILearner)
 gsm.registerAdapter(CompressedGraph)
-gsm.registerAdapter(BooleLogicNetwork2LogicalBehavior, (core.IBooleLogicNetwork, ), ILogicalBehavior)
-gsm.registerAdapter(LogicalNetworkSet2LogicalBehaviorSet, (core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver), ILogicalBehaviorSet)
-gsm.registerAdapter(BooleLogicNetworkSet2Analytics)
-gsm.registerAdapter(LogicalNetworkSet2LogicalPredictorSet)
 
 gsm.registerUtility(MidasReader(), IMidasReader)
 gsm.registerUtility(Factory(Round), IFactory, 'round')
@@ -53,6 +49,3 @@ reg.register('caspo.learn.rss', root + '/encodings/residual.lp', potassco.IGring
 reg.register('caspo.learn.opt', root + '/encodings/optimization.lp', potassco.IGringoGrounder)
 reg.register('caspo.learn.rescale', root + '/encodings/rescale.lp', potassco.IGringoGrounder)
 reg.register('caspo.learn.enum', root + '/encodings/enumeration.lp', potassco.IGringoGrounder)
-reg.register('caspo.learn.guess-clamping', root + '/encodings/guess_clamping.lp', potassco.IGringoGrounder)
-reg.register('caspo.learn.fixpoint-models', root + '/encodings/fixpoint_models.lp', potassco.IGringoGrounder)
-reg.register('caspo.learn.diff', root + '/encodings/diff.lp', potassco.IGringoGrounder)
