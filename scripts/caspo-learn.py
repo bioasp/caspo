@@ -22,7 +22,7 @@ import os, sys, argparse, pkg_resources
 from zope import component
 
 from pyzcasp import asp, potassco
-from caspo import core, learn
+from caspo import core, learn, analytics
  
 def main(args):
     sif = component.getUtility(core.ISifReader)
@@ -47,7 +47,7 @@ def main(args):
     
     print "Models %s" % solver.__getstats__()['Models']
     
-    behaviors =  component.getMultiAdapter((learner, dataset.setup, grounder, solver), learn.ILogicalBehaviorSet)
+    behaviors =  component.getMultiAdapter((learner, dataset.setup, grounder, solver), analytics.ILogicalBehaviorSet)
     #print len(behaviors)
     #print behaviors.mse(midas, args.timepoint)
         
@@ -56,10 +56,12 @@ def main(args):
     #    print target, clause, freq
         
     #print "---"
-    predictor = component.getMultiAdapter((learner, dataset.setup, grounder, solver), learn.ILogicalPredictorSet)
+    predictor = component.getMultiAdapter((behaviors, dataset.setup, grounder, solver), analytics.ILogicalPredictorSet)
     print predictor.mse(midas, args.timepoint)
     clampings = list(predictor.core())
     print len(clampings) / (float)(2**(len(predictor.active_cues)))
+    for mse in predictor.itermse(midas, args.timepoint):
+        print mse
 
 if __name__ == '__main__':
     
