@@ -95,9 +95,9 @@ class LogicalNetworkSet2LogicalBehaviorSet(object):
     def __len__(self):
         return len(self.behaviors)
 
-class BooleLogicNetworkSet2Analytics(object):
+class BooleLogicNetworkSet2StatsMappings(object):
     component.adapts(core.IBooleLogicNetworkSet, asp.IGrounder, asp.ISolver)
-    interface.implements(IAnalytics)
+    interface.implements(IStatsMappings)
     
     def __init__(self, networks, grounder, solver):
         self.networks = networks

@@ -45,18 +45,14 @@ def main(args):
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)
     
-    print "Models %s" % solver.__getstats__()['Models']
-    
     behaviors =  component.getMultiAdapter((learner, dataset.setup, grounder, solver), analytics.ILogicalBehaviorSet)
-    #print len(behaviors)
-    #print behaviors.mse(midas, args.timepoint)
+    print len(behaviors)
         
-    #analytics = component.getMultiAdapter((learner, grounder, solver), learn.IAnalytics)
-    #for target, clause, freq in analytics.frequencies():
-    #    print target, clause, freq
-        
-    #print "---"
-    predictor = component.getMultiAdapter((behaviors, dataset.setup, grounder, solver), analytics.ILogicalPredictorSet)
+    stats = component.getMultiAdapter((learner, grounder, solver), analytics.IStatsMappings)
+    for target, clause, freq in stats.frequencies():
+        print target, clause, freq
+
+    predictor = component.getMultiAdapter((learner, dataset.setup, grounder, solver), analytics.ILogicalPredictorSet)
     print predictor.mse(midas, args.timepoint)
     clampings = list(predictor.core())
     print len(clampings) / (float)(2**(len(predictor.active_cues)))

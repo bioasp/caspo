@@ -30,7 +30,7 @@ gsm = component.getGlobalSiteManager()
 
 gsm.registerAdapter(BooleLogicNetwork2LogicalBehavior, (core.IBooleLogicNetwork, ), ILogicalBehavior)
 gsm.registerAdapter(LogicalNetworkSet2LogicalBehaviorSet, (core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver), ILogicalBehaviorSet)
-gsm.registerAdapter(BooleLogicNetworkSet2Analytics)
+gsm.registerAdapter(BooleLogicNetworkSet2StatsMappings)
 gsm.registerAdapter(LogicalNetworkSet2LogicalPredictorSet)
 
 root = __file__.rsplit('/', 1)[0]

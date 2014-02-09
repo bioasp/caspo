@@ -33,7 +33,7 @@ class ILogicalBehaviorSet(interface.Interface):
     behaviors = interface.Attribute("")
     
     
-class IAnalytics(interface.Interface):
+class IStatsMappings(interface.Interface):
     """
     """
     
