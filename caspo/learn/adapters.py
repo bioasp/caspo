@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+import csv, math
 
 from collections import defaultdict
 from zope import component, interface
@@ -24,43 +25,80 @@ from pyzcasp import asp, potassco
 from caspo import core
 from interfaces import *
 
-class Midas2Dataset(object):
-    component.adapts(IMidasReader, IDiscretization, ITimePoint)
+class CsvReader2Dataset(object):
+    component.adapts(core.ICsvReader)
     interface.implements(IDataset, core.IClampingList)
     
-    def __init__(self, midas, discretize, point):
-        super(Midas2Dataset, self).__init__()
-        if point.time not in midas.times:
-            raise ValueError("The time-point %s does not exists in the MIDAS file. \
-                              Available time-points are: %s" % (point.time, list(midas.times)))
+    def __init__(self, reader):
+        #Header without the CellLine column
+        species = reader.fieldnames[1:]    
+        stimuli = map(lambda name: name[3:], filter(lambda name: name.startswith('TR:') and not name.endswith('i'), species))
+        inhibitors = map(lambda name: name[3:-1], filter(lambda name: name.startswith('TR:') and name.endswith('i'), species))
+        readouts = map(lambda name: name[3:], filter(lambda name: name.startswith('DV:'), species))
+
+        self.setup = core.Setup(stimuli, inhibitors, readouts)
+
         self.cues = []
-        self.readouts = []
+        self.obs = []
+        self.nobs = defaultdict(int)
+                
+        times = []
+        for row in reader:
+            literals = []
+            for s in stimuli:
+                if row['TR:' + s] == '1':
+                    literals.append(core.Literal(s,1))
+                else:
+                    literals.append(core.Literal(s,-1))
+                    
+            for i in inhibitors:
+                if row['TR:' + i + 'i'] == '1':
+                    literals.append(core.Literal(i,-1))
+
+            clamping = core.Clamping(literals)
+            obs = defaultdict(dict)
+            for r in readouts:
+                if not math.isnan(float(row['DV:' + r])):
+                    time = int(row['DA:' + r])
+                    times.append(time)
+                    obs[time][r] = float(row['DV:' + r])
+                    self.nobs[time] += 1
+                    
+            if clamping in self.cues:
+                index = self.cues.index(clamping)
+                self.obs[index].update(obs)
+            else:
+                self.cues.append(clamping)
+                self.obs.append(obs)
+                
+        self.times = frozenset(times)
+        self.nexps = len(self.cues)
         
-        self.setup = core.Setup(midas.stimuli, midas.inhibitors, midas.readouts)
-        self.factor = discretize.factor
-        
-        for cond, obs in midas:
-            self.cues.append(cond)
-            self.readouts.append(dict([(r, discretize(v)) for r,v in obs[point.time].iteritems()]))
-            
-    def __iter__(self):
-        for i, (cond, obs) in enumerate(zip(self.cues, self.readouts)):
-            yield i, cond, obs
-            
     @property
     def clampings(self):
         return self.cues
+        
+    def at(self, time, discretize=None):
+        if time not in self.times:
+            raise ValueError("The time-point %s does not exists in the dataset. \
+                              Available time-points are: %s" % (time, list(self.times)))
+        
+        if not discretize:
+            discretize = lambda v: v
+                                  
+        for i, (cues, obs) in enumerate(zip(self.cues, self.obs)):
+            yield i, cues, dict(map(lambda (r,v): (r, discretize(v)), obs[time].iteritems()))
 
 class Dataset2TermSet(asp.TermSetAdapter):
-    component.adapts(IDataset)
+    component.adapts(IDataset, ITimePoint, IDiscretization)
     
-    def __init__(self, dataset):
+    def __init__(self, dataset, point, discretize):
         super(Dataset2TermSet, self).__init__()
         
         self._termset = self._termset.union(asp.interfaces.ITermSet(dataset.setup))
-        self._termset.add(asp.Term('dfactor', [dataset.factor]))
+        self._termset.add(asp.Term('dfactor', [discretize.factor]))
         
-        for i, cond, obs in dataset:
+        for i, cond, obs in dataset.at(point.time, discretize):
             self._termset.add(asp.Term('exp', [i]))
             self._termset = self._termset.union(component.getMultiAdapter((cond, dataset), asp.ITermSet))
             
@@ -68,16 +106,16 @@ class Dataset2TermSet(asp.TermSetAdapter):
                 self._termset.add(asp.Term('obs', [i, name, value]))
 
 class GraphDataset2TermSet(asp.TermSetAdapter):
-    component.adapts(core.IGraph, IDataset)
+    component.adapts(core.IGraph, IDataset, ITimePoint, IDiscretization)
     
-    def __init__(self, graph, dataset):
+    def __init__(self, graph, dataset, point, discretize):
         super(GraphDataset2TermSet, self).__init__()
         
         names = component.getUtility(core.ILogicalNames)
         names.load(graph)
         
-        self._termset = asp.interfaces.ITermSet(names)
-        self._termset = self._termset.union(asp.ITermSet(dataset))
+        self._termset = component.getMultiAdapter((dataset, point, discretize), asp.ITermSet)
+        self._termset = self._termset.union(asp.interfaces.ITermSet(names))
 
 class PotasscoLearner(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver)

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
-import csv
+import os, csv
 from collections import defaultdict
 from itertools import chain, combinations
 
@@ -40,8 +40,28 @@ class FileReader(File):
         super(FileReader, self).open(filename)
     
     def __iter__(self):
-        self.fd.seek(0)
         return iter(self.fd)
+        
+class FileWriter(File):
+    interface.implements(IFileWriter)
+    
+    def open(self, filename, mode='rbU'):
+        raise NotImplementedError("Call %s.read('%s')" % (str(self), filename))
+        
+    def _mkdir(self, path):
+        if not path.endswith('/'):
+            path = path + '/'
+            
+        if not os.path.exists(path):
+            os.mkdir(path)
+            
+        return path
+        
+    def write(self, filename, iterable, path="./"):
+        self.open(self._mkdir(path) + filename, mode='wb')
+        
+        for line in iterable:
+            self.fd.write(line + '\n')            
 
 class CsvReader(FileReader):
     interface.implements(ICsvReader)
@@ -50,49 +70,22 @@ class CsvReader(FileReader):
         super(CsvReader, self).read(filename)
         self.reader = csv.DictReader(self.fd)
     
+    @property
+    def fieldnames(self):
+        return self.reader.fieldnames
+    
     def __iter__(self):
-        self.fd.seek(0)
         return iter(self.reader)
-
-class SifReader(FileReader):
-    interface.implements(ISifReader)
-    
-    def read(self, filename):
-        super(FileReader, self).open(filename)
-
-        self.__interactions = []
-        for line in self.fd:
-            line = line.strip()
-            if line:
-                try:
-                    source, rel, target = line.split('\t')
-                    self.__interactions.append((source, rel, target))
-                except Exception, e:
-                    raise IOError("Cannot read line %s in SIF file: %s" % (line, str(e)))
-            
-    def __iter__(self):
-        return iter(self.__interactions)
-
-class LogicalNetworksReader(CsvReader):
-    interface.implements(ILogicalNetworksReader)
-    
-    def read(self, filename):
-        super(LogicalNetworksReader, self).read(filename)
         
-        self.networks = []
-        for row in self.reader:
-            mapping = defaultdict(set)
-            for m,v in row.iteritems():
-                if v == '1':
-                    clause, target = m.split('=')
-                    mapping[target].add(Clause.from_str(clause))
-                    
-            self.networks.append(mapping)
-
-        self.graph = IGraph(LogicalHeaderMapping(self.reader.fieldnames))
-
-    def __iter__(self):
-        return iter(self.networks)
+class CsvWriter(FileWriter):
+    interface.implements(ICsvWriter)
+    
+    def write(self, filename, iterable, header, path="./"):
+        self.open(self._mkdir(path) + filename, mode='wb')
+        self.writer = csv.DictWriter(self.fd, header)
+        
+        for row in iterable:
+            self.writer.writerow(row)
         
 class LogicalNames(object):
     interface.implements(ILogicalNames)

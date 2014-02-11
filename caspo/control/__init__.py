@@ -25,14 +25,12 @@ from pyzcasp import asp, potassco
 
 gsm = component.getGlobalSiteManager()
 
-gsm.registerAdapter(MultiScenarioReader2MultiScenario)
+gsm.registerAdapter(CsvReader2MultiScenario)
 gsm.registerAdapter(MultiScenario2TermSet)
 gsm.registerAdapter(NetworksMultiScenario2TermSet)
 gsm.registerAdapter(PotasscoDisjunctiveController, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspDSolver), IController)
 gsm.registerAdapter(PotasscoHeuristicController, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver), IController)
 gsm.registerAdapter(TermSet2Strategy)
-
-gsm.registerUtility(MultiScenarioReader(), IMultiScenarioReader)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)

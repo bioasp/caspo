@@ -25,13 +25,13 @@ from pyzcasp import potassco, asp
 from caspo import core, control
 
 def main(args):
-    networks_reader = component.getUtility(core.ILogicalNetworksReader)
-    networks_reader.read(args.networks)
-    networks = core.ILogicalNetworkSet(networks_reader)
+    reader = component.getUtility(core.ICsvReader)
     
-    scenarios = component.getUtility(control.IMultiScenarioReader)
-    scenarios.read(args.scenarios)    
-    multiscenario = control.IMultiScenario(scenarios)
+    reader.read(args.networks)
+    networks = core.ILogicalNetworkSet(reader)
+    
+    reader.read(args.scenarios)
+    multiscenario = control.IMultiScenario(reader)
     
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISubsetMinimalSolver)

@@ -25,22 +25,23 @@ from pyzcasp import asp, potassco
 from caspo import core, learn, analytics
  
 def main(args):
-    sif = component.getUtility(core.ISifReader)
+    sif = component.getUtility(core.IFileReader)
     sif.read(args.pkn)
     graph = core.interfaces.IGraph(sif)
     
-    midas = component.getUtility(learn.IMidasReader)
-    midas.read(args.midas)        
+    reader = component.getUtility(core.ICsvReader)
+    reader.read(args.midas)
+    dataset = learn.IDataset(reader)
+    
     disc = component.createObject(args.discretization)
     disc.factor = args.factor
     point = learn.TimePoint(args.timepoint)
     
-    dataset = component.getMultiAdapter((midas, disc, point), learn.IDataset)
     zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
 
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISolver)
-    instance = component.getMultiAdapter((zipgraph, dataset), asp.ITermSet)
+    instance = component.getMultiAdapter((zipgraph, dataset, point, disc), asp.ITermSet)
         
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)
@@ -53,10 +54,10 @@ def main(args):
         print target, clause, freq
 
     predictor = component.getMultiAdapter((learner, dataset.setup, grounder, solver), analytics.ILogicalPredictorSet)
-    print predictor.mse(midas, args.timepoint)
+    print predictor.mse(dataset, args.timepoint)
     clampings = list(predictor.core())
     print len(clampings) / (float)(2**(len(predictor.active_cues)))
-    for mse in predictor.itermse(midas, args.timepoint):
+    for mse in predictor.itermse(dataset, args.timepoint):
         print mse
 
 if __name__ == '__main__':

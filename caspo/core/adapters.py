@@ -44,17 +44,24 @@ class GraphAdapter(object):
 
 
 class Sif2Graph(GraphAdapter):
-    component.adapts(ISifReader)
+    component.adapts(IFileReader)
     
     def __init__(self, sif):
         super(Sif2Graph, self).__init__()
                 
-        for source, sign, target in sif:
-            sign = int(sign)
+        for line in sif:
+            line = line.strip()
+            if line:
+                try:
+                    source, rel, target = line.split('\t')
+                except Exception, e:
+                    raise IOError("Cannot read line %s in SIF file: %s" % (line, str(e)))
+                    
+                sign = int(rel)
             
-            self.graph.nodes.add(source)
-            self.graph.nodes.add(target)
-            self.graph.edges.add((source,target,sign))
+                self.graph.nodes.add(source)
+                self.graph.nodes.add(target)
+                self.graph.edges.add((source,target,sign))
 
 class LogicalHeaderMapping2Graph(GraphAdapter):
     component.adapts(ILogicalHeaderMapping)
@@ -165,17 +172,23 @@ class TermSet2BooleLogicNetwork(TermSet2LogicalNetwork):
         return self._network.prediction(var, clamping)
 
 
-class LogicalNetworksReader2LogicalNetworkSet(object):
-    component.adapts(ILogicalNetworksReader)
+class CsvReader2LogicalNetworkSet(object):
+    component.adapts(ICsvReader)
     interface.implements(ILogicalNetworkSet)
     
     def __init__(self, reader):
-        super(LogicalNetworksReader2LogicalNetworkSet, self).__init__()
+        super(CsvReader2LogicalNetworkSet, self).__init__()
         names = component.getUtility(ILogicalNames)
-        names.load(reader.graph)
+        names.load(IGraph(LogicalHeaderMapping(reader.fieldnames)))
         
         self.networks = set()
-        for mapping in reader:
+        for row in reader:
+            mapping = defaultdict(set)
+            for m,v in row.iteritems():
+                if v == '1':
+                    clause, target = m.split('=')
+                    mapping[target].add(Clause.from_str(clause))
+                    
             self.networks.add(LogicalNetwork(list(names.variables), mapping))
             names.add(map(frozenset, mapping.itervalues()))
         

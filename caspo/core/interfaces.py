@@ -26,7 +26,7 @@ class IFile(interface.Interface):
     def open(self, filename, mode='rbU'):
         """"""
         
-class IFileReader(interface.Interface):
+class IFileReader(IFile):
     """
     File reader
     """
@@ -37,16 +37,36 @@ class IFileReader(interface.Interface):
     def __iter__(self):
         """"""
 
+class IFileWriter(IFile):
+    """
+    File writer
+    """
+    
+    def write(self, filename, lines):
+        """"""
+    
 class ICsvReader(IFileReader):
     """
     CSV file reader
     """
-
-class ISifReader(IFileReader):
-    """
-    SIF file reader
-    """
     
+    fieldnames = interface.Attribute("")
+    
+class ICsvWriter(IFileWriter):
+    """
+    CSV file writer
+    """
+
+class IGraphReader(IFileReader):
+    """
+    Interaction graph file reader
+    """
+
+class ISifReader(IGraphReader):
+    """
+    SIF file reader marker interface
+    """
+
 class ILogicalNetworksReader(IFileReader):
     """
     Logical Networks reader

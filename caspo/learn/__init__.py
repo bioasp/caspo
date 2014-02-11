@@ -30,13 +30,12 @@ from zope.component.interfaces import IFactory
 
 gsm = component.getGlobalSiteManager()
 
-gsm.registerAdapter(Midas2Dataset, (IMidasReader, IDiscretization, ITimePoint), IDataset)
+gsm.registerAdapter(CsvReader2Dataset, (core.ICsvReader,), IDataset)
 gsm.registerAdapter(Dataset2TermSet)
 gsm.registerAdapter(GraphDataset2TermSet)
 gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver), ILearner)
 gsm.registerAdapter(CompressedGraph)
 
-gsm.registerUtility(MidasReader(), IMidasReader)
 gsm.registerUtility(Factory(Round), IFactory, 'round')
 gsm.registerUtility(Factory(Floor), IFactory, 'floor')
 gsm.registerUtility(Factory(Ceil), IFactory, 'ceil')

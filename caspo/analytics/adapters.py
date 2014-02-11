@@ -208,13 +208,13 @@ class LogicalNetworkSet2LogicalPredictorSet(object):
             yield row
 
     def itermse(self, midas, time):            
-        predictions = numpy.empty((midas.nexps, len(midas.readouts)))
-        observations = numpy.empty((midas.nexps, len(midas.readouts)))
+        predictions = numpy.empty((midas.nexps, len(midas.setup.readouts)))
+        observations = numpy.empty((midas.nexps, len(midas.setup.readouts)))
         predictions[:] = numpy.nan
         observations[:] = numpy.nan
         for network in self.networks:
-            for i, (cond, obs) in enumerate(midas):
-                for j, (var, val) in enumerate(obs[time].iteritems()):
+            for i, cond, obs in midas.at(time):
+                for j, (var, val) in enumerate(obs.iteritems()):
                     predictions[i][j] = network.prediction(var, cond)
                     observations[i][j] = val
         
@@ -230,12 +230,12 @@ class LogicalNetworkSet2LogicalPredictorSet(object):
         for network in self.networks:
             norm += fn(network)
             
-        predictions = numpy.empty((midas.nexps, len(midas.readouts)))
-        observations = numpy.empty((midas.nexps, len(midas.readouts)))
+        predictions = numpy.empty((midas.nexps, len(midas.setup.readouts)))
+        observations = numpy.empty((midas.nexps, len(midas.setup.readouts)))
         predictions[:] = numpy.nan
         observations[:] = numpy.nan
-        for i, (cond, obs) in enumerate(midas):
-            for j, (var, val) in enumerate(obs[time].iteritems()):
+        for i, cond, obs in midas.at(time):
+            for j, (var, val) in enumerate(obs.iteritems()):
                 weight = 0
                 for network in self.networks:
                     weight += network.prediction(var, cond) * fn(network)

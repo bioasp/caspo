@@ -16,62 +16,8 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-import csv, math
-from collections import defaultdict
-from zope import component
-
+import math
 from interfaces import *
-
-class MidasReader(core.CsvReader):
-    interface.implements(IMidasReader)
-    
-    def read(self, filename):
-        super(MidasReader, self).read(filename)        
-        #Header without the CellLine column
-        species = self.reader.fieldnames[1:]
-    
-        self.stimuli = map(lambda name: name[3:], filter(lambda name: name.startswith('TR:') and not name.endswith('i'), species))
-        self.inhibitors = map(lambda name: name[3:-1], filter(lambda name: name.startswith('TR:') and name.endswith('i'), species))
-        self.readouts = map(lambda name: name[3:], filter(lambda name: name.startswith('DV:'), species))
-        
-        self.__cues = []
-        self.__data = []
-        
-        times = []
-        self.nobs = defaultdict(int)
-        for row in self.reader:
-            literals = []
-            for s in self.stimuli:
-                if row['TR:' + s] == '1':
-                    literals.append(core.Literal(s,1))
-                else:
-                    literals.append(core.Literal(s,-1))
-                    
-            for i in self.inhibitors:
-                if row['TR:' + i + 'i'] == '1':
-                    literals.append(core.Literal(i,-1))
-
-            clamping = core.Clamping(literals)
-            obs = defaultdict(dict)
-            for r in self.readouts:
-                if not math.isnan(float(row['DV:' + r])):
-                    time = int(row['DA:' + r])
-                    times.append(time)
-                    obs[time][r] = float(row['DV:' + r])
-                    self.nobs[time] += 1
-                    
-            if clamping in self.__cues:
-                index = self.__cues.index(clamping)
-                self.__data[index].update(obs)
-            else:
-                self.__cues.append(clamping)
-                self.__data.append(obs)
-                
-        self.times = frozenset(times)
-        self.nexps = len(self.__cues)
-    
-    def __iter__(self):
-        return iter(zip(self.__cues, self.__data))
 
 class Discretization(object):
     factor = 1

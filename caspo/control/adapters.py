@@ -22,21 +22,41 @@ from caspo import core
 from interfaces import *
 from impl import *
 
-class MultiScenarioReader2MultiScenario(object):
-    component.adapts(IMultiScenarioReader)
+class CsvReader2MultiScenario(object):
+    component.adapts(core.ICsvReader)
     interface.implements(IMultiScenario)
     
-    def __init__(self, scenarios):
-        super(MultiScenarioReader2MultiScenario, self).__init__()
+    def __init__(self, reader):
+        super(CsvReader2MultiScenario, self).__init__()
         
-        self.exclude = set(scenarios.constraints + scenarios.goals)
+        species = reader.fieldnames
+    
+        constraints = map(lambda name: name[3:], filter(lambda name: name.startswith('SC:'), species))
+        goals = map(lambda name: name[3:], filter(lambda name: name.startswith('SG:'), species))
+            
+        self.exclude = set(constraints + goals)
         
         self.constraints = ConstraintsList()
         self.goals = GoalsList()
         
-        for c, g in scenarios:
-            self.constraints.append(c)
-            self.goals.append(g)
+        for row in reader:
+            literals = []
+            for c in constraints:
+                print row
+                if row['SC:' + c] != '0':
+                    literals.append(core.Literal(c, int(row['SC:' + c])))
+                 
+            cclamping = core.Clamping(literals)
+            
+            literals = []
+            for g in goals:
+                if row['SG:' + g] != '0':
+                    literals.append(core.Literal(g, int(row['SG:' + g])))
+
+            gclamping = core.Clamping(literals)        
+                
+            self.constraints.append(cclamping)
+            self.goals.append(gclamping)
             
     def __iter__(self):
         for i, (constraints, goals) in enumerate(zip(self.constraints, self.goals)):
