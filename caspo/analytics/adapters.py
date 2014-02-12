@@ -51,7 +51,7 @@ class BooleLogicNetwork2LogicalBehavior(object):
         
 class LogicalNetworkSet2LogicalBehaviorSet(object):
     component.adapts(core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver)
-    interface.implements(ILogicalBehaviorSet, core.IBooleLogicNetworkSet)
+    interface.implements(ILogicalBehaviorSet)
     
     def __init__(self, networks, setup, grounder, solver):
         self.behaviors = set()
@@ -121,7 +121,7 @@ class BooleLogicNetworkSet2StatsMappings(object):
         return self.__occu[target][clause] / float(len(self.networks))
         
     def __mutuals__(self, candidates, mutually):
-        pairs = set()
+        pairs = defaultdict(set)
         for (t1,c1),(t2,c2) in combinations(candidates, 2):
             valid = True
             for network in self.networks:
@@ -132,7 +132,8 @@ class BooleLogicNetworkSet2StatsMappings(object):
                     break
                     
             if valid:
-                pairs.add(((t1,c1),(t2,c2)))
+                pairs[(t1,c1)].add((t2,c2))
+                pairs[(t2,c2)].add((t1,c1))
                 
         return pairs
         
@@ -147,19 +148,43 @@ class BooleLogicNetworkSet2StatsMappings(object):
         exclusive = self.__mutuals__(candidates, lambda b1,b2: b1 != b2)
         inclusive = self.__mutuals__(candidates, lambda b1,b2: b1 == b2)
         return exclusive, inclusive
-
+        
+class StatsMappings2CsvWriter(object):
+    component.adapts(IStatsMappings)
+    interface.implements(core.ICsvWriter)
+    
+    def __init__(self, stats):
+        self.stats =  stats
+        
+    def __iter__(self):
+        exclusive, inclusive = self.stats.combinatorics()        
+        for target, clause, freq in self.stats.frequencies():
+            row = dict(link="%s=%s" % (str(clause), target), frequency="%.2f" % freq)
+            if (target,clause) in exclusive:
+                row["exclusive"] = ";".join(map(lambda (t,c): "%s=%s" % (str(c),t), exclusive[(target,clause)]))
+                
+            if (target,clause) in inclusive:
+                row["inclusive"] = ";".join(map(lambda (t,c): "%s=%s" % (str(c),t), inclusive[(target,clause)]))
+        
+            yield row
+            
+    def write(self, filename, path="./"):
+        self.writer = component.getUtility(core.ICsvWriter)
+        header = ["link","frequency","exclusive","inclusive"]
+        self.writer.load(self, header)
+        self.writer.write(filename, path)
 
 class LogicalNetworkSet2LogicalPredictorSet(object):
-    component.adapts(core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver)
+    component.adapts(core.IBooleLogicNetworkSet, core.IDataset, potassco.IGringoGrounder, potassco.IClaspSolver)
     interface.implements(ILogicalPredictorSet)
     
     
-    def __init__(self, networks, setup, grounder, solver):
+    def __init__(self, networks, dataset, grounder, solver):
         self.networks = networks
-        self.setup = setup
+        self.dataset = dataset
         self.grover = component.getMultiAdapter((grounder, solver), asp.IGrounderSolver)
         
-        cues = set(self.setup.stimuli + self.setup.inhibitors)
+        cues = set(self.dataset.setup.stimuli + self.dataset.setup.inhibitors)
         self.active_cues = set()
         for network in self.networks:
             for formula in network.mapping.itervalues():
@@ -180,23 +205,75 @@ class LogicalNetworkSet2LogicalPredictorSet(object):
         #hide.
         #show clamped/2.
         """
-        setup = asp.ITermSet(self.setup)
+        setup = asp.ITermSet(self.dataset.setup)
         instance = setup.union(asp.ITermSet(self.networks))
         self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], solver_args=["0"])
                 
         for termset in self.grover:                    
             yield core.IClamping(termset)
             
-    def variances(self, fn=None):
-        fn = fn or (lambda net: 1)
+    def variances(self):
+        n = len(self.networks)            
+        for clamping in self.dataset.setup.iterclampings(self.active_cues):
+            row = dict(clamping)
+            for readout in self.dataset.setup.readouts:
+                predictions = numpy.zeros(n, dtype=int)
+                for i,network in enumerate(self.networks):
+                    predictions[i] = network.prediction(readout, clamping)
+                
+                average = numpy.average(predictions)
+                variance = numpy.average((predictions-average) ** 2)
+                row[readout] = variance
+            
+            yield row
+
+    def itermse(self, time):            
+        predictions = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
+        observations = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
+        predictions[:] = numpy.nan
+        observations[:] = numpy.nan
+        for network in self.networks:
+            for i, cond, obs in self.dataset.at(time):
+                for j, (var, val) in enumerate(obs.iteritems()):
+                    predictions[i][j] = network.prediction(var, cond)
+                    observations[i][j] = val
+        
+            rss = numpy.nansum((predictions - observations) ** 2)
+            yield rss / midas.nobs[time]
+
+            
+    def mse(self, time):
+        n = float(len(self.networks))            
+        predictions = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
+        observations = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
+        predictions[:] = numpy.nan
+        observations[:] = numpy.nan
+        for i, cond, obs in self.dataset.at(time):
+            for j, (var, val) in enumerate(obs.iteritems()):
+                weight = 0
+                for network in self.networks:
+                    weight += network.prediction(var, cond)
+                    
+                predictions[i][j] = weight / n
+                observations[i][j] = val
+        
+        rss = numpy.nansum((predictions - observations) ** 2)
+        return rss / self.dataset.nobs[time]
+        
+
+class LogicalBehaviorSet2LogicalPredictorSet(LogicalNetworkSet2LogicalPredictorSet):
+    component.adapts(ILogicalBehaviorSet, core.IDataset, potassco.IGringoGrounder, potassco.IClaspSolver)
+    
+    def variances(self):
         n = len(self.networks)
         weights = numpy.zeros(n, dtype=int)
         for i,network in enumerate(self.networks):
-            weights[i] = fn(network)
-            
-        for clamping in self.setup.iterclampings(self.active_cues):
-            row = {}
-            for readout in self.setup.readouts:
+            weights[i] = len(network)
+        
+        setup = self.dataset.setup
+        for clamping in setup.iterclampings(self.active_cues):
+            row = dict(clamping)
+            for readout in setup.readouts:
                 predictions = numpy.zeros(n, dtype=int)
                 for i,network in enumerate(self.networks):
                     predictions[i] = network.prediction(readout, clamping)
@@ -206,42 +283,57 @@ class LogicalNetworkSet2LogicalPredictorSet(object):
                 row[readout] = variance
             
             yield row
-
-    def itermse(self, midas, time):            
-        predictions = numpy.empty((midas.nexps, len(midas.setup.readouts)))
-        observations = numpy.empty((midas.nexps, len(midas.setup.readouts)))
+            
+    def mse(self, time):
+        n = sum([len(network) for network in self.networks], 0.)            
+        predictions = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
+        observations = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
         predictions[:] = numpy.nan
         observations[:] = numpy.nan
-        for network in self.networks:
-            for i, cond, obs in midas.at(time):
-                for j, (var, val) in enumerate(obs.iteritems()):
-                    predictions[i][j] = network.prediction(var, cond)
-                    observations[i][j] = val
-        
-            rss = numpy.nansum((predictions - observations) ** 2)
-            yield rss / midas.nobs[time]
-
-            
-    def mse(self, midas, time, fn=None):
-        fn = fn or (lambda net: 1)
-        n = len(self.networks)
-
-        norm = 0.
-        for network in self.networks:
-            norm += fn(network)
-            
-        predictions = numpy.empty((midas.nexps, len(midas.setup.readouts)))
-        observations = numpy.empty((midas.nexps, len(midas.setup.readouts)))
-        predictions[:] = numpy.nan
-        observations[:] = numpy.nan
-        for i, cond, obs in midas.at(time):
+        for i, cond, obs in self.dataset.at(time):
             for j, (var, val) in enumerate(obs.iteritems()):
                 weight = 0
                 for network in self.networks:
-                    weight += network.prediction(var, cond) * fn(network)
+                    weight += network.prediction(var, cond) * len(network)
                     
-                predictions[i][j] = weight / norm
+                predictions[i][j] = weight / n
                 observations[i][j] = val
         
         rss = numpy.nansum((predictions - observations) ** 2)
-        return rss / midas.nobs[time]
+        return rss / self.dataset.nobs[time]
+
+class LogicalPredictorSet2MultiCsvWriter(object):
+    component.adapts(ILogicalPredictorSet, core.ITimePoint)
+    interface.implements(core.IMultiCsvWriter)
+
+    def __init__(self, predictor, point):
+        self.predictor = predictor
+        self.point = point
+        
+    def variances(self):
+        setup = self.predictor.dataset.setup
+        header =  setup.stimuli + map(lambda i: i+'i', setup.inhibitors) + setup.readouts
+        
+        for row in self.predictor.variances():
+            nrow = dict.fromkeys(header, 0)
+            for inh in setup.inhibitors:
+                if inh in row:
+                    nrow[inh + 'i'] = 1
+                    
+            for sti in setup.stimuli:
+                if row[sti] == 1:
+                    nrow[sti] = row[sti]
+            
+            for read in setup.readouts:
+                nrow[read] = "%.2f" % row[read]
+                
+            yield nrow
+        
+    def write(self, filenames, path="./"):
+        self.writer = component.getUtility(core.ICsvWriter)
+        
+        setup = self.predictor.dataset.setup
+        header =  setup.stimuli + map(lambda i: i+'i', setup.inhibitors) + setup.readouts
+
+        self.writer.load(self.variances(), header)
+        self.writer.write(filenames[1], path)

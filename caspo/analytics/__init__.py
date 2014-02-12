@@ -32,6 +32,9 @@ gsm.registerAdapter(BooleLogicNetwork2LogicalBehavior, (core.IBooleLogicNetwork,
 gsm.registerAdapter(LogicalNetworkSet2LogicalBehaviorSet, (core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver), ILogicalBehaviorSet)
 gsm.registerAdapter(BooleLogicNetworkSet2StatsMappings)
 gsm.registerAdapter(LogicalNetworkSet2LogicalPredictorSet)
+gsm.registerAdapter(LogicalBehaviorSet2LogicalPredictorSet)
+gsm.registerAdapter(StatsMappings2CsvWriter)
+gsm.registerAdapter(LogicalPredictorSet2MultiCsvWriter)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
