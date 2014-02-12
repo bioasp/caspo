@@ -27,41 +27,45 @@ from caspo import core, learn, analytics
 def main(args):
     sif = component.getUtility(core.IFileReader)
     sif.read(args.pkn)
-    graph = core.interfaces.IGraph(sif)
+    graph = core.IGraph(sif)
     
     reader = component.getUtility(core.ICsvReader)
     reader.read(args.midas)
-    dataset = learn.IDataset(reader)
+    dataset = core.IDataset(reader)
     
-    disc = component.createObject(args.discretization)
-    disc.factor = args.factor
-    point = learn.TimePoint(args.timepoint)
+    point = core.TimePoint(args.timepoint)
+    
+    discretize = component.createObject(args.discretization)
+    discretize.factor = args.factor
+    discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
     
     zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
 
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISolver)
-    instance = component.getMultiAdapter((zipgraph, dataset, point, disc), asp.ITermSet)
+    instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
         
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)
     
     behaviors =  component.getMultiAdapter((learner, dataset.setup, grounder, solver), analytics.ILogicalBehaviorSet)
-    print len(behaviors)
-        
     stats = component.getMultiAdapter((learner, grounder, solver), analytics.IStatsMappings)
-    for target, clause, freq in stats.frequencies():
-        print target, clause, freq
 
-    predictor = component.getMultiAdapter((learner, dataset.setup, grounder, solver), analytics.ILogicalPredictorSet)
-    print predictor.mse(dataset, args.timepoint)
+    predictor = component.getMultiAdapter((learner, dataset, grounder, solver), analytics.ILogicalPredictorSet)
     clampings = list(predictor.core())
+    
     print len(clampings) / (float)(2**(len(predictor.active_cues)))
     for mse in predictor.itermse(dataset, args.timepoint):
         print mse
         
     writer = core.ICsvWriter(learner)
-    writer.write('networks.csv')    
+    writer.write('networks.csv')
+    
+    writer = core.ICsvWriter(stats)
+    writer.write('stats.csv')
+    
+    multiwriter = component.getMultiAdapter((predictor, point), core.IMultiCsvWriter)
+    multiwriter.write(['mse.csv', 'variances.csv', 'core.csv'])
 
 if __name__ == '__main__':
     
