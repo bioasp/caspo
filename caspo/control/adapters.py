@@ -42,7 +42,6 @@ class CsvReader2MultiScenario(object):
         for row in reader:
             literals = []
             for c in constraints:
-                print row
                 if row['SC:' + c] != '0':
                     literals.append(core.Literal(c, int(row['SC:' + c])))
                  
