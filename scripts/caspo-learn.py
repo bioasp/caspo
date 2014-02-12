@@ -59,6 +59,9 @@ def main(args):
     print len(clampings) / (float)(2**(len(predictor.active_cues)))
     for mse in predictor.itermse(dataset, args.timepoint):
         print mse
+        
+    writer = core.ICsvWriter(learner)
+    writer.write('networks.csv')    
 
 if __name__ == '__main__':
     

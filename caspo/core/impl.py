@@ -60,6 +60,13 @@ class Setup(object):
 class LogicalHeaderMapping(list):
     interface.implements(ILogicalHeaderMapping)
     
+class LogicalMapping(dict):
+    interface.implements(ILogicalMapping)
+    
+    @property
+    def mapping(self):
+        return self
+    
 class Literal(namedtuple('Literal', ['variable', 'signature'])):
     interface.implements(ILiteral)
     def __str__(self):

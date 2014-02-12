@@ -179,6 +179,11 @@ class ILogicalHeaderMapping(interface.Interface):
     def __iter__(self):
         """"""
     
+class ILogicalMapping(interface.Interface):
+    """"""
+    
+    mapping = interface.Attribute("")
+    
 class ILogicalNetworkSet(interface.Interface):
     """
     Set of Logical Networks
@@ -187,6 +192,9 @@ class ILogicalNetworkSet(interface.Interface):
     networks = interface.Attribute("")
     
     def __iter__(self):
+        """"""
+        
+    def __len__(self):
         """"""
         
 class IBooleLogicNetworkSet(ILogicalNetworkSet):

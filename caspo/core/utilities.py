@@ -29,6 +29,9 @@ class File(object):
     
     def open(self, filename, mode='rbU'):
         self.fd = open(filename, mode)
+        
+    def close(self):
+        self.fd.close()
 
 class FileReader(File):
     interface.implements(IFileReader)
@@ -45,8 +48,18 @@ class FileReader(File):
 class FileWriter(File):
     interface.implements(IFileWriter)
     
-    def open(self, filename, mode='rbU'):
-        raise NotImplementedError("Call %s.read('%s')" % (str(self), filename))
+    def __init__(self):
+        super(FileWriter, self).__init__()
+        self.iterable = []
+    
+    def open(self, filename, mode='wb'):
+        super(FileWriter, self).open(filename, mode)
+    
+    def load(self, iterable, append=False):
+        if append:
+            self.iterable = self.iterable + iterable
+        else:
+            self.iterable = iterable
         
     def _mkdir(self, path):
         if not path.endswith('/'):
@@ -57,11 +70,13 @@ class FileWriter(File):
             
         return path
         
-    def write(self, filename, iterable, path="./"):
+    def write(self, filename, path="./"):
         self.open(self._mkdir(path) + filename, mode='wb')
         
-        for line in iterable:
-            self.fd.write(line + '\n')            
+        for line in self.iterable:
+            self.fd.write(line + '\n')
+            
+        self.close()
 
 class CsvReader(FileReader):
     interface.implements(ICsvReader)
@@ -79,13 +94,16 @@ class CsvReader(FileReader):
         
 class CsvWriter(FileWriter):
     interface.implements(ICsvWriter)
-    
-    def write(self, filename, iterable, header, path="./"):
-        self.open(self._mkdir(path) + filename, mode='wb')
-        self.writer = csv.DictWriter(self.fd, header)
         
-        for row in iterable:
-            self.writer.writerow(row)
+    def write(self, filename, path="./"):
+        self.open(self._mkdir(path) + filename, mode='wb')
+        writer = csv.DictWriter(self.fd, self.iterable.header)
+        writer.writeheader()
+        
+        for row in self.iterable:
+            writer.writerow(row)
+            
+        self.close()
         
 class LogicalNames(object):
     interface.implements(ILogicalNames)

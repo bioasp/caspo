@@ -171,7 +171,52 @@ class TermSet2BooleLogicNetwork(TermSet2LogicalNetwork):
     def prediction(self, var, clamping):
         return self._network.prediction(var, clamping)
 
+class LogicalMapping2LogicalNetwork(object):
+    component.adapts(ILogicalMapping)
+    interface.implements(ILogicalNetwork)
 
+    _klass = LogicalNetwork
+    
+    def __init__(self, rawmap):
+        mapping = defaultdict(set)
+        names = component.getUtility(ILogicalNames)
+        for m,v in rawmap.iteritems():
+            if v == '1':
+                clause, target = m.split('=')
+                mapping[target].add(Clause.from_str(clause))
+        
+        names.add(map(frozenset, mapping.itervalues()))
+        self._network = self._klass(names.variables, mapping)
+        
+    @property
+    def variables(self):
+        return self._network.variables
+        
+    @property
+    def mapping(self):
+        return self._network.mapping
+        
+class LogicalMapping2BooleLogicNetwork(LogicalMapping2LogicalNetwork):
+    component.adapts(ILogicalMapping)
+    interface.implements(IBooleLogicNetwork)
+
+    _klass = BooleLogicNetwork
+    
+    def prediction(self, var, clamping):
+        return self._network.prediction(var, clamping)
+        
+class LogicalNetwork2LogicalMapping(object):
+    component.adapts(ILogicalNetwork, ILogicalHeaderMapping)
+    interface.implements(ILogicalMapping)
+    
+    def __init__(self, network, header):
+        mapping = dict.fromkeys(header, 0)
+        for var, formula in network.mapping.iteritems():
+            for clause in formula:
+                mapping["%s=%s" % (str(clause),var)] = 1
+                
+        self.mapping = LogicalMapping(mapping)
+        
 class CsvReader2LogicalNetworkSet(object):
     component.adapts(ICsvReader)
     interface.implements(ILogicalNetworkSet)
@@ -181,20 +226,55 @@ class CsvReader2LogicalNetworkSet(object):
         names = component.getUtility(ILogicalNames)
         names.load(IGraph(LogicalHeaderMapping(reader.fieldnames)))
         
-        self.networks = set()
-        for row in reader:
-            mapping = defaultdict(set)
-            for m,v in row.iteritems():
-                if v == '1':
-                    clause, target = m.split('=')
-                    mapping[target].add(Clause.from_str(clause))
-                    
-            self.networks.add(LogicalNetwork(list(names.variables), mapping))
-            names.add(map(frozenset, mapping.itervalues()))
+        self._read(reader)
+        
+    def _read(self, reader):
+        self.networks = set(map(lambda row: ILogicalNetwork(LogicalMapping(row)), reader))
         
     def __iter__(self):
         return iter(self.networks)
+        
+    def __len__(self):
+        return len(self.networks)
+        
+class CsvReader2BooleLogicNetworkSet(CsvReader2LogicalNetworkSet):
+    component.adapts(ICsvReader)
+    interface.implements(IBooleLogicNetworkSet)
 
+    def _read(self, reader):
+        self.networks = set(map(lambda row: IBooleLogicNetwork(LogicalMapping(row)), reader))
+
+class LogicalNames2HeaderMapping(object):
+    component.adapts(ILogicalNames)
+    interface.implements(ILogicalHeaderMapping)
+    
+    def __init__(self, names):
+        self.__header = LogicalHeaderMapping()
+        for var in names.variables:
+            for cname, clause in names.iterclauses(var):
+                self.__header.append("%s=%s" % (str(clause),var))
+                
+    def __iter__(self):
+        return iter(self.__header)
+        
+class LogicalNetworkSet2CsvWriter(object):
+    component.adapts(ILogicalNetworkSet)
+    interface.implements(ICsvWriter)
+            
+    def __init__(self, networks):
+        self.header = ILogicalHeaderMapping(component.getUtility(ILogicalNames))
+        self.networks = networks
+        
+    def __iter__(self):
+        for network in self.networks:
+            row = component.getMultiAdapter((network, self.header), ILogicalMapping)
+            yield row.mapping
+        
+    def write(self, filename, path="./"):
+        self.writer = component.getUtility(ICsvWriter)
+        self.writer.load(self)
+        self.writer.write(filename, path)
+        
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNetworkSet)
     
