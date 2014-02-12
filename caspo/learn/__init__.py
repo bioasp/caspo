@@ -30,7 +30,7 @@ from zope.component.interfaces import IFactory
 
 gsm = component.getGlobalSiteManager()
 
-gsm.registerAdapter(CsvReader2Dataset, (core.ICsvReader,), IDataset)
+gsm.registerAdapter(Dataset2DiscreteDataset)
 gsm.registerAdapter(Dataset2TermSet)
 gsm.registerAdapter(GraphDataset2TermSet)
 gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver), ILearner)

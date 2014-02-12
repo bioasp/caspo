@@ -19,17 +19,6 @@
 from zope import interface
 from caspo import core
     
-class IMidasReader(core.ICsvReader):
-    """
-    MIDAS file reader
-    """
-    stimuli = interface.Attribute("Stimuli cues")
-    inhibitors = interface.Attribute("Inhibitors cues")
-    readouts = interface.Attribute("Readouts")
-    times = interface.Attribute("Time points")
-    nobs = interface.Attribute("Number of observations per time point")
-    nexps = interface.Attribute("Number of experiments")
-
 class IDiscretization(interface.Interface):
     """
     Dicretization function
@@ -40,21 +29,15 @@ class IDiscretization(interface.Interface):
     def __call__(self, data):
         """"""
         
-class ITimePoint(interface.Interface):
+class IDiscreteDataset(interface.Interface):
     """
-    """
-    
-class IDataset(interface.Interface):
-    """
-    Experimental dataset
+    Discrete dataset
     """
     
-    setup = interface.Attribute("Experimental setup")
-    cues = interface.Attribute("Iterable over experimental cues")
-    readouts = interface.Attribute("Iterable over experimental readouts")
-    factor = interface.Attribute("Factor used during discretization")
+    dataset = interface.Attribute("Raw dataset")
+    discretize = interface.Attribute("Discretize funciton")
     
-    def __iter__(self):
+    def at(self, time):
         """"""
                 
 class ILearner(interface.Interface):
