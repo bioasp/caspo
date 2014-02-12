@@ -16,8 +16,9 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
+import math
 
+from collections import defaultdict
 from zope import component
 
 from pyzcasp import asp, potassco
@@ -272,7 +273,7 @@ class LogicalNetworkSet2CsvWriter(object):
         
     def write(self, filename, path="./"):
         self.writer = component.getUtility(ICsvWriter)
-        self.writer.load(self)
+        self.writer.load(self, self.header)
         self.writer.write(filename, path)
         
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
@@ -294,6 +295,69 @@ class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
                     self._termset.add(asp.Term('dnf', [formula_name, clause_name]))
                     for lit in clause:
                         self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
+
+
+class CsvReader2Dataset(object):
+    component.adapts(ICsvReader)
+    interface.implements(IDataset, IClampingList)
+    
+    def __init__(self, reader):
+        #Header without the CellLine column
+        species = reader.fieldnames[1:]    
+        stimuli = map(lambda name: name[3:], filter(lambda name: name.startswith('TR:') and not name.endswith('i'), species))
+        inhibitors = map(lambda name: name[3:-1], filter(lambda name: name.startswith('TR:') and name.endswith('i'), species))
+        readouts = map(lambda name: name[3:], filter(lambda name: name.startswith('DV:'), species))
+
+        self.setup = Setup(stimuli, inhibitors, readouts)
+
+        self.cues = []
+        self.obs = []
+        self.nobs = defaultdict(int)
+                
+        times = []
+        for row in reader:
+            literals = []
+            for s in stimuli:
+                if row['TR:' + s] == '1':
+                    literals.append(Literal(s,1))
+                else:
+                    literals.append(Literal(s,-1))
+                    
+            for i in inhibitors:
+                if row['TR:' + i + 'i'] == '1':
+                    literals.append(Literal(i,-1))
+
+            clamping = Clamping(literals)
+            obs = defaultdict(dict)
+            for r in readouts:
+                if not math.isnan(float(row['DV:' + r])):
+                    time = int(row['DA:' + r])
+                    times.append(time)
+                    obs[time][r] = float(row['DV:' + r])
+                    self.nobs[time] += 1
+                    
+            if clamping in self.cues:
+                index = self.cues.index(clamping)
+                self.obs[index].update(obs)
+            else:
+                self.cues.append(clamping)
+                self.obs.append(obs)
+                
+        self.times = frozenset(times)
+        self.nexps = len(self.cues)
+        
+    @property
+    def clampings(self):
+        return self.cues
+        
+    def at(self, time):
+        if time not in self.times:
+            raise ValueError("The time-point %s does not exists in the dataset. \
+                              Available time-points are: %s" % (time, list(self.times)))
+                                  
+        for i, (cues, obs) in enumerate(zip(self.cues, self.obs)):
+            yield i, cues, obs[time]
+            
                     
 class ClampingTerm2TermSet(asp.TermSetAdapter):
     component.adapts(IClamping, asp.ITerm)

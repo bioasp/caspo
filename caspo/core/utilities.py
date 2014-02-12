@@ -50,16 +50,15 @@ class FileWriter(File):
     
     def __init__(self):
         super(FileWriter, self).__init__()
+        self.header = ""
         self.iterable = []
     
     def open(self, filename, mode='wb'):
         super(FileWriter, self).open(filename, mode)
     
-    def load(self, iterable, append=False):
-        if append:
-            self.iterable = self.iterable + iterable
-        else:
-            self.iterable = iterable
+    def load(self, iterable, header=""):
+        self.iterable = iterable
+        self.header = header
         
     def _mkdir(self, path):
         if not path.endswith('/'):
@@ -73,8 +72,11 @@ class FileWriter(File):
     def write(self, filename, path="./"):
         self.open(self._mkdir(path) + filename, mode='wb')
         
+        if self.header:
+            self.fd.write(header + "\n")
+            
         for line in self.iterable:
-            self.fd.write(line + '\n')
+            self.fd.write(line + "\n")
             
         self.close()
 
@@ -97,7 +99,7 @@ class CsvWriter(FileWriter):
         
     def write(self, filename, path="./"):
         self.open(self._mkdir(path) + filename, mode='wb')
-        writer = csv.DictWriter(self.fd, self.iterable.header)
+        writer = csv.DictWriter(self.fd, self.header)
         writer.writeheader()
         
         for row in self.iterable:

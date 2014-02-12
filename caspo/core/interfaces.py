@@ -41,8 +41,10 @@ class IFileWriter(IFile):
     """
     File writer
     """
-    
-    def write(self, filename, lines):
+    def load(self, iterable, append=False):
+        """"""
+        
+    def write(self, filename, path="./"):
         """"""
     
 class ICsvReader(IFileReader):
@@ -56,7 +58,16 @@ class ICsvWriter(IFileWriter):
     """
     CSV file writer
     """
-
+    
+class IMultiCsvWriter(interface.Interface):
+    """
+    Multiple files writer
+    """
+    
+    
+    def write(self, filenames, path="./"):
+        """"""
+        
 class IGraphReader(IFileReader):
     """
     Interaction graph file reader
@@ -93,6 +104,27 @@ class ISetup(interface.Interface):
     stimuli = interface.Attribute("Iterable over stimuli")
     inhibitors = interface.Attribute("Iterable over inhibitors")
     readouts = interface.Attribute("Iterable over readouts")
+
+class ITimePoint(interface.Interface):
+    """
+    """
+    
+class IDataset(interface.Interface):
+    """
+    Experimental dataset
+    """
+    
+    setup = interface.Attribute("Experimental setup")
+    
+    times = interface.Attribute("Time points")
+    nobs = interface.Attribute("Number of observations per time point")
+    nexps = interface.Attribute("Number of experiments")
+    
+    cues = interface.Attribute("Iterable over experimental cues")
+    readouts = interface.Attribute("Iterable over experimental readouts")
+    
+    def at(self, time):
+        """"""
         
 class ILiteral(interface.Interface):
     """
