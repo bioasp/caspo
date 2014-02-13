@@ -31,6 +31,8 @@ def main(args):
     
     reader.read(args.scenarios)
     multiscenario = control.IMultiScenario(reader)
+    multiscenario.allow_constraints = args.iconstraints
+    multiscenario.allow_goals = args.igoals
     
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISubsetMinimalSolver)

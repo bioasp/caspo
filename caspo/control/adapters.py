@@ -31,24 +31,25 @@ class CsvReader2MultiScenario(object):
         
         species = reader.fieldnames
     
-        constraints = map(lambda name: name[3:], filter(lambda name: name.startswith('SC:'), species))
-        goals = map(lambda name: name[3:], filter(lambda name: name.startswith('SG:'), species))
+        self.__constraints = map(lambda name: name[3:], filter(lambda name: name.startswith('SC:'), species))
+        self.__goals = map(lambda name: name[3:], filter(lambda name: name.startswith('SG:'), species))
             
-        self.exclude = set(constraints + goals)
+        self.allow_constraints = False
+        self.allow_goals = False
         
         self.constraints = ConstraintsList()
         self.goals = GoalsList()
         
         for row in reader:
             literals = []
-            for c in constraints:
+            for c in self.__constraints:
                 if row['SC:' + c] != '0':
                     literals.append(core.Literal(c, int(row['SC:' + c])))
                  
             cclamping = core.Clamping(literals)
             
             literals = []
-            for g in goals:
+            for g in self.__goals:
                 if row['SG:' + g] != '0':
                     literals.append(core.Literal(g, int(row['SG:' + g])))
 
@@ -57,6 +58,17 @@ class CsvReader2MultiScenario(object):
             self.constraints.append(cclamping)
             self.goals.append(gclamping)
             
+    @property
+    def exclude(self):
+        ex = set()
+        if not self.allow_constraints:
+            ex = ex.union(self.__constraints)
+            
+        if not self.allow_goals:
+            ex = ex.union(self.__goals)
+        
+        return ex
+        
     def __iter__(self):
         for i, (constraints, goals) in enumerate(zip(self.constraints, self.goals)):
             yield i, constraints, goals
