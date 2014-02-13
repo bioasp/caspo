@@ -59,7 +59,7 @@ class ICsvWriter(IFileWriter):
     CSV file writer
     """
     
-class IMultiCsvWriter(interface.Interface):
+class IMultiFileWriter(interface.Interface):
     """
     Multiple files writer
     """
@@ -203,6 +203,9 @@ class IBooleLogicNetwork(ILogicalNetwork):
     """
     Boolean logic network
     """
+    
+    def prediction(self, var, clamping):
+        """"""
             
 class ILogicalHeaderMapping(interface.Interface):
     """
@@ -232,3 +235,6 @@ class ILogicalNetworkSet(interface.Interface):
 class IBooleLogicNetworkSet(ILogicalNetworkSet):
     """
     """
+    
+    def itermses(self, dataset, time):
+        """"""

@@ -73,7 +73,8 @@ class FileWriter(File):
         self.open(self._mkdir(path) + filename, mode='wb')
         
         if self.header:
-            self.fd.write(header + "\n")
+            self.fd.write(self.header + "\n")
+            self.fd.write("=" * len(self.header) + "\n")
             
         for line in self.iterable:
             self.fd.write(line + "\n")
@@ -101,7 +102,7 @@ class CsvWriter(FileWriter):
         self.open(self._mkdir(path) + filename, mode='wb')
         writer = csv.DictWriter(self.fd, self.header)
         writer.writeheader()
-        
+
         for row in self.iterable:
             writer.writerow(row)
             

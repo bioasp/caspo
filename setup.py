@@ -39,7 +39,7 @@ setup(name='caspo',
           "pyzcasp",
           "numpy"
       ],
-      scripts = ['scripts/caspo-learn.py', 'scripts/caspo-control.py'],
+      scripts = ['scripts/caspo-learn.py', 'scripts/caspo-analytics.py', 'scripts/caspo-control.py'],
       entry_points="""
       # -*- Entry points: -*-
       """,

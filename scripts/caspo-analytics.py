@@ -22,40 +22,37 @@ import os, sys, argparse, pkg_resources
 from zope import component
 
 from pyzcasp import asp, potassco
-from caspo import core, learn
+from caspo import core, analytics
  
 def main(args):
-    sif = component.getUtility(core.IFileReader)
-    sif.read(args.pkn)
-    graph = core.IGraph(sif)
-    
     reader = component.getUtility(core.ICsvReader)
+    
+    reader.read(args.networks)
+    networks = core.IBooleLogicNetworkSet(reader)
+    
     reader.read(args.midas)
     dataset = core.IDataset(reader)
     
     point = core.TimePoint(args.timepoint)
     
-    discretize = component.createObject(args.discretization)
-    discretize.factor = args.factor
-    discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
+    stats = analytics.IStatsMappings(networks)
+    writer = core.ICsvWriter(stats)
+    writer.write('stats.csv', args.outdir)
     
-    zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
-
+    writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
+    writer.write('networks-mse.csv', args.outdir)
+    
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISolver)
-    instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
-        
-    learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
-    learner.learn(args.fit, args.size)
-    
-    writer = core.ICsvWriter(learner)
-    writer.write('networks.csv', args.outdir)
+    behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analytics.IBooleLogicBehaviorSet)
+    multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
+    multiwriter.write(['behaviors-mse.csv', 'variances.csv', 'core.csv', 'summary.txt'], args.outdir)
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("pkn",
-                        help="Prior knowledge network in SIF format")
+    parser.add_argument("networks",
+                        help="Logical networks in CSV format")
 
     parser.add_argument("midas",
                         help="Experimental dataset in MIDAS file")
@@ -68,23 +65,10 @@ if __name__ == '__main__':
                         
     parser.add_argument("--gringo", dest="gringo", default="gringo",
                         help="gringo grounder binary (Default to 'gringo')", metavar="G")
-                        
-    parser.add_argument("--fit", dest="fit", type=float, default=0.,
-                        help="tolerance over fitness (Default to 0)", metavar="F")
-                      
-    parser.add_argument("--size", dest="size", type=int, default=0,
-                        help="tolerance over size (Default to 0). Combined with --fit could lead to a huge number of models", 
-                        metavar="S")
-                        
-    parser.add_argument("--factor", dest="factor", type=int, default=100, choices=[1, 10, 100, 1000],
-                        help="discretization over [0,D] (Default to 100)", metavar="D")
-                        
-    parser.add_argument("--discretization", dest="discretization", default='round', choices=['round', 'floor', 'ceil'],
-                        help="discretization function: round, floor, ceil (Default to round)", metavar="T")
-                        
+
     parser.add_argument("--out", dest="outdir", default='.',
                         help="output directory path (Default to current directory)", metavar="O")
-    
+                            
     parser.add_argument('--version', action='version', version='caspo version %s' % pkg_resources.get_distribution("caspo").version)
     
     args = parser.parse_args()

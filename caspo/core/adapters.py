@@ -230,20 +230,23 @@ class CsvReader2LogicalNetworkSet(object):
         self._read(reader)
         
     def _read(self, reader):
-        self.networks = set(map(lambda row: ILogicalNetwork(LogicalMapping(row)), reader))
+        self._networks = LogicalNetworkSet(map(lambda row: ILogicalNetwork(LogicalMapping(row)), reader))
         
     def __iter__(self):
-        return iter(self.networks)
+        return iter(self._networks)
         
     def __len__(self):
-        return len(self.networks)
+        return len(self._networks)
         
 class CsvReader2BooleLogicNetworkSet(CsvReader2LogicalNetworkSet):
     component.adapts(ICsvReader)
     interface.implements(IBooleLogicNetworkSet)
 
     def _read(self, reader):
-        self.networks = set(map(lambda row: IBooleLogicNetwork(LogicalMapping(row)), reader))
+        self._networks = BooleLogicNetworkSet(map(lambda row: IBooleLogicNetwork(LogicalMapping(row)), reader))
+        
+    def itermses(self, dataset, time):
+        return self._networks.itermses(dataset, time)
 
 class LogicalNames2HeaderMapping(object):
     component.adapts(ILogicalNames)
@@ -274,6 +277,30 @@ class LogicalNetworkSet2CsvWriter(object):
     def write(self, filename, path="./"):
         self.writer = component.getUtility(ICsvWriter)
         self.writer.load(self, self.header)
+        self.writer.write(filename, path)
+        
+class BooleLogicNetworkSet2CsvWriter(object):
+    component.adapts(IBooleLogicNetworkSet, IDataset, ITimePoint)
+    interface.implements(ICsvWriter)
+
+    def __init__(self, networks, dataset, point):
+        self.networks = networks
+        self.dataset = dataset
+        self.point = point
+        self._nheader = ILogicalHeaderMapping(component.getUtility(ILogicalNames))
+            
+    def mses(self):
+        for network, mse in self.networks.itermses(self.dataset, self.point.time):
+            row = component.getMultiAdapter((network, self._nheader), ILogicalMapping)
+            row.mapping["MSE"] = "%.4f" % mse
+            yield row.mapping
+        
+    def write(self, filename, path="./"):
+        self.writer = component.getUtility(ICsvWriter)
+        header = list(self._nheader)
+        header.append("MSE")
+        
+        self.writer.load(self.mses(), header)
         self.writer.write(filename, path)
         
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):

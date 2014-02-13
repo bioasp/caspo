@@ -15,3 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+from zope import interface
+from caspo import core
+
+from interfaces import *
+
+class BooleLogicBehavior(core.BooleLogicNetwork):
+    interface.implements(IBooleLogicBehavior)
+    
+    def __init__(self, variables, mapping):
+        super(BooleLogicBehavior, self).__init__(variables, mapping)
+        self.networks = set()
+        
+    def __len__(self):
+        return 1 + len(self.networks)

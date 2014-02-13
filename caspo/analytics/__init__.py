@@ -28,13 +28,10 @@ from zope import component
 
 gsm = component.getGlobalSiteManager()
 
-gsm.registerAdapter(BooleLogicNetwork2LogicalBehavior, (core.IBooleLogicNetwork, ), ILogicalBehavior)
-gsm.registerAdapter(LogicalNetworkSet2LogicalBehaviorSet, (core.IBooleLogicNetworkSet, core.ISetup, potassco.IGringoGrounder, potassco.IClaspSolver), ILogicalBehaviorSet)
+gsm.registerAdapter(BoolLogicNetworkSet2BooleLogicBehaviorSet, (core.IBooleLogicNetworkSet, core.IDataset, potassco.IGringoGrounder, potassco.IClaspSolver), IBooleLogicBehaviorSet)
 gsm.registerAdapter(BooleLogicNetworkSet2StatsMappings)
-gsm.registerAdapter(LogicalNetworkSet2LogicalPredictorSet)
-gsm.registerAdapter(LogicalBehaviorSet2LogicalPredictorSet)
 gsm.registerAdapter(StatsMappings2CsvWriter)
-gsm.registerAdapter(LogicalPredictorSet2MultiCsvWriter)
+gsm.registerAdapter(BooleLogicBehaviorSet2MultiCsvWriter)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)

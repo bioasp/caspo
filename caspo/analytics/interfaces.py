@@ -19,19 +19,30 @@
 from zope import interface
 from caspo import core        
 
-class ILogicalBehavior(core.IBooleLogicNetwork):
+class IBooleLogicBehavior(core.IBooleLogicNetwork):
     """
     """
     
-    representative = interface.Attribute("")
     networks = interface.Attribute("")
 
-class ILogicalBehaviorSet(interface.Interface):
+class IBooleLogicBehaviorSet(core.IBooleLogicNetworkSet):
     """
     """
     
-    behaviors = interface.Attribute("")
+    networks = interface.Attribute("")
+    dataset = interface.Attribute("")
+    setup = interface.Attribute("")
+    active_cues = interface.Attribute("")
+    inactive_cues = interface.Attribute("")
     
+    def core(self):
+        """"""
+    
+    def mse(self, data, time):
+        """"""
+        
+    def variances(self):
+        """"""
     
 class IStatsMappings(interface.Interface):
     """
@@ -44,17 +55,4 @@ class IStatsMappings(interface.Interface):
         """"""
         
     def combinatorics(self):
-        """"""
-
-class ILogicalPredictorSet(interface.Interface):
-    """
-    """
-    
-    def core(self):
-        """"""
-    
-    def mse(self, data, time):
-        """"""
-        
-    def variances(self):
         """"""

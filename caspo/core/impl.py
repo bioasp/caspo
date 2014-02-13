@@ -16,6 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
+import numpy
 from collections import defaultdict, namedtuple
 from itertools import chain, combinations
 from interfaces import *
@@ -93,7 +94,7 @@ class Clause(frozenset):
         super(Clause, self).__init__(frozenset(literals))
         
     def __str__(self):
-        return "+".join(map(str, self))
+        return "+".join(map(str, sorted(self)))
         
     @classmethod
     def from_str(cls, string):
@@ -135,13 +136,27 @@ class BooleLogicNetwork(LogicalNetwork):
                 if value:
                     break
                 
-            return value        
+            return value
 
 class LogicalNetworkSet(set):
     interface.implements(ILogicalNetworkSet)
 
 class BooleLogicNetworkSet(LogicalNetworkSet):
     interface.implements(IBooleLogicNetworkSet)
+    
+    def itermses(self, dataset, time):
+        predictions = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
+        observations = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
+        predictions[:] = numpy.nan
+        observations[:] = numpy.nan
+        for network in self:
+            for i, cond, obs in dataset.at(time):
+                for j, (var, val) in enumerate(obs.iteritems()):
+                    predictions[i][j] = network.prediction(var, cond)
+                    observations[i][j] = val
+        
+            rss = numpy.nansum((predictions - observations) ** 2)
+            yield network, rss / dataset.nobs[time]
 
 class Clamping(frozenset):
     interface.implements(IClamping)
