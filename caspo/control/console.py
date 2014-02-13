@@ -1,4 +1,3 @@
-#!python
 # Copyright (c) 2014, Santiago Videla
 #
 # This file is part of caspo.
@@ -43,8 +42,10 @@ def main(args):
     for strategy in controller:
         print strategy
         print "\n=========\n"
+        
+    return 0
 
-if __name__ == '__main__':
+def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("networks",
                         help="family of networks in csv format (as the output from caspo-learn.py)")
@@ -89,6 +90,4 @@ if __name__ == '__main__':
     
     gsm.registerUtility(solver, potassco.IClaspSubsetMinimalSolver)
     
-    main(args)
-
-    
+    return main(args)

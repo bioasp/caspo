@@ -1,4 +1,3 @@
-#!python
 # Copyright (c) 2014, Santiago Videla
 #
 # This file is part of caspo.
@@ -47,9 +46,10 @@ def main(args):
     behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analytics.IBooleLogicBehaviorSet)
     multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
     multiwriter.write(['behaviors-mse.csv', 'variances.csv', 'core.csv', 'summary.txt'], args.outdir)
-
-if __name__ == '__main__':
     
+    return 0
+
+def run():    
     parser = argparse.ArgumentParser()
     parser.add_argument("networks",
                         help="Logical networks in CSV format")
@@ -81,4 +81,4 @@ if __name__ == '__main__':
     solver = potassco.ClaspSolver(args.clasp)
     gsm.registerUtility(solver, potassco.IClaspSolver)
     
-    main(args)
+    return main(args)

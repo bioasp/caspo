@@ -1,4 +1,3 @@
-#!python
 # Copyright (c) 2014, Santiago Videla
 #
 # This file is part of caspo.
@@ -50,9 +49,10 @@ def main(args):
     
     writer = core.ICsvWriter(learner)
     writer.write('networks.csv', args.outdir)
-
-if __name__ == '__main__':
     
+    return 0
+
+def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("pkn",
                         help="Prior knowledge network in SIF format")
@@ -97,4 +97,5 @@ if __name__ == '__main__':
     solver = potassco.ClaspSolver(args.clasp)
     gsm.registerUtility(solver, potassco.IClaspSolver)
     
-    main(args)
+    return main(args)
+        

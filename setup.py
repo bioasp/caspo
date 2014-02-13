@@ -37,10 +37,13 @@ setup(name='caspo',
       zip_safe=False,
       install_requires=[
           "pyzcasp",
-          "numpy"
+          #"numpy"
       ],
-      scripts = ['scripts/caspo-learn.py', 'scripts/caspo-analytics.py', 'scripts/caspo-control.py'],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
+      entry_points={
+          'console_scripts': [
+              'caspo-learn=caspo.learn.console:run',
+              'caspo-analytics=caspo.analytics.console:run',
+              'caspo-control=caspo.control.console:run'
+          ]
+      }
       )
