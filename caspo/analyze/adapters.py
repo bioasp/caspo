@@ -53,9 +53,9 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
     @asp.cleanrun
     def core(self):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
-        clamping = encodings('caspo.analytics.guess')
-        fixpoint = encodings('caspo.analytics.fixpoint')
-        diff = encodings('caspo.analytics.diff')
+        clamping = encodings('caspo.analyze.guess')
+        fixpoint = encodings('caspo.analyze.fixpoint')
+        diff = encodings('caspo.analyze.diff')
         stdin = """
         :- diff.
 
@@ -110,9 +110,9 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
     @asp.cleanrun
     def __io_discovery__(self):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
-        clamping = encodings('caspo.analytics.guess')
-        fixpoint = encodings('caspo.analytics.fixpoint')
-        diff = encodings('caspo.analytics.diff')
+        clamping = encodings('caspo.analyze.guess')
+        fixpoint = encodings('caspo.analyze.fixpoint')
+        diff = encodings('caspo.analyze.diff')
         stdin = """
         :- not diff.
         """
