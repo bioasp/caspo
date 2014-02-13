@@ -47,6 +47,3 @@ class ILearner(interface.Interface):
     
     def learn(self, fit, size):
         """"""
-
-    def __iter__(self):
-        """"""

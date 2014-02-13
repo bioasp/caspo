@@ -38,10 +38,9 @@ def main(args):
 
     controller = component.getMultiAdapter((instance, grounder, solver), control.IController)
     controller.control(args.size)
-    print "\n=========\n"
-    for strategy in controller:
-        print strategy
-        print "\n=========\n"
+    
+    writer = core.ICsvWriter(controller)
+    writer.write('strategies.csv', args.outdir)
         
     return 0
 
@@ -73,6 +72,9 @@ def run():
                         
     parser.add_argument("--allow-goals", dest="igoals", action='store_true',
                         help="allow intervention over goals (Default to False)")
+
+    parser.add_argument("--out", dest="outdir", default='.',
+                        help="output directory path (Default to current directory)", metavar="O")
                         
     parser.add_argument('--version', action='version', version='caspo version %s' % pkg_resources.get_distribution("caspo").version)
 

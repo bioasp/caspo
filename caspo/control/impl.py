@@ -36,8 +36,8 @@ class GoalsList(list):
     def clampings(self):
         return self
 
-class Strategy(frozenset):
+class Strategy(core.Clamping):
     interface.implements(IStrategy)
     
     def __init__(self, literals=[]):
-        super(Strategy, self).__init__(frozenset(literals))
+        super(Strategy, self).__init__(literals)

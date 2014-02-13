@@ -379,8 +379,7 @@ class CsvReader2Dataset(object):
         
     def at(self, time):
         if time not in self.times:
-            raise ValueError("The time-point %s does not exists in the dataset. \
-                              Available time-points are: %s" % (time, list(self.times)))
+            raise ValueError("The time-point %s does not exists in the dataset. Available time-points are: %s" % (time, list(self.times)))
                                   
         for i, (cues, obs) in enumerate(zip(self.cues, self.obs)):
             yield i, cues, obs[time]

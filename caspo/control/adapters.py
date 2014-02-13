@@ -89,12 +89,11 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
 
 class PotasscoDisjunctiveController(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspDSolver)
-    interface.implements(IController)
+    interface.implements(IController, IStrategySet)
     
     def __init__(self, termset, gringo, clasp):
         super(PotasscoDisjunctiveController, self).__init__()
         self.termset = termset
-        self.gringo = gringo
         self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver)
             
     @asp.cleanrun        
@@ -116,7 +115,7 @@ class PotasscoDisjunctiveController(object):
 
 class PotasscoHeuristicController(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver)
-    interface.implements(IController)
+    interface.implements(IController, IStrategySet)
         
     def __init__(self, termset, gringo, clasp):
         super(PotasscoHeuristicController, self).__init__()
@@ -152,3 +151,26 @@ class TermSet2Strategy(object):
         
     def __str__(self):
         return str(self.strategy)
+
+class Strategies2CsvWriter(object):
+    component.adapts(IStrategySet)
+    interface.implements(core.ICsvWriter)
+    
+    def __init__(self, strategies):
+        self.strategies = strategies
+        names = component.getUtility(core.ILogicalNames)
+        self.header = names.variables
+        
+        
+    def __iter__(self):
+        for strategy in self.strategies:
+            row = dict.fromkeys(self.header, 0)
+            row.update(strategy)
+            yield row
+        
+    def write(self, filename, path='./'):
+        writer = component.getUtility(core.ICsvWriter)
+        writer.load(self, self.header)
+        writer.write(filename, path)
+        
+    

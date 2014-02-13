@@ -31,6 +31,7 @@ gsm.registerAdapter(NetworksMultiScenario2TermSet)
 gsm.registerAdapter(PotasscoDisjunctiveController, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspDSolver), IController)
 gsm.registerAdapter(PotasscoHeuristicController, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver), IController)
 gsm.registerAdapter(TermSet2Strategy)
+gsm.registerAdapter(Strategies2CsvWriter)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
