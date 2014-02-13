@@ -21,8 +21,8 @@ For more details on ASP and state-of-the-art available tools, you may want to ch
 
 ### Related publications
 
-* Minimal intervention strategies in logical signaling networks with ASP. (2013). Theory and Practice of Logic Programming, 13(4-5), 675-690. [DOI](http://dx.doi.org/10.1017/S1471068413000422)
+* Minimal intervention strategies in logical signaling networks with ASP. (2013). Theory and Practice of Logic Programming. [DOI](http://dx.doi.org/10.1017/S1471068413000422)
 
-* Exhaustively characterizing feasible logic models of a signaling network using Answer Set Programming. (2013). Bioinformatics, 29(18), 2320–2326. [DOI](http://dx.doi.org/10.1093/bioinformatics/btt393)
+* Exhaustively characterizing feasible logic models of a signaling network using Answer Set Programming. (2013). Bioinformatics. [DOI](http://dx.doi.org/10.1093/bioinformatics/btt393)
 
 * Revisiting the Training of Logic Models of Protein Signaling Networks with a Formal Approach based on Answer Set Programming. (2012) The 10th Conference on Computational Methods in Systems Biology. [DOI](http://dx.doi.org/10.1007/978-3-642-33636-2_20)
