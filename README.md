@@ -1,7 +1,4 @@
-caspo
-=====
-
-Reasoning on the response of logical signaling networks with ASP
+Reasoning on the response of logical signaling networks
 ----------------------------------------------------------------
 
 The manual identification of logic rules underlying a biological system is
@@ -16,13 +13,13 @@ a set of target species or compounds into a desired steady state.
 Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks. 
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
-Under-the-Hood
---------------
+Under-the-Hood: Answer Set Programming
+--------------------------------------
 
 **caspo** strongly relies on Answer Set Programming (ASP) for knowledge representation and reasoning.
 ASP is a declarative problem solving paradigm from the field of Logic Programming combining several computer science areas such as Knowledge Representation and Reasoning, Artificial Intelligence, Constraint Satisfaction and Combinatorial Optimization.
 
-For more details on ASP and available tools, you may want to check the website of [Potassco, the Potsdam Answer Set Solving Collection](http://potassco.sourceforge.net/).
+For more details on ASP and state-of-the-art available tools, you may want to check the website of [Potassco, the Potsdam Answer Set Solving Collection](http://potassco.sourceforge.net/).
 
 Related publications
 --------------------
