@@ -220,6 +220,14 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
         self.point = point
         self._core_clampings = 0
         
+    def mses(self):
+        header = core.ILogicalHeaderMapping(component.getUtility(core.ILogicalNames))
+        for behavior, mse in self.behaviors.itermses(self.behaviors.dataset, self.point.time):
+            row = component.getMultiAdapter((behavior, header), core.ILogicalMapping)
+            row.mapping["MSE"] = "%.4f" % mse
+            row.mapping["Networks"] = len(behavior)
+            yield row.mapping
+        
     def variances(self, header):
         setup = self.behaviors.dataset.setup
         for row in self.behaviors.variances():
@@ -254,11 +262,15 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
             yield nrow
         
     def write(self, filenames, path="./"):
-        writer = component.getMultiAdapter((self.behaviors, self.behaviors.dataset, self.point), core.ICsvWriter)
-        writer.write(filenames[0], path)
-        setup = self.behaviors.dataset.setup
-        
         writer = component.getUtility(core.ICsvWriter)
+        
+        header = list(core.ILogicalHeaderMapping(component.getUtility(core.ILogicalNames)))
+        header.append("MSE")
+        header.append("Networks")
+        writer.load(self.mses(), header)
+        writer.write(filenames[0], path)
+        
+        setup = self.behaviors.dataset.setup
         
         header = setup.stimuli + map(lambda i: i+'i', setup.inhibitors) + setup.readouts
         writer.load(self.variances(header), header)
