@@ -21,7 +21,7 @@ import os, sys, argparse, pkg_resources
 from zope import component
 
 from pyzcasp import asp, potassco
-from caspo import core, analytics
+from caspo import core, analyze
  
 def main(args):
     reader = component.getUtility(core.ICsvReader)
@@ -34,7 +34,7 @@ def main(args):
     
     point = core.TimePoint(args.timepoint)
     
-    stats = analytics.IStatsMappings(networks)
+    stats = analyze.IStatsMappings(networks)
     writer = core.ICsvWriter(stats)
     writer.write('stats.csv', args.outdir)
     
@@ -43,9 +43,9 @@ def main(args):
     
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISolver)
-    behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analytics.IBooleLogicBehaviorSet)
+    behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analyze.IBooleLogicBehaviorSet)
     multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-    multiwriter.write(['behaviors-mse.csv', 'variances.csv', 'core.csv', 'summary.txt'], args.outdir)
+    multiwriter.write(['behaviors.csv', 'variances.csv', 'core.csv', 'summary.txt'], args.outdir)
     
     return 0
 

@@ -35,6 +35,6 @@ gsm.registerAdapter(BooleLogicBehaviorSet2MultiCsvWriter)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.analytics.guess', root + '/encodings/guess.lp', potassco.IGringoGrounder)
-reg.register('caspo.analytics.fixpoint', root + '/encodings/fixpoint.lp', potassco.IGringoGrounder)
-reg.register('caspo.analytics.diff', root + '/encodings/diff.lp', potassco.IGringoGrounder)
+reg.register('caspo.analyze.guess', root + '/encodings/guess.lp', potassco.IGringoGrounder)
+reg.register('caspo.analyze.fixpoint', root + '/encodings/fixpoint.lp', potassco.IGringoGrounder)
+reg.register('caspo.analyze.diff', root + '/encodings/diff.lp', potassco.IGringoGrounder)
