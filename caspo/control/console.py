@@ -49,7 +49,7 @@ def main(args):
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("networks",
-                        help="family of networks in csv format (as the output from caspo-learn.py)")
+                        help="Logical networks in CSV format")
 
     parser.add_argument("scenarios",
                         help="intervention scenarios in csv format")
