@@ -140,6 +140,19 @@ class BooleLogicNetwork(LogicalNetwork):
 
 class LogicalNetworkSet(set):
     interface.implements(ILogicalNetworkSet)
+    
+    def __init__(self, networks=[], update_names=True):
+        super(LogicalNetworkSet, self).__init__(networks)
+        if update_names:
+            names = component.getUtility(ILogicalNames)
+            for network in networks:
+                names.add(network.mapping.itervalues())
+    
+    def add(self, network, update_names=True):
+        super(LogicalNetworkSet, self).add(network)
+        if update_names:
+            names = component.getUtility(ILogicalNames)
+            names.add(network.mapping.itervalues())
 
 class BooleLogicNetworkSet(LogicalNetworkSet):
     interface.implements(IBooleLogicNetworkSet)

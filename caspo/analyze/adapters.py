@@ -120,7 +120,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         for network in self.networks:
             found = False
             for eb in self:
-                pair = core.BooleLogicNetworkSet([eb, network])
+                pair = core.BooleLogicNetworkSet([eb, network], False)
                 
                 instance = setup.union(asp.ITermSet(pair))
                 self.grover.run(stdin, 

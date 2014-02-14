@@ -55,11 +55,10 @@ class Sif2Graph(GraphAdapter):
             if line:
                 try:
                     source, rel, target = line.split('\t')
+                    sign = int(rel)
                 except Exception, e:
                     raise IOError("Cannot read line %s in SIF file: %s" % (line, str(e)))
                     
-                sign = int(rel)
-            
                 self.graph.nodes.add(source)
                 self.graph.nodes.add(target)
                 self.graph.edges.add((source,target,sign))
@@ -85,10 +84,10 @@ class Graph2TermSet(asp.TermSetAdapter):
         super(Graph2TermSet, self).__init__()
         
         for node in graph.nodes:
-            self.termset.add(asp.Term('node', [node]))
+            self._termset.add(asp.Term('node', [node]))
             
         for source, target, sign in graph.edges:
-            self.termset.add(asp.Term('edge', [source, target, sign]))
+            self._termset.add(asp.Term('edge', [source, target, sign]))
 
 class Setup2TermSet(asp.TermSetAdapter):
     component.adapts(ISetup)
@@ -186,7 +185,6 @@ class LogicalMapping2LogicalNetwork(object):
                 clause, target = m.split('=')
                 mapping[target].add(Clause.from_str(clause))
         
-        names.add(map(frozenset, mapping.itervalues()))
         self._network = self._klass(names.variables, mapping)
         
     @property

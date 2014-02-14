@@ -71,7 +71,7 @@ class PotasscoLearner(object):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
-        self._networks = set()
+        self._networks = core.BooleLogicNetworkSet()
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
@@ -116,13 +116,11 @@ class PotasscoLearner(object):
             for network in self._networks:
                 yield network
         else:
-            names = component.getUtility(core.ILogicalNames)
             for termset in self.grover:
                 network = core.IBooleLogicNetwork(termset)
-                names.add(network.mapping.itervalues())
                 self._networks.add(network)
                 yield network
-            
+
 class CompressedGraph(core.GraphAdapter):
     component.adapts(core.IGraph, core.ISetup)
     
