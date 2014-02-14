@@ -37,7 +37,9 @@ setup(name='caspo',
       zip_safe=False,
       install_requires=[
           "pyzcasp",
-          "numpy"
+          "numpy",
+          "networkx",
+          "pygraphviz"
       ],
       entry_points={
           'console_scripts': [
