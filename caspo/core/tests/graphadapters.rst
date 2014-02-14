@@ -37,7 +37,7 @@ Second, a line not separated by tabs::
     ...
     IOError: Cannot read line b	-1 c in SIF file: need more than 2 values to unpack
 
-Finally, we can adapt a ``LogicalHeaderMapping`` which in this case is describing the same graph as above::
+Finally, we can adapt a ``LogicalHeaderMapping`` which in this case must result in the same graph as above::
     
     >>> graph2 = core.IGraph(fake_header)
     >>> graph1.nodes == graph2.nodes
