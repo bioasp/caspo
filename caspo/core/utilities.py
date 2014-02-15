@@ -60,17 +60,11 @@ class FileWriter(File):
         self.iterable = iterable
         self.header = header
         
-    def _mkdir(self, path):
-        if not path.endswith('/'):
-            path = path + '/'
-            
+    def write(self, filename, path="./"):
         if not os.path.exists(path):
             os.mkdir(path)
             
-        return path
-        
-    def write(self, filename, path="./"):
-        self.open(self._mkdir(path) + filename, mode='wb')
+        self.open(os.path.join(path, filename), mode='wb')
         
         if self.header:
             self.fd.write(self.header + "\n")
@@ -99,7 +93,10 @@ class CsvWriter(FileWriter):
     interface.implements(ICsvWriter)
         
     def write(self, filename, path="./"):
-        self.open(self._mkdir(path) + filename, mode='wb')
+        if not os.path.exists(path):
+            os.mkdir(path)
+            
+        self.open(os.path.join(path, filename), mode='wb')
         writer = csv.DictWriter(self.fd, self.header)
         writer.writeheader()
 
