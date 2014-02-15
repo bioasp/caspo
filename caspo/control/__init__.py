@@ -35,5 +35,5 @@ gsm.registerAdapter(Strategies2CsvWriter)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.control.full', root + '/encodings/encoding.lp', potassco.IGringo3)
-reg.register('caspo.control.heuristic', root + '/encodings/heuristic.lp', potassco.IGringo3)
+reg.register('caspo.control.full', root + '/encodings/gringo3/encoding.lp', potassco.IGringo3)
+reg.register('caspo.control.heuristic', root + '/encodings/gringo3/heuristic.lp', potassco.IGringo3)

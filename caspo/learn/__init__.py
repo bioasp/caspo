@@ -42,12 +42,12 @@ gsm.registerUtility(Factory(Ceil), IFactory, 'ceil')
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.learn.guess', root + '/encodings/guess.lp', potassco.IGringo3)
-reg.register('caspo.learn.fixpoint', root + '/encodings/fixpoint.lp', potassco.IGringo3)
-reg.register('caspo.learn.rss', root + '/encodings/residual.lp', potassco.IGringo3)
-reg.register('caspo.learn.opt', root + '/encodings/optimization.lp', potassco.IGringo3)
-reg.register('caspo.learn.rescale', root + '/encodings/rescale.lp', potassco.IGringo3)
-reg.register('caspo.learn.enum', root + '/encodings/enumeration.lp', potassco.IGringo3)
+reg.register('caspo.learn.guess', root + '/encodings/gringo3/guess.lp', potassco.IGringo3)
+reg.register('caspo.learn.fixpoint', root + '/encodings/gringo3/fixpoint.lp', potassco.IGringo3)
+reg.register('caspo.learn.rss', root + '/encodings/gringo3/residual.lp', potassco.IGringo3)
+reg.register('caspo.learn.opt', root + '/encodings/gringo3/optimization.lp', potassco.IGringo3)
+reg.register('caspo.learn.rescale', root + '/encodings/gringo3/rescale.lp', potassco.IGringo3)
+reg.register('caspo.learn.enum', root + '/encodings/gringo3/enumeration.lp', potassco.IGringo3)
 
 reg.register('caspo.learn.guess', root + '/encodings/gringo4/guess.lp', potassco.IGringo4)
 reg.register('caspo.learn.fixpoint', root + '/encodings/gringo4/fixpoint.lp', potassco.IGringo4)
