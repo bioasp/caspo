@@ -29,3 +29,5 @@ eval(M,Z,V,-1) :- free(M,Z,V,D), eval_clause(M,Z,C,-1) :        dnf(D,C).
 :- maxsize>0, maxsize + 1 #count{ intervention(_) }.
 
 #minimize[intervention(_)].
+
+#hide.

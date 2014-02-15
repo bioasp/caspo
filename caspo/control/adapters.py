@@ -100,7 +100,7 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
         self._termset = self._termset.union(asp.ITermSet(multiscenario))    
 
 class PotasscoDisjunctiveController(object):
-    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspDSolver)
+    component.adapts(asp.ITermSet, potassco.IGringo3, potassco.IClaspDSolver)
     interface.implements(IController, IStrategySet)
     
     def __init__(self, termset, gringo, clasp):
@@ -114,7 +114,7 @@ class PotasscoDisjunctiveController(object):
         
         programs = [self.termset.to_file(), encodings('caspo.control.full')]
         
-        self.grover.optimize = asp.TermSet([asp.Term('optimize',[1,1,asp.NativeAtom('incl')])])
+        self.grover.optimize = asp.TermSet([asp.Term('optimize',[1,1,asp.NativeTerm('incl')])])
         stdin="""
         #hide.
         #show hold(atom(intervention(_,_))).
@@ -140,7 +140,6 @@ class PotasscoHeuristicController(object):
         
         programs = [self.termset.to_file(), encodings('caspo.control.full'), encodings('caspo.control.heuristic')]
         stdin = """
-        #hide.
         #show intervention/2.
         """     
         self.grover.run(stdin, 
