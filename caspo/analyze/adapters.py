@@ -59,7 +59,6 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         stdin = """
         :- diff.
 
-        #hide.
         #show clamped/2.
         """
         setup = asp.ITermSet(self.dataset.setup)
