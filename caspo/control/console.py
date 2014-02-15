@@ -65,6 +65,9 @@ def run():
                         
     parser.add_argument("--gringo", dest="gringo", default="gringo",
                         help="gringo grounder binary (Default to 'gringo')", metavar="G")
+                        
+    parser.add_argument("--gringo-series", dest="gringo_series", default=3, choices=[3,4], type=int,
+                        help="gringo series (Default to 3)", metavar="S")
     
     parser.add_argument("--size", dest="size", type=int, default=0,
                         help="maximum size for interventions strategies (Default to 0 (no limit))", metavar="M")
@@ -84,8 +87,12 @@ def run():
     
     gsm = component.getGlobalSiteManager()
 
-    grounder = potassco.GringoGrounder(args.gringo)
-    gsm.registerUtility(grounder, potassco.IGringoGrounder)
+    if args.gringo_series == 3:
+        grounder = potassco.Gringo3(args.gringo)
+        gsm.registerUtility(grounder, potassco.IGringo3)
+    else:
+        grounder = potassco.Gringo4(args.gringo)
+        gsm.registerUtility(grounder, potassco.IGringo4)
     
     if args.solver == 'hclasp':
         solver = potassco.ClaspHSolver(args.hclasp)

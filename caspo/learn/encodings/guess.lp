@@ -16,3 +16,5 @@ path(U,V) :- path(U,W), path(W,V).
    not path(U,V) : stimulus(U).
 
 :- path(_,V), not readout(V), not path(V,U) : readout(U).
+
+#hide.

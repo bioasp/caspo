@@ -43,7 +43,7 @@ def main(args):
     grounder = component.getUtility(asp.IGrounder)
     solver = component.getUtility(asp.ISolver)
     instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
-        
+
     learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
     learner.learn(args.fit, args.size)
     
@@ -68,6 +68,9 @@ def run():
                         
     parser.add_argument("--gringo", dest="gringo", default="gringo",
                         help="gringo grounder binary (Default to 'gringo')", metavar="G")
+
+    parser.add_argument("--gringo-series", dest="gringo_series", default=3, choices=[3,4], type=int,
+                        help="gringo series (Default to 3)", metavar="S")
                         
     parser.add_argument("--fit", dest="fit", type=float, default=0.,
                         help="tolerance over fitness (Default to 0)", metavar="F")
@@ -91,8 +94,12 @@ def run():
     
     gsm = component.getGlobalSiteManager()
 
-    grounder = potassco.GringoGrounder(args.gringo)
-    gsm.registerUtility(grounder, potassco.IGringoGrounder)
+    if args.gringo_series == 3:
+        grounder = potassco.Gringo3(args.gringo)
+        gsm.registerUtility(grounder, potassco.IGringo3)
+    else:
+        grounder = potassco.Gringo4(args.gringo)
+        gsm.registerUtility(grounder, potassco.IGringo4)
     
     solver = potassco.ClaspSolver(args.clasp)
     gsm.registerUtility(solver, potassco.IClaspSolver)

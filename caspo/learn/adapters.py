@@ -87,11 +87,11 @@ class PotasscoLearner(object):
         enum = encodings('caspo.learn.enum')
         
         programs = [self.termset.to_file(), guess, fixpoint, rss, opt]
-        solutions = self.grover.run("#hide. #show formula/2. #show dnf/2. #show clause/3.", 
+        solutions = self.grover.run("#show formula/2. #show dnf/2. #show clause/3.", 
                             grounder_args=programs, 
                             solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"],
                             lazy=False)
-        
+
         opt_size = solutions[0].score[1]
         
         programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, rescale]
@@ -102,7 +102,7 @@ class PotasscoLearner(object):
         programs = [self.termset.to_file(), guess, fixpoint, rss, enum]
         tolerance = ['-c maxrss=%s' % int(opt_rss + opt_rss*fit), '-c maxsize=%s' % (opt_size + size)]
         
-        self.grover.run("#hide. #show dnf/2.", 
+        self.grover.run("#show dnf/2.", 
                 grounder_args=programs + tolerance, 
                 solver_args=["--opt-ignore", "0", "--conf=jumpy"])
                 
