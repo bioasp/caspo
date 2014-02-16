@@ -44,14 +44,14 @@ class IBooleLogicBehaviorSet(core.IBooleLogicNetworkSet):
     def variances(self):
         """"""
     
-class IStatsMappings(interface.Interface):
+class IStats(interface.Interface):
     """
     """
     
     def frequencies(self):
         """"""
         
-    def frequency(self, clause, target):
+    def frequency(self, key):
         """"""
         
     def combinatorics(self):

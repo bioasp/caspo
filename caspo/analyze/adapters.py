@@ -22,7 +22,7 @@ from zope import component, interface
 
 from pyzcasp import asp, potassco
 
-from caspo import core
+from caspo import core, control
 from interfaces import *
 from impl import *
 
@@ -39,6 +39,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         self.grover = component.getMultiAdapter((grounder, solver), asp.IGrounderSolver)
         self.dataset = dataset
         self.setup = dataset.setup
+        self.__core_clampings = set()
         
         cues = set(self.dataset.setup.stimuli + self.dataset.setup.inhibitors)
         self.active_cues = set()
@@ -52,21 +53,27 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         
     @asp.cleanrun
     def core(self):
-        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
-        clamping = encodings('caspo.analyze.guess')
-        fixpoint = encodings('caspo.analyze.fixpoint')
-        diff = encodings('caspo.analyze.diff')
-        stdin = """
-        :- diff.
+        if self.__core_clampings:
+            for clamping in self.__core_clampings:
+                yield clamping
+        else:
+            encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+            clamping = encodings('caspo.analyze.guess')
+            fixpoint = encodings('caspo.analyze.fixpoint')
+            diff = encodings('caspo.analyze.diff')
+            stdin = """
+            :- diff.
 
-        #show clamped/2.
-        """
-        setup = asp.ITermSet(self.dataset.setup)
-        instance = setup.union(asp.ITermSet(self))
-        self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], solver_args=["0"])
+            #show clamped/2.
+            """
+            setup = asp.ITermSet(self.dataset.setup)
+            instance = setup.union(asp.ITermSet(self))
+            self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], solver_args=["0"])
                 
-        for termset in self.grover:                    
-            yield core.IClamping(termset)
+            for termset in self.grover:
+                clamping = core.IClamping(termset)
+                self.__core_clampings.add(clamping)
+                yield clamping
 
     def variances(self):
         n = len(self)
@@ -134,9 +141,9 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             if not found:
                 self.add(BooleLogicBehavior(network.variables, network.mapping))
 
-class BooleLogicNetworkSet2StatsMappings(object):
+class BooleLogicNetworkSet2Stats(object):
     component.adapts(core.IBooleLogicNetworkSet)
-    interface.implements(IStatsMappings)
+    interface.implements(IStats)
     
     def __init__(self, networks):
         self.networks = networks    
@@ -151,14 +158,15 @@ class BooleLogicNetworkSet2StatsMappings(object):
         n = float(len(self.networks))
         for target, clauses in self.__occu.iteritems():
             for clause, occu in clauses.iteritems():
-                yield target, clause, occu / n
+                yield (clause, target), occu / n
         
-    def frequency(self, clause, target):
+    def frequency(self, key):
+        clause, target = key
         return self.__occu[target][clause] / float(len(self.networks))
         
     def __mutuals__(self, candidates, mutually):
         pairs = defaultdict(set)
-        for (t1,c1),(t2,c2) in combinations(candidates, 2):
+        for (c1,t1),(c2,t2) in combinations(candidates, 2):
             valid = True
             for network in self.networks:
                 has_m1 = t1 in network.mapping and c1 in network.mapping[t1]
@@ -168,8 +176,8 @@ class BooleLogicNetworkSet2StatsMappings(object):
                     break
                     
             if valid:
-                pairs[(t1,c1)].add((t2,c2))
-                pairs[(t2,c2)].add((t1,c1))
+                pairs[(c1,t1)].add((c2,t2))
+                pairs[(c2,t2)].add((c1,t1))
                 
         return pairs
         
@@ -179,14 +187,14 @@ class BooleLogicNetworkSet2StatsMappings(object):
         for target, clauses in self.__occu.iteritems():
             for clause, occu in clauses.iteritems():
                 if occu < n:
-                    candidates.add((target, clause))
+                    candidates.add((clause, target))
         
         exclusive = self.__mutuals__(candidates, lambda b1,b2: b1 != b2)
         inclusive = self.__mutuals__(candidates, lambda b1,b2: b1 == b2)
         return exclusive, inclusive
         
 class StatsMappings2CsvWriter(object):
-    component.adapts(IStatsMappings)
+    component.adapts(IStats)
     interface.implements(core.ICsvWriter)
     
     def __init__(self, stats):
@@ -194,19 +202,19 @@ class StatsMappings2CsvWriter(object):
         
     def __iter__(self):
         exclusive, inclusive = self.stats.combinatorics()        
-        for target, clause, freq in self.stats.frequencies():
-            row = dict(link="%s=%s" % (str(clause), target), frequency="%.2f" % freq)
-            if (target,clause) in exclusive:
-                row["exclusive"] = ";".join(map(lambda (t,c): "%s=%s" % (str(c),t), exclusive[(target,clause)]))
+        for key, freq in self.stats.frequencies():
+            row = dict(key="%s=%s" % key, frequency="%.2f" % freq)
+            if key in exclusive:
+                row["exclusive"] = ";".join(map(lambda (c,t): "%s=%s" % (c,t), exclusive[key]))
                 
-            if (target,clause) in inclusive:
-                row["inclusive"] = ";".join(map(lambda (t,c): "%s=%s" % (str(c),t), inclusive[(target,clause)]))
+            if key in inclusive:
+                row["inclusive"] = ";".join(map(lambda (c,t): "%s=%s" % (c,t), inclusive[key]))
         
             yield row
             
     def write(self, filename, path="./"):
         self.writer = component.getUtility(core.ICsvWriter)
-        header = ["link","frequency","exclusive","inclusive"]
+        header = ["key","frequency","exclusive","inclusive"]
         self.writer.load(self, header)
         self.writer.write(filename, path)
         
@@ -217,7 +225,6 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
     def __init__(self, behaviors, point):
         self.behaviors = behaviors
         self.point = point
-        self._core_clampings = 0
         
     def mses(self):
         header = core.ILogicalHeaderMapping(component.getUtility(core.ILogicalNames))
@@ -247,7 +254,6 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
     def core(self, header):
         setup = self.behaviors.dataset.setup        
         for clamping in self.behaviors.core():
-            self._core_clampings += 1
             dc = dict(clamping)
             nrow = dict.fromkeys(header, 0)
             for inh in self.behaviors.active_cues.intersection(setup.inhibitors):
@@ -281,11 +287,24 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
         writer.load(self.core(header), header)
         writer.write(filenames[2], path)
         
-        writer = component.getUtility(core.IFileWriter)
-        lines = []
-        lines.append("Total Boolean logic networks: %s" % len(self.behaviors.networks))
-        lines.append("Total I/O Boolean logic behaviors: %s" % len(self.behaviors))
-        lines.append("Weighted MSE: %.4f" % self.behaviors.mse(self.point.time))
-        lines.append("Core predictions: %.2f%%" % ((100. * self._core_clampings) / 2**(len(self.behaviors.active_cues))))
-        writer.load(lines, "caspo analytics summary")
-        writer.write(filenames[3], path)
+class StrategySet2Stats(object):
+    component.adapts(control.IStrategySet)
+    interface.implements(IStats)
+    
+    def __init__(self, strategies):
+        self.strategies = strategies
+        self.__occu = defaultdict(int)
+        for strategy in strategies:
+            for lit in strategy:
+                self.__occu[lit] += 1
+                
+    def frequencies(self):
+        n = float(len(self.strategies))
+        for lit, occu in self.__occu.iteritems():
+            yield lit, occu / n
+        
+    def frequency(self, key):
+        pass
+        
+    def combinatorics(self):
+        return dict(), dict()

@@ -21,44 +21,67 @@ import os, sys, argparse, pkg_resources
 from zope import component
 
 from pyzcasp import asp, potassco
-from caspo import core, analyze
+from caspo import core, analyze, control
  
 def main(args):
     reader = component.getUtility(core.ICsvReader)
+
+    lines = []
+    if args.networks:
+        reader.read(args.networks)
+        networks = core.IBooleLogicNetworkSet(reader)
+        
+        stats = analyze.IStats(networks)
+        writer = core.ICsvWriter(stats)
+        writer.write('networks-stats.csv', args.outdir)
+        lines.append("Total Boolean logic networks: %s" % len(networks))
+        
+        if args.midas and args.timepoint:
+            reader.read(args.midas)
+            dataset = core.IDataset(reader)
+            point = core.TimePoint(args.timepoint)
     
-    reader.read(args.networks)
-    networks = core.IBooleLogicNetworkSet(reader)
+            writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
+            writer.write('networks-mse.csv', args.outdir)
     
-    reader.read(args.midas)
-    dataset = core.IDataset(reader)
+            grounder = component.getUtility(asp.IGrounder)
+            solver = component.getUtility(asp.ISolver)
+            behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analyze.IBooleLogicBehaviorSet)
+            multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
+            multiwriter.write(['behaviors.csv', 'variances.csv', 'core.csv'], args.outdir)
+            
+            lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
+            lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))
+            lines.append("Core predictions: %.2f%%" % ((100. * len(list(behaviors.core()))) / 2**(len(behaviors.active_cues))))
     
-    point = core.TimePoint(args.timepoint)
-    
-    stats = analyze.IStatsMappings(networks)
-    writer = core.ICsvWriter(stats)
-    writer.write('stats.csv', args.outdir)
-    
-    writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
-    writer.write('networks-mse.csv', args.outdir)
-    
-    grounder = component.getUtility(asp.IGrounder)
-    solver = component.getUtility(asp.ISolver)
-    behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analyze.IBooleLogicBehaviorSet)
-    multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-    multiwriter.write(['behaviors.csv', 'variances.csv', 'core.csv', 'summary.txt'], args.outdir)
+    if args.strategies:
+        reader.read(args.strategies)
+        strategies = control.IStrategySet(reader)
+        stats = analyze.IStats(strategies)
+        writer = core.ICsvWriter(stats)
+        writer.write('strategies-stats.csv', args.outdir)
+        
+        lines.append("Total intervention strategies: %s" % len(strategies))
+
+    writer = component.getUtility(core.IFileWriter)
+    writer.load(lines, "caspo analytics summary")
+    writer.write('summary.txt', args.outdir)
     
     return 0
 
 def run():    
     parser = argparse.ArgumentParser()
-    parser.add_argument("networks",
-                        help="Logical networks in CSV format")
+    parser.add_argument("--networks", dest="networks",
+                        help="logical networks in CSV format", metavar="N")
 
-    parser.add_argument("midas",
-                        help="Experimental dataset in MIDAS file")
+    parser.add_argument("--midas", dest="midas",
+                        help="experimental dataset in MIDAS file", metavar="M")
                         
-    parser.add_argument("timepoint", type=int,
-                        help="time point for the early-responde in the midas file")
+    parser.add_argument("--timepoint", dest="timepoint", type=int,
+                        help="time point for the early-responde in the midas file", metavar="T")
+
+    parser.add_argument("--strategies",
+                        help="intervention stratgies in CSV format", metavar="S")
                         
     parser.add_argument("--clasp", dest="clasp", default="clasp",
                         help="clasp solver binary (Default to 'clasp')", metavar="C")

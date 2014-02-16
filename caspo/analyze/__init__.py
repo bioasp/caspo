@@ -29,9 +29,10 @@ from zope import component
 gsm = component.getGlobalSiteManager()
 
 gsm.registerAdapter(BoolLogicNetworkSet2BooleLogicBehaviorSet, (core.IBooleLogicNetworkSet, core.IDataset, potassco.IGringoGrounder, potassco.IClaspSolver), IBooleLogicBehaviorSet)
-gsm.registerAdapter(BooleLogicNetworkSet2StatsMappings)
+gsm.registerAdapter(BooleLogicNetworkSet2Stats)
 gsm.registerAdapter(StatsMappings2CsvWriter)
 gsm.registerAdapter(BooleLogicBehaviorSet2MultiCsvWriter)
+gsm.registerAdapter(StrategySet2Stats)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
