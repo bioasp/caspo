@@ -19,12 +19,17 @@
 from zope import interface
 from caspo import core
 
+class IDiGraph(interface.Interface):
+    """
+    """
+    nxGraph = interface.Attribute("NetworkX DiGraph instance")
+
+
 class IMultiDiGraph(interface.Interface):
     """
     """
     nxGraph = interface.Attribute("NetworkX MultiDiGraph instance")
     
-
 class IDotWriter(core.IFileWriter):
     """
     Dot writer
