@@ -19,6 +19,7 @@
 import numpy
 from collections import defaultdict, namedtuple
 from itertools import chain, combinations
+from zope import component
 from interfaces import *
 
 class Graph(object):
@@ -176,10 +177,6 @@ class Clamping(frozenset):
     
     def __init__(self, literals=[]):
         super(Clamping, self).__init__(frozenset(literals))
-        
-from zope import component
-
-from interfaces import *
 
 class TimePoint(object):
     interface.implements(ITimePoint)

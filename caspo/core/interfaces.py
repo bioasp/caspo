@@ -192,6 +192,9 @@ class IClamping(interface.Interface):
     
     def __iter__(self):
         """"""
+        
+    def difference(self, iterable):
+        """"""
     
 class IClampingList(interface.Interface):
     """
