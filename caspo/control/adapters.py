@@ -172,7 +172,6 @@ class Strategies2CsvWriter(object):
         names = component.getUtility(core.ILogicalNames)
         self.header = names.variables
         
-        
     def __iter__(self):
         for strategy in self.strategies:
             row = dict.fromkeys(self.header, 0)
@@ -184,4 +183,20 @@ class Strategies2CsvWriter(object):
         writer.load(self, self.header)
         writer.write(filename, path)
         
+class CsvReader2StrategySet(object):
+    component.adapts(core.ICsvReader)
+    interface.implements(IStrategySet)
     
+    def __init__(self, reader):
+        super(CsvReader2StrategySet, self).__init__()
+        
+        self.strategies = StrategySet()
+        for row in reader:
+            clamping = map(lambda (k,v): core.Literal(k, int(v)), filter(lambda (k,v): v != '0', row.iteritems()))
+            self.strategies.add(Strategy(clamping))
+        
+    def __iter__(self):
+        return iter(self.strategies)
+        
+    def __len__(self):
+        return len(self.strategies)

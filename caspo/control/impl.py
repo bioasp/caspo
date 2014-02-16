@@ -41,3 +41,6 @@ class Strategy(core.Clamping):
     
     def __init__(self, literals=[]):
         super(Strategy, self).__init__(literals)
+        
+class StrategySet(set):
+    interface.implements(IStrategySet)
