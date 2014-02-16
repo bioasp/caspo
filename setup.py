@@ -23,29 +23,37 @@ version = '2.0dev'
 
 setup(name='caspo',
       version=version,
-      description="",
+      description="Reasoning on the response of logical signaling networks with Answer Set Programming",
       long_description="""\
 """,
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='',
+      classifiers=["Intended Audience :: Science/Research", 
+                   "Intended Audience :: Healthcare Industry",
+                   "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+                   "Operating System :: OS Independent",
+                   "Programming Language :: Python :: 2.7",
+                   "Topic :: Scientific/Engineering :: Artificial Intelligence",
+                   "Topic :: Scientific/Engineering :: Bio-Informatics"
+                   ], 
+                   # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      keywords='logical signaling networks systems biology answer set programming',
       author='Santiago Videla',
       author_email='santiago.videla@gmail.com',
       url='',
-      license='gpl3',
+      license='GPLv3+',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
       install_requires=[
           "pyzcasp",
           "numpy",
-          "networkx",
-          "pygraphviz"
+          "networkx"
       ],
       entry_points={
           'console_scripts': [
               'caspo-learn=caspo.learn.console:run',
               'caspo-analyze=caspo.analyze.console:run',
-              'caspo-control=caspo.control.console:run'
+              'caspo-control=caspo.control.console:run',
+              'caspo-visualize=caspo.visualize.console:run'
           ]
       }
       )
