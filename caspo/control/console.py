@@ -42,7 +42,7 @@ def main(args):
     strategies = controller.control(args.size)
     
     writer = core.ICsvWriter(strategies)
-    writer.write('strategies.csv', args.outdir)
+    writer.write('strategies.csv', args.outdir, args.quiet)
         
     return 0
 
@@ -78,12 +78,18 @@ def run():
     parser.add_argument("--allow-goals", dest="igoals", action='store_true',
                         help="allow intervention over goals (Default to False)")
 
+    parser.add_argument("--quiet", dest="quiet", action="store_true",
+                        help="do not print anything to stdout")
+
     parser.add_argument("--out", dest="outdir", default='.',
                         help="output directory path (Default to current directory)", metavar="O")
                         
     parser.add_argument('--version', action='version', version='caspo version %s' % pkg_resources.get_distribution("caspo").version)
 
     args = parser.parse_args()
+
+    if not args.quiet:
+        print "Initializing caspo-control...\n"
     
     gsm = component.getGlobalSiteManager()
 

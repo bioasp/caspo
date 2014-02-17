@@ -242,10 +242,10 @@ class BooleLogicNetworkSet2CsvWriter(object):
             row.mapping["MSE"] = "%.4f" % mse
             yield row.mapping
         
-    def write(self, filename, path="./"):
+    def write(self, filename, path="./", quiet=False):
         self.writer = component.getUtility(core.ICsvWriter)
         header = list(self._nheader)
         header.append("MSE")
         
         self.writer.load(self.mses(), header)
-        self.writer.write(filename, path)
+        self.writer.write(filename, path, quiet)

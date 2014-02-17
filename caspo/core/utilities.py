@@ -60,7 +60,7 @@ class FileWriter(File):
         self.iterable = iterable
         self.header = header
         
-    def write(self, filename, path="./"):
+    def write(self, filename, path="./", quiet=False):
         if not os.path.exists(path):
             os.mkdir(path)
             
@@ -72,8 +72,11 @@ class FileWriter(File):
             
         for line in self.iterable:
             self.fd.write(line + "\n")
-            
+        
         self.close()
+        if not quiet:
+            print "Wrote %s" % os.path.join(path, filename)
+        
 
 class CsvReader(FileReader):
     interface.implements(ICsvReader)
@@ -92,7 +95,7 @@ class CsvReader(FileReader):
 class CsvWriter(FileWriter):
     interface.implements(ICsvWriter)
         
-    def write(self, filename, path="./"):
+    def write(self, filename, path="./", quiet=False):
         if not os.path.exists(path):
             os.mkdir(path)
             
@@ -104,6 +107,8 @@ class CsvWriter(FileWriter):
             writer.writerow(row)
             
         self.close()
+        if not quiet:
+            print "Wrote %s" % os.path.join(path, filename)
         
 class LogicalNames(object):
     interface.implements(ILogicalNames)

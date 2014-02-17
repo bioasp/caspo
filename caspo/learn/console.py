@@ -46,7 +46,7 @@ def main(args):
     networks = learner.learn(args.fit, args.size)
     
     writer = core.ICsvWriter(networks)
-    writer.write('networks.csv', args.outdir)
+    writer.write('networks.csv', args.outdir, args.quiet)
     
     return 0
 
@@ -74,6 +74,9 @@ def run():
     parser.add_argument("--discretization", dest="discretization", default='round', choices=['round', 'floor', 'ceil'],
                         help="discretization function: round, floor, ceil (Default to round)", metavar="T")
                         
+    parser.add_argument("--quiet", dest="quiet", action="store_true",
+                        help="do not print anything to stdout")
+                        
     parser.add_argument("--out", dest="outdir", default='.',
                         help="output directory path (Default to current directory)", metavar="O")
     
@@ -81,6 +84,9 @@ def run():
     
     args = parser.parse_args()
     
+    if not args.quiet:
+        print "Initializing caspo-learn...\n"
+        
     gsm = component.getGlobalSiteManager()
 
     clingo = potassco.Clingo(args.clingo)

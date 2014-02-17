@@ -44,7 +44,7 @@ class IFileWriter(IFile):
     def load(self, iterable, append=False):
         """"""
         
-    def write(self, filename, path="./"):
+    def write(self, filename, path="./", quiet=False):
         """"""
     
 class ICsvReader(IFileReader):
@@ -65,7 +65,7 @@ class IMultiFileWriter(interface.Interface):
     """
     
     
-    def write(self, filenames, path="./"):
+    def write(self, filenames, path="./", quiet=False):
         """"""
         
 class IGraphReader(IFileReader):

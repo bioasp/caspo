@@ -178,10 +178,10 @@ class Strategies2CsvWriter(object):
             row.update(strategy)
             yield row
         
-    def write(self, filename, path='./'):
+    def write(self, filename, path='./', quiet=False):
         writer = component.getUtility(core.ICsvWriter)
         writer.load(self, self.header)
-        writer.write(filename, path)
+        writer.write(filename, path, quiet)
         
 class CsvReader2StrategySet(object):
     component.adapts(core.ICsvReader)

@@ -33,7 +33,7 @@ def main(args):
         
         stats = analyze.IStats(networks)
         writer = core.ICsvWriter(stats)
-        writer.write('networks-stats.csv', args.outdir)
+        writer.write('networks-stats.csv', args.outdir, args.quiet)
         lines.append("Total Boolean logic networks: %s" % len(networks))
         
         if args.midas:
@@ -42,13 +42,13 @@ def main(args):
             point = core.TimePoint(int(args.midas[1]))
     
             writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
-            writer.write('networks-mse.csv', args.outdir)
+            writer.write('networks-mse.csv', args.outdir, args.quiet)
     
             grounder = component.getUtility(asp.IGrounder)
             solver = component.getUtility(asp.ISolver)
             behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analyze.IBooleLogicBehaviorSet)
             multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-            multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
+            multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir, args.quiet)
             
             lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
             lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))
@@ -59,14 +59,20 @@ def main(args):
         strategies = control.IStrategySet(reader)
         stats = analyze.IStats(strategies)
         writer = core.ICsvWriter(stats)
-        writer.write('strategies-stats.csv', args.outdir)
+        writer.write('strategies-stats.csv', args.outdir, args.quiet)
         
         lines.append("Total intervention strategies: %s" % len(strategies))
 
     writer = component.getUtility(core.IFileWriter)
     writer.load(lines, "caspo analytics summary")
-    writer.write('summary.txt', args.outdir)
+    writer.write('summary.txt', args.outdir, args.quiet)
     
+    if not args.quiet:
+        print "\ncaspo analytics summary"
+        print "======================="
+        for line in lines:
+            print line
+        
     return 0
 
 def run():    
@@ -89,12 +95,18 @@ def run():
     parser.add_argument("--gringo-series", dest="gringo_series", default=3, choices=[3,4], type=int,
                         help="gringo series (Default to 3)", metavar="S")
 
+    parser.add_argument("--quiet", dest="quiet", action="store_true",
+                        help="do not print anything to stdout")
+
     parser.add_argument("--out", dest="outdir", default='.',
                         help="output directory path (Default to current directory)", metavar="O")
                             
     parser.add_argument('--version', action='version', version='caspo version %s' % pkg_resources.get_distribution("caspo").version)
     
     args = parser.parse_args()
+
+    if not args.quiet:
+        print "Initializing caspo-analyze...\n"
     
     gsm = component.getGlobalSiteManager()
 
@@ -105,7 +117,7 @@ def run():
         grounder = potassco.Gringo4(args.gringo)
         gsm.registerUtility(grounder, potassco.IGringo4)
     
-    solver = potassco.ClaspSolver(args.clasp)
-    gsm.registerUtility(solver, potassco.IClaspSolver)
+    solver = potassco.Clasp2(args.clasp)
+    gsm.registerUtility(solver, potassco.IClasp2)
     
     return main(args)

@@ -210,7 +210,7 @@ class StatsMappings2CsvWriter(object):
         
             yield row
             
-    def write(self, filename, path="./"):
+    def write(self, filename, path="./", quiet=False):
         self.writer = component.getUtility(core.ICsvWriter)
         header = ["key","frequency","exclusive","inclusive"]
         self.writer.load(self, header)
@@ -264,7 +264,7 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
                     
             yield nrow
         
-    def write(self, filenames, path="./"):        
+    def write(self, filenames, path="./", quiet=False):
         writer = core.ICsvWriter(self.behaviors)
         writer.write(filenames[0], path)
         
@@ -274,19 +274,19 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
         header.append("MSE")
         header.append("Networks")
         writer.load(self.mses(), header)
-        writer.write(filenames[1], path)
+        writer.write(filenames[1], path, quiet)
         
         setup = self.behaviors.dataset.setup
         
         header = setup.stimuli + map(lambda i: i+'i', setup.inhibitors) + setup.readouts
         writer.load(self.variances(header), header)
-        writer.write(filenames[2], path)
+        writer.write(filenames[2], path, quiet)
         
         stimuli = self.behaviors.active_cues.intersection(setup.stimuli)
         inhibitors = self.behaviors.active_cues.intersection(setup.inhibitors)
         header =  list(stimuli) + map(lambda i: i+'i', inhibitors)
         writer.load(self.core(header), header)
-        writer.write(filenames[3], path)
+        writer.write(filenames[3], path, quiet)
         
 class StrategySet2Stats(object):
     component.adapts(control.IStrategySet)
