@@ -36,10 +36,10 @@ def main(args):
         writer.write('networks-stats.csv', args.outdir)
         lines.append("Total Boolean logic networks: %s" % len(networks))
         
-        if args.midas and args.timepoint:
-            reader.read(args.midas)
+        if args.midas:
+            reader.read(args.midas[0])
             dataset = core.IDataset(reader)
-            point = core.TimePoint(args.timepoint)
+            point = core.TimePoint(int(args.midas[1]))
     
             writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
             writer.write('networks-mse.csv', args.outdir)
@@ -74,12 +74,9 @@ def run():
     parser.add_argument("--networks", dest="networks",
                         help="logical networks in CSV format", metavar="N")
 
-    parser.add_argument("--midas", dest="midas",
-                        help="experimental dataset in MIDAS file", metavar="M")
+    parser.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"),
+                        help="experimental dataset in MIDAS file and time-point to be used")
                         
-    parser.add_argument("--timepoint", dest="timepoint", type=int,
-                        help="time point for the early-responde in the midas file", metavar="T")
-
     parser.add_argument("--strategies",
                         help="intervention stratgies in CSV format", metavar="S")
                         

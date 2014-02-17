@@ -29,13 +29,12 @@ def main(args):
     graph = core.IGraph(sif)
     
     reader = component.getUtility(core.ICsvReader)
-    reader.read(args.midas)
+    reader.read(args.midas[0])
     dataset = core.IDataset(reader)
     
-    point = core.TimePoint(args.timepoint)
+    point = core.TimePoint(int(args.midas[1]))
     
-    discretize = component.createObject(args.discretization)
-    discretize.factor = args.factor
+    discretize = component.createObject(args.discretization, args.factor)
     discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
     
     zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
@@ -57,11 +56,8 @@ def run():
     parser.add_argument("pkn",
                         help="Prior knowledge network in SIF format")
 
-    parser.add_argument("midas",
-                        help="Experimental dataset in MIDAS file")
-                        
-    parser.add_argument("timepoint", type=int,
-                        help="time point for the early-responde in the midas file")
+    parser.add_argument("midas", nargs=2, metavar=("M","T"),
+                        help="experimental dataset in MIDAS file and time-point to be used")
                         
     parser.add_argument("--clasp", dest="clasp", default="clasp",
                         help="clasp solver binary (Default to 'clasp')", metavar="C")

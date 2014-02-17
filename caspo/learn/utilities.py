@@ -20,7 +20,8 @@ import math
 from interfaces import *
 
 class Discretization(object):
-    factor = 1
+    def __init__(self, factor=1):
+        self.factor = factor
 
 class Round(Discretization):
     interface.implements(IDiscretization)
