@@ -2,25 +2,7 @@ Here we are going to test adapters to ``asp.ITermSet``::
 
     >>> from pyzcasp import asp
     
-Let's start by adapting a simple graph::
-
-    >>> termset = asp.ITermSet(fake_graph)    
-    >>> nodes = filter(lambda t: t.pred == 'node', termset)
-    >>> len(nodes)
-    4
-    >>> sorted(map(lambda t: t.arg(0), nodes))
-    ['a', 'b', 'c', 'd']
-    >>> edges = filter(lambda t: t.pred == 'edge', termset)
-    >>> len(edges)
-    3
-    >>> asp.Term('edge',['a','c',1]) in edges
-    True
-    >>> asp.Term('edge',['b','c',-1]) in edges
-    True
-    >>> asp.Term('edge',['c','d',1]) in edges
-    True
-    
-Now, let's adapt an experimental setup::
+Let's adapt an experimental setup::
 
     >>> termset = asp.ITermSet(fake_setup)
     >>> len(termset)

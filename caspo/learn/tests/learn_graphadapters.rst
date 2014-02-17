@@ -1,6 +1,6 @@
 We are going to test adapters to ``IGraph``::
 
-    >>> from caspo import core
+    >>> from caspo import core, learn
 
 We can adapt a SIF file reader to a graph::
 
@@ -36,11 +36,3 @@ Second, a line not separated by tabs::
     Traceback (most recent call last):
     ...
     IOError: Cannot read line b	-1 c in SIF file: need more than 2 values to unpack
-
-Finally, we can adapt a ``LogicalHeaderMapping`` which in this case must result in the same graph as above::
-    
-    >>> graph2 = core.IGraph(fake_header)
-    >>> graph1.nodes == graph2.nodes
-    True
-    >>> graph1.edges == graph2.edges
-    True

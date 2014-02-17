@@ -44,25 +44,6 @@ class GraphAdapter(object):
         return self.graph.predecessors(node)
 
 
-class Sif2Graph(GraphAdapter):
-    component.adapts(IFileReader)
-    
-    def __init__(self, sif):
-        super(Sif2Graph, self).__init__()
-                
-        for line in sif:
-            line = line.strip()
-            if line:
-                try:
-                    source, rel, target = line.split('\t')
-                    sign = int(rel)
-                except Exception, e:
-                    raise IOError("Cannot read line %s in SIF file: %s" % (line, str(e)))
-                    
-                self.graph.nodes.add(source)
-                self.graph.nodes.add(target)
-                self.graph.edges.add((source,target,sign))
-
 class LogicalHeaderMapping2Graph(GraphAdapter):
     component.adapts(ILogicalHeaderMapping)
     
@@ -76,18 +57,6 @@ class LogicalHeaderMapping2Graph(GraphAdapter):
             for (source, signature) in Clause.from_str(clause):
                 self.graph.nodes.add(source)
                 self.graph.edges.add((source, target, signature))
-
-class Graph2TermSet(asp.TermSetAdapter):
-    component.adapts(IGraph)
-    
-    def __init__(self, graph):
-        super(Graph2TermSet, self).__init__()
-        
-        for node in graph.nodes:
-            self._termset.add(asp.Term('node', [node]))
-            
-        for source, target, sign in graph.edges:
-            self._termset.add(asp.Term('edge', [source, target, sign]))
 
 class Setup2TermSet(asp.TermSetAdapter):
     component.adapts(ISetup)
@@ -138,39 +107,6 @@ class LogicalNetwork2TermSet(asp.TermSetAdapter):
                 for lit in clause:
                     self._termset.add(asp.Term('clause', [clause_name, lit.variable, lit.signature]))
         
-class TermSet2LogicalNetwork(object):
-    component.adapts(asp.ITermSet)
-    interface.implements(ILogicalNetwork)
-    
-    def __init__(self, termset):
-        super(TermSet2LogicalNetwork, self).__init__()
-        
-        names = component.getUtility(ILogicalNames)
-        self._mapping = defaultdict(set)
-        for term in termset:
-            if term.pred == 'dnf':
-                self._mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
-        
-    @property
-    def variables(self):
-        return self._network.variables
-        
-    @property
-    def mapping(self):
-        return self._network.mapping
-
-class TermSet2BooleLogicNetwork(TermSet2LogicalNetwork):
-    component.adapts(asp.ITermSet)
-    interface.implements(IBooleLogicNetwork)
-    
-    def __init__(self, termset):
-        super(TermSet2BooleLogicNetwork, self).__init__(termset)
-        names = component.getUtility(ILogicalNames)        
-        self._network = BooleLogicNetwork(names.variables, self._mapping)
-        
-    def prediction(self, var, clamping):
-        return self._network.prediction(var, clamping)
-
 class LogicalMapping2LogicalNetwork(object):
     component.adapts(ILogicalMapping)
     interface.implements(ILogicalNetwork)
@@ -276,31 +212,7 @@ class LogicalNetworkSet2CsvWriter(object):
         self.writer = component.getUtility(ICsvWriter)
         self.writer.load(self, self.header)
         self.writer.write(filename, path)
-        
-class BooleLogicNetworkSet2CsvWriter(object):
-    component.adapts(IBooleLogicNetworkSet, IDataset, ITimePoint)
-    interface.implements(ICsvWriter)
-
-    def __init__(self, networks, dataset, point):
-        self.networks = networks
-        self.dataset = dataset
-        self.point = point
-        self._nheader = ILogicalHeaderMapping(component.getUtility(ILogicalNames))
-            
-    def mses(self):
-        for network, mse in self.networks.itermses(self.dataset, self.point.time):
-            row = component.getMultiAdapter((network, self._nheader), ILogicalMapping)
-            row.mapping["MSE"] = "%.4f" % mse
-            yield row.mapping
-        
-    def write(self, filename, path="./"):
-        self.writer = component.getUtility(ICsvWriter)
-        header = list(self._nheader)
-        header.append("MSE")
-        
-        self.writer.load(self.mses(), header)
-        self.writer.write(filename, path)
-        
+                
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNetworkSet)
     

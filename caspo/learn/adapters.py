@@ -23,6 +23,25 @@ from pyzcasp import asp, potassco
 from caspo import core
 from interfaces import *
 
+class Sif2Graph(core.GraphAdapter):
+    component.adapts(core.IFileReader)
+    
+    def __init__(self, sif):
+        super(Sif2Graph, self).__init__()
+                
+        for line in sif:
+            line = line.strip()
+            if line:
+                try:
+                    source, rel, target = line.split('\t')
+                    sign = int(rel)
+                except Exception, e:
+                    raise IOError("Cannot read line %s in SIF file: %s" % (line, str(e)))
+                    
+                self.graph.nodes.add(source)
+                self.graph.nodes.add(target)
+                self.graph.edges.add((source,target,sign))
+
 class Dataset2DiscreteDataset(object):
     component.adapts(core.IDataset, IDiscretization)
     interface.implements(IDiscreteDataset)
@@ -34,6 +53,32 @@ class Dataset2DiscreteDataset(object):
     def at(self, time):
         for i, cues, obs in self.dataset.at(time):
             yield i, cues, dict(map(lambda (r,v): (r, self.discretize(v)), obs.iteritems()))
+            
+
+class TermSet2BooleLogicNetwork(object):
+    component.adapts(asp.ITermSet)
+    interface.implements(core.IBooleLogicNetwork)
+    
+    def __init__(self, termset):
+        names = component.getUtility(core.ILogicalNames)
+        self._mapping = defaultdict(set)
+        for term in termset:
+            if term.pred == 'dnf':
+                self._mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
+        
+        self._network = core.BooleLogicNetwork(names.variables, self._mapping)
+
+    @property
+    def variables(self):
+        return self._network.variables
+    
+    @property
+    def mapping(self):
+        return self._network.mapping
+    
+    def prediction(self, var, clamping):
+        return self._network.prediction(var, clamping)
+
 
 class Dataset2TermSet(asp.TermSetAdapter):
     component.adapts(core.ITimePoint, IDiscreteDataset)
@@ -193,3 +238,27 @@ class CompressedGraph(core.GraphAdapter):
             self._forward[source].remove((node, s))
 
         del self._backward[node]
+
+class BooleLogicNetworkSet2CsvWriter(object):
+    component.adapts(core.IBooleLogicNetworkSet, core.IDataset, core.ITimePoint)
+    interface.implements(core.ICsvWriter)
+
+    def __init__(self, networks, dataset, point):
+        self.networks = networks
+        self.dataset = dataset
+        self.point = point
+        self._nheader = core.ILogicalHeaderMapping(component.getUtility(core.ILogicalNames))
+            
+    def mses(self):
+        for network, mse in self.networks.itermses(self.dataset, self.point.time):
+            row = component.getMultiAdapter((network, self._nheader), core.ILogicalMapping)
+            row.mapping["MSE"] = "%.4f" % mse
+            yield row.mapping
+        
+    def write(self, filename, path="./"):
+        self.writer = component.getUtility(core.ICsvWriter)
+        header = list(self._nheader)
+        header.append("MSE")
+        
+        self.writer.load(self.mses(), header)
+        self.writer.write(filename, path)

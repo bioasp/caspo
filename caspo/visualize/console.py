@@ -24,35 +24,36 @@ from caspo import core, visualize, control, learn
  
 def main(args):
     reader = component.getUtility(core.ICsvReader)
-    if args.pkn and args.midas:
-        sif = component.getUtility(core.IFileReader)
-        sif.read(args.pkn)
-        graph = core.IGraph(sif)
-        
+    if args.midas:
         reader.read(args.midas)
         dataset = core.IDataset(reader)
         
-        zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
+        if args.pkn:
+            sif = component.getUtility(core.IFileReader)
+            sif.read(args.pkn)
+            graph = core.IGraph(sif)
+            
+            zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
         
-        if zipgraph.nodes != graph.nodes:
-            writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
-            writer.write('pkn-orig.dot', args.outdir)
+            if zipgraph.nodes != graph.nodes:
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
+                writer.write('pkn-orig.dot', args.outdir)
             
-            writer = component.getMultiAdapter((visualize.IMultiDiGraph(zipgraph), dataset.setup), visualize.IDotWriter)
-            writer.write('pkn-zip.dot', args.outdir)
-        else:
-            writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
-            writer.write('pkn.dot', args.outdir)
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(zipgraph), dataset.setup), visualize.IDotWriter)
+                writer.write('pkn-zip.dot', args.outdir)
+            else:
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
+                writer.write('pkn.dot', args.outdir)
     
-    if args.networks and args.midas:
-        reader.read(args.networks)
-        networks = core.IBooleLogicNetworkSet(reader)
-        for i, network in enumerate(networks):
-            writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
-            writer.write('network-%s.dot' % i, args.outdir)
+        if args.networks:
+            reader.read(args.networks)
+            networks = core.IBooleLogicNetworkSet(reader)
+            for i, network in enumerate(networks):
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
+                writer.write('network-%s.dot' % i, args.outdir)
             
-        writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
-        writer.write('networks.dot', args.outdir)
+            writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
+            writer.write('networks.dot', args.outdir)
         
     if args.strategies:
         reader.read(args.strategies)

@@ -21,7 +21,7 @@ import os, sys, argparse, pkg_resources
 from zope import component
 
 from pyzcasp import asp, potassco
-from caspo import core, analyze, control
+from caspo import core, analyze, learn, control
  
 def main(args):
     reader = component.getUtility(core.ICsvReader)
@@ -48,7 +48,7 @@ def main(args):
             solver = component.getUtility(asp.ISolver)
             behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analyze.IBooleLogicBehaviorSet)
             multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-            multiwriter.write(['behaviors.csv', 'variances.csv', 'core.csv'], args.outdir)
+            multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
             
             lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
             lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))

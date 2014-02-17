@@ -26,13 +26,11 @@ from zope.component import getGlobalSiteManager
 from zope import interface
 
 gsm = getGlobalSiteManager()
-gsm.registerAdapter(Sif2Graph)
+
 gsm.registerAdapter(LogicalHeaderMapping2Graph)
-gsm.registerAdapter(Graph2TermSet)
 gsm.registerAdapter(Setup2TermSet)
 gsm.registerAdapter(LogicalNames2TermSet)
 gsm.registerAdapter(LogicalNetwork2TermSet)
-gsm.registerAdapter(TermSet2BooleLogicNetwork, (asp.ITermSet,), IBooleLogicNetwork)
 gsm.registerAdapter(LogicalMapping2LogicalNetwork)
 gsm.registerAdapter(LogicalMapping2BooleLogicNetwork, (ILogicalMapping, ), IBooleLogicNetwork)
 gsm.registerAdapter(CsvReader2LogicalNetworkSet)
@@ -40,7 +38,6 @@ gsm.registerAdapter(CsvReader2BooleLogicNetworkSet, (ICsvReader,), IBooleLogicNe
 gsm.registerAdapter(LogicalNames2HeaderMapping)
 gsm.registerAdapter(LogicalNetwork2LogicalMapping)
 gsm.registerAdapter(LogicalNetworkSet2CsvWriter)
-gsm.registerAdapter(BooleLogicNetworkSet2CsvWriter)
 gsm.registerAdapter(LogicalNetworkSet2TermSet)
 gsm.registerAdapter(CsvReader2Dataset, (ICsvReader,), IDataset)
 gsm.registerAdapter(ClampingTerm2TermSet)
