@@ -84,7 +84,7 @@ def run():
     gsm = component.getGlobalSiteManager()
 
     clingo = potassco.Clingo(args.clingo)
-    gsm.registerUtility(clingo, asp.IGrounderSolver)
+    gsm.registerUtility(clingo, potassco.IGrounderSolver)
     
     return main(args)
         
