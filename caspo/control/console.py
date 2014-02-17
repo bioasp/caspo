@@ -39,9 +39,9 @@ def main(args):
     instance = component.getMultiAdapter((networks, multiscenario), asp.ITermSet)
 
     controller = component.getMultiAdapter((instance, grounder, solver), control.IController)
-    controller.control(args.size)
+    strategies = controller.control(args.size)
     
-    writer = core.ICsvWriter(controller)
+    writer = core.ICsvWriter(strategies)
     writer.write('strategies.csv', args.outdir)
         
     return 0

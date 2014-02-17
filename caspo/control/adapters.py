@@ -101,12 +101,13 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
 
 class PotasscoDisjunctiveController(object):
     component.adapts(asp.ITermSet, potassco.IGringo3, potassco.IClaspDSolver)
-    interface.implements(IController, IStrategySet)
+    interface.implements(IController)
     
     def __init__(self, termset, gringo, clasp):
         super(PotasscoDisjunctiveController, self).__init__()
         self.termset = termset
         self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver)
+        self._stratgies = StrategySet()
             
     @asp.cleanrun        
     def control(self, size=0):
@@ -119,20 +120,19 @@ class PotasscoDisjunctiveController(object):
         #hide.
         #show hold(atom(intervention(_,_))).
         """
-        self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=["0"])
+        strategies = self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=["0"], adapter=IStrategy)
         
-    def __iter__(self):
-        for termset in self.grover:
-            yield IStrategy(termset)
+        return StrategySet(strategies)
 
 class PotasscoHeuristicController(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver)
-    interface.implements(IController, IStrategySet)
+    interface.implements(IController)
         
     def __init__(self, termset, gringo, clasp):
         super(PotasscoHeuristicController, self).__init__()
         self.termset = termset
         self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+        self._stratgies = StrategySet()
 
     @asp.cleanrun            
     def control(self, size=0):
@@ -142,14 +142,14 @@ class PotasscoHeuristicController(object):
         stdin = """
         #show intervention/2.
         """     
-        self.grover.run(stdin, 
+        strategies = self.grover.run(stdin, 
             grounder_args=programs + ['-c maxsize=%s' % size], 
-            solver_args=['0', '-e record', '--opt-ignore'])
-
-    def __iter__(self):
-        for ts in self.grover:
-            yield IStrategy(asp.TermSet(filter(lambda t: len(t.args) == 2, ts)))
-
+            solver_args=['0', '-e record', '--opt-ignore'],
+            adapter=IStrategy,
+            termset_filter=lambda t: len(t.args) == 2)
+            
+        return StrategySet(strategies)
+        
 class TermSet2Strategy(object):
     component.adapts(asp.ITermSet)
     interface.implements(IStrategy)
