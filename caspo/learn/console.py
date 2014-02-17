@@ -39,14 +39,13 @@ def main(args):
     
     zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
 
-    grounder = component.getUtility(asp.IGrounder)
-    solver = component.getUtility(asp.ISolver)
+    solver = component.getUtility(asp.IGrounderSolver)
     instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
 
-    learner = component.getMultiAdapter((instance, grounder, solver), learn.ILearner)
-    learner.learn(args.fit, args.size)
+    learner = component.getMultiAdapter((instance, solver), learn.ILearner)
+    networks = learner.learn(args.fit, args.size)
     
-    writer = core.ICsvWriter(learner)
+    writer = core.ICsvWriter(networks)
     writer.write('networks.csv', args.outdir)
     
     return 0
@@ -59,14 +58,8 @@ def run():
     parser.add_argument("midas", nargs=2, metavar=("M","T"),
                         help="experimental dataset in MIDAS file and time-point to be used")
                         
-    parser.add_argument("--clasp", dest="clasp", default="clasp",
-                        help="clasp solver binary (Default to 'clasp')", metavar="C")
-                        
-    parser.add_argument("--gringo", dest="gringo", default="gringo",
-                        help="gringo grounder binary (Default to 'gringo')", metavar="G")
-
-    parser.add_argument("--gringo-series", dest="gringo_series", default=3, choices=[3,4], type=int,
-                        help="gringo series (Default to 3)", metavar="S")
+    parser.add_argument("--clingo", dest="clingo", default="clingo",
+                        help="clingo solver binary (Default to 'clingo')", metavar="C")
                         
     parser.add_argument("--fit", dest="fit", type=float, default=0.,
                         help="tolerance over fitness (Default to 0)", metavar="F")
@@ -90,15 +83,8 @@ def run():
     
     gsm = component.getGlobalSiteManager()
 
-    if args.gringo_series == 3:
-        grounder = potassco.Gringo3(args.gringo)
-        gsm.registerUtility(grounder, potassco.IGringo3)
-    else:
-        grounder = potassco.Gringo4(args.gringo)
-        gsm.registerUtility(grounder, potassco.IGringo4)
-    
-    solver = potassco.ClaspSolver(args.clasp)
-    gsm.registerUtility(solver, potassco.IClaspSolver)
+    clingo = potassco.Clingo(args.clingo)
+    gsm.registerUtility(clingo, asp.IGrounderSolver)
     
     return main(args)
         

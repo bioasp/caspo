@@ -61,13 +61,14 @@ class TermSet2BooleLogicNetwork(object):
     
     def __init__(self, termset):
         names = component.getUtility(core.ILogicalNames)
-        self._mapping = defaultdict(set)
+        mapping = defaultdict(set)
         for term in termset:
             if term.pred == 'dnf':
-                self._mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
+                mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
         
-        self._network = core.BooleLogicNetwork(names.variables, self._mapping)
-
+        self._network = core.BooleLogicNetwork(names.variables, mapping)
+        names.add(self._network.mapping.itervalues())
+        
     @property
     def variables(self):
         return self._network.variables
@@ -109,20 +110,21 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
         self._termset = self._termset.union(asp.interfaces.ITermSet(names))
 
 class PotasscoLearner(object):
-    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver)
-    interface.implements(ILearner, core.IBooleLogicNetworkSet)
+    component.adapts(asp.ITermSet, potassco.IGrounderSolver)
+    interface.implements(ILearner)
     
-    def __init__(self, termset, gringo, clasp):
+    def __init__(self, termset, solver):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
-        self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+        self.grover = solver
         self._networks = core.BooleLogicNetworkSet()
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
-        self._networks = set()
-        self._len_networks = 0
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+
+        grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.grover.grounder)
+        solver_args = component.getUtility(asp.IArgumentRegistry).arguments(self.grover.solver)
         
         guess = encodings('caspo.learn.guess')
         fixpoint = encodings('caspo.learn.fixpoint')
@@ -134,38 +136,23 @@ class PotasscoLearner(object):
         programs = [self.termset.to_file(), guess, fixpoint, rss, opt]
         solutions = self.grover.run("#show formula/2. #show dnf/2. #show clause/3.", 
                             grounder_args=programs, 
-                            solver_args=["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"],
-                            lazy=False)
+                            solver_args=solver_args('caspo.learn.opt'))
 
         opt_size = solutions[0].score[1]
-        
+
         programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, rescale]
-        solutions = self.grover.run(grounder_args=programs, solver_args=["--quiet=0,1"], lazy=False)
-        
+        solutions = self.grover.run(grounder_args=programs, solver_args=solver_args('caspo.learn.rescale'))
+
         opt_rss = solutions[0].score[0]
         
         programs = [self.termset.to_file(), guess, fixpoint, rss, enum]
-        tolerance = ['-c maxrss=%s' % int(opt_rss + opt_rss*fit), '-c maxsize=%s' % (opt_size + size)]
-        
-        self.grover.run("#show dnf/2.", 
+        tolerance = map(lambda arg: arg.format(rss=int(opt_rss + opt_rss*fit), size=(opt_size + size)), grounder_args('caspo.learn.enum'))
+        networks = self.grover.run("#show dnf/2.", 
                 grounder_args=programs + tolerance, 
-                solver_args=["--opt-ignore", "0", "--conf=jumpy"])
-                
-        self._len_networks = self.grover.solver.__getstats__()['Models']
-                
-    def __len__(self):
-        return self._len_networks
+                solver_args=solver_args('caspo.learn.enum'), adapter=core.IBooleLogicNetwork)
         
-    def __iter__(self):
-        if self._networks:
-            for network in self._networks:
-                yield network
-        else:
-            for termset in self.grover:
-                network = core.IBooleLogicNetwork(termset)
-                self._networks.add(network)
-                yield network
-
+        return core.BooleLogicNetworkSet(networks, update_names=False)
+               
 class CompressedGraph(core.GraphAdapter):
     component.adapts(core.IGraph, core.ISetup)
     

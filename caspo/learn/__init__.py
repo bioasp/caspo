@@ -35,7 +35,7 @@ gsm.registerAdapter(Dataset2DiscreteDataset)
 gsm.registerAdapter(Dataset2TermSet)
 gsm.registerAdapter(TermSet2BooleLogicNetwork)
 gsm.registerAdapter(GraphDataset2TermSet)
-gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspSolver), ILearner)
+gsm.registerAdapter(PotasscoLearner, (asp.ITermSet, asp.IGrounderSolver), ILearner)
 gsm.registerAdapter(CompressedGraph)
 gsm.registerAdapter(BooleLogicNetworkSet2CsvWriter)
 
@@ -58,3 +58,9 @@ reg.register('caspo.learn.rss', root + '/encodings/gringo4/residual.lp', potassc
 reg.register('caspo.learn.opt', root + '/encodings/gringo4/optimization.lp', potassco.IGringo4)
 reg.register('caspo.learn.rescale', root + '/encodings/gringo4/rescale.lp', potassco.IGringo4)
 reg.register('caspo.learn.enum', root + '/encodings/gringo4/enumeration.lp', potassco.IGringo4)
+
+reg = component.getUtility(asp.IArgumentRegistry)
+reg.register('caspo.learn.enum', ['-c maxrss={rss}', '-c maxsize={size}'], potassco.IGringoGrounder)
+reg.register('caspo.learn.opt', ["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"], potassco.IClaspSolver)
+reg.register('caspo.learn.rescale', ["--quiet=2,1"], potassco.IClaspSolver)
+reg.register('caspo.learn.enum', ["--opt-ignore", "0", "--conf=jumpy"], potassco.IClaspSolver)
