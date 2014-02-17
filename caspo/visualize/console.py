@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, sys, argparse, pkg_resources
+import os, sys, argparse, pkg_resources, random
 
 from zope import component
 
@@ -48,13 +48,24 @@ def main(args):
         if args.networks:
             reader.read(args.networks)
             networks = core.IBooleLogicNetworkSet(reader)
-            for i, network in enumerate(networks):
+            if args.sample:
+                try:
+                    sample = random.sample(networks, args.sample)
+                except ValueError as e:
+                    print "Warning: %s, there are only %s logical networks." % (str(e), len(networks))
+                    sample = networks
+            else:
+                sample = networks
+                
+            for i, network in enumerate(sample):
                 writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
                 writer.write('network-%s.dot' % i, args.outdir)
-            
-            writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
-            writer.write('networks.dot', args.outdir)
-        
+                
+                
+            if args.union:
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
+                writer.write('networks.dot', args.outdir)
+                    
     if args.strategies:
         reader.read(args.strategies)
         strategies = control.IStrategySet(reader)
@@ -75,6 +86,12 @@ def run():
     parser.add_argument("--networks", dest="networks", 
                         help="logical networks in CSV format", metavar="N")
 
+    parser.add_argument("--sample", dest="sample", type=int, default=0,
+                        help="visualize a sample of N logical networks (default to 0 (all))", metavar="R")
+                        
+    parser.add_argument("--union", dest="union", action='store_true',
+                        help="visualize the union of logical networks (default to False)")
+                                                                        
     parser.add_argument("--strategies",
                         help="intervention stratgies in CSV format", metavar="S")
                         
