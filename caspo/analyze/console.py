@@ -52,7 +52,7 @@ def main(args):
             
             lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
             lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))
-            lines.append("Core predictions: %.2f%%" % ((100. * len(list(behaviors.core()))) / 2**(len(behaviors.active_cues))))
+            lines.append("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
     
     if args.strategies:
         reader.read(args.strategies)

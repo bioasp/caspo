@@ -54,8 +54,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
     @asp.cleanrun
     def core(self):
         if self.__core_clampings:
-            for clamping in self.__core_clampings:
-                yield clamping
+            return self.__core_clampings
         else:
             encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
             clamping = encodings('caspo.analyze.guess')
@@ -68,12 +67,11 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             """
             setup = asp.ITermSet(self.dataset.setup)
             instance = setup.union(asp.ITermSet(self))
-            self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], solver_args=["0"])
-                
-            for termset in self.grover:
-                clamping = core.IClamping(termset)
-                self.__core_clampings.add(clamping)
-                yield clamping
+            clampings = self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], 
+                                               solver_args=["0"], adapter=core.IClamping)
+                                               
+            self.__core_clampings = set(clampings)
+            return self.__core_clampings
 
     def variances(self):
         n = len(self)
