@@ -45,15 +45,17 @@ setup(name='caspo',
       zip_safe=False,
       install_requires=[
           "pyzcasp",
-          "numpy",
-          "networkx"
+          "numpy"
       ],
+      extras_require={
+          "DOT": ["networkx", "pygraphviz"]
+      },
       entry_points={
           'console_scripts': [
               'caspo-learn=caspo.learn.console:run',
               'caspo-analyze=caspo.analyze.console:run',
               'caspo-control=caspo.control.console:run',
-              'caspo-visualize=caspo.visualize.console:run'
+              'caspo-visualize=caspo.visualize.console:run [DOT]'
           ]
       }
       )
