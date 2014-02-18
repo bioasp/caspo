@@ -53,8 +53,9 @@ setup(name='caspo',
       entry_points={
           'console_scripts': [
               'caspo-learn=caspo.learn.console:run',
-              'caspo-analyze=caspo.analyze.console:run',
+              'caspo-design=caspo.design.console:run',
               'caspo-control=caspo.control.console:run',
+              'caspo-analyze=caspo.analyze.console:run',
               'caspo-visualize=caspo.visualize.console:run [DOT]'
           ]
       }
