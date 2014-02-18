@@ -107,7 +107,7 @@ class GraphDataset2TermSet(asp.TermSetAdapter):
         names.load(graph)
         
         self._termset = component.getMultiAdapter((point, dd), asp.ITermSet)
-        self._termset = self._termset.union(asp.interfaces.ITermSet(names))
+        self._termset = self._termset.union(asp.ITermSet(names))
 
 class PotasscoLearner(object):
     component.adapts(asp.ITermSet, potassco.IGrounderSolver)
