@@ -1,3 +1,5 @@
+#include <iclingo>.
+
 %#const istop  = "SAT".
 %#const imin   = 1.
 #const imax = 20.

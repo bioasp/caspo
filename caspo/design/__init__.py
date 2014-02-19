@@ -36,5 +36,6 @@ reg = component.getUtility(asp.IEncodingRegistry)
 reg.register('caspo.design.opt', root + '/encodings/gringo4/idesign.lp', potassco.IGringo4)
 
 reg = component.getUtility(asp.IArgumentRegistry)
-reg.register('caspo.design.opt', ['-c maxstimuli={stimuli}', '-c maxinhibitors={inhibitors}', '-c imax={imax}'], potassco.IGringoGrounder)
+reg.register('caspo.design.opt', 
+            ['-c maxstimuli={stimuli}', '-c maxinhibitors={inhibitors}', '-c imax={imax}'], potassco.IGringoGrounder)
 reg.register('caspo.design.opt', ["--quiet=1"], potassco.IClasp3)

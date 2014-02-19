@@ -31,7 +31,7 @@ class NetworksSetup2TermSet(asp.TermSetAdapter):
         self._termset = self._termset.union(asp.ITermSet(setup))
 
 class PotasscoDesigner(object):
-    component.adapts(asp.ITermSet, potassco.IGrounderSolver)
+    component.adapts(asp.ITermSet, potassco.IClingo)
     interface.implements(IDesigner)
     
     def __init__(self, termset, clingo):
@@ -45,7 +45,6 @@ class PotasscoDesigner(object):
         grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.clingo.grounder)
         solver_args = component.getUtility(asp.IArgumentRegistry).arguments(self.clingo.solver)
         
-        iclingo = encodings('potassco.iclingo')
         opt = encodings('caspo.design.opt')
         
         programs = [self.termset.to_file(), opt, iclingo]
