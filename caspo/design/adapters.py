@@ -47,7 +47,7 @@ class PotasscoDesigner(object):
         
         opt = encodings('caspo.design.opt')
         
-        programs = [self.termset.to_file(), opt, iclingo]
+        programs = [self.termset.to_file(), opt]
         constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments), 
                           grounder_args('caspo.design.opt'))
 
