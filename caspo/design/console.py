@@ -18,33 +18,6 @@
 
 import os, sys, argparse, pkg_resources
 
-from zope import component
-
-from pyzcasp import asp, potassco
-from caspo import core, design
- 
-def main(args):
-    reader = component.getUtility(core.ICsvReader)
-    reader.read(args.networks)
-    networks = core.IBooleLogicNetworkSet(reader)
-        
-    reader.read(args.midas)
-    dataset = core.IDataset(reader)
-    
-    solver = component.getUtility(asp.IGrounderSolver)
-    instance = component.getMultiAdapter((networks, dataset.setup), asp.ITermSet)
-
-    designer = component.getMultiAdapter((instance, solver), design.IDesigner)
-    
-    exps = designer.design()
-    for d in exps:
-        for c in sorted(d, key=lambda t: t.arg(0)):
-            print c
-            
-        print d.score
-            
-    return 0
-
 def run():    
     parser = argparse.ArgumentParser()
     parser.add_argument("networks",
@@ -55,6 +28,18 @@ def run():
                         
     parser.add_argument("--clingo", dest="clingo", default="clingo",
                         help="clingo solver binary (Default to 'clingo')", metavar="C")
+                        
+    parser.add_argument("--stimuli", dest="stimuli", type=int, default=-1,
+                        help="maximum number of stimuli per experiment", 
+                        metavar="S")
+
+    parser.add_argument("--inhibitors", dest="inhibitors", type=int, default=-1,
+                        help="maximum number of inhibitors per experiment", 
+                        metavar="I")
+
+    parser.add_argument("--experiments", dest="experiments", type=int, default=20,
+                        help="maximum number of experiments", 
+                        metavar="E")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true",
                         help="do not print anything to stdout")
@@ -69,9 +54,30 @@ def run():
     if not args.quiet:
         print "Initializing caspo-design...\n"
     
-    gsm = component.getGlobalSiteManager()
+    from zope import component
 
-    clingo = potassco.Clingo(args.clingo)
-    gsm.registerUtility(clingo, potassco.IClingo)
+    from pyzcasp import asp, potassco
+    from caspo import core, design
     
-    return main(args)
+    clingo = potassco.Clingo(args.clingo)
+    
+    reader = component.getUtility(core.ICsvReader)
+    reader.read(args.networks)
+    networks = core.IBooleLogicNetworkSet(reader)
+        
+    reader.read(args.midas)
+    dataset = core.IDataset(reader)
+    
+    instance = component.getMultiAdapter((networks, dataset.setup), asp.ITermSet)
+
+    designer = component.getMultiAdapter((instance, clingo), design.IDesigner)
+    
+    exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
+    for d in exps:
+        for c in sorted(d, key=lambda t: t.arg(0)):
+            print c
+            
+        print d.score
+            
+    return 0
+

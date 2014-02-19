@@ -18,38 +18,6 @@
 
 import os, sys, argparse, pkg_resources
 
-from zope import component
-
-from pyzcasp import asp, potassco
-from caspo import core, learn
- 
-def main(args):
-    sif = component.getUtility(core.IFileReader)
-    sif.read(args.pkn)
-    graph = core.IGraph(sif)
-    
-    reader = component.getUtility(core.ICsvReader)
-    reader.read(args.midas)
-    dataset = core.IDataset(reader)
-    
-    point = core.TimePoint(args.time)
-    
-    discretize = component.createObject(args.discretization, args.factor)
-    discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
-    
-    zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
-
-    solver = component.getUtility(asp.IGrounderSolver)
-    instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
-
-    learner = component.getMultiAdapter((instance, solver), learn.ILearner)
-    networks = learner.learn(args.fit, args.size)
-    
-    writer = core.ICsvWriter(networks)
-    writer.write('networks.csv', args.outdir, args.quiet)
-    
-    return 0
-
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("pkn",
@@ -90,10 +58,36 @@ def run():
     if not args.quiet:
         print "Initializing caspo-learn...\n"
         
-    gsm = component.getGlobalSiteManager()
+    from zope import component
+
+    from pyzcasp import asp, potassco
+    from caspo import core, learn
+
 
     clingo = potassco.Clingo(args.clingo)
-    gsm.registerUtility(clingo, potassco.IClingo)
+
+    sif = component.getUtility(core.IFileReader)
+    sif.read(args.pkn)
+    graph = core.IGraph(sif)
     
-    return main(args)
-        
+    reader = component.getUtility(core.ICsvReader)
+    reader.read(args.midas)
+    dataset = core.IDataset(reader)
+    
+    point = core.TimePoint(args.time)
+    
+    discretize = component.createObject(args.discretization, args.factor)
+    discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
+    
+    zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
+
+    instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
+
+    learner = component.getMultiAdapter((instance, clingo), learn.ILearner)
+    networks = learner.learn(args.fit, args.size)
+    
+    writer = core.ICsvWriter(networks)
+    writer.write('networks.csv', args.outdir, args.quiet)
+    
+    return 0
+    

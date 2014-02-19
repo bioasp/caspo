@@ -18,62 +18,6 @@
 
 import os, sys, argparse, pkg_resources, random
 
-from zope import component
-
-from caspo import core, visualize, control, learn
- 
-def main(args):
-    reader = component.getUtility(core.ICsvReader)
-    if args.midas:
-        reader.read(args.midas)
-        dataset = core.IDataset(reader)
-        
-        if args.pkn:
-            sif = component.getUtility(core.IFileReader)
-            sif.read(args.pkn)
-            graph = core.IGraph(sif)
-            
-            zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
-        
-            if zipgraph.nodes != graph.nodes:
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
-                writer.write('pkn-orig.dot', args.outdir)
-            
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(zipgraph), dataset.setup), visualize.IDotWriter)
-                writer.write('pkn-zip.dot', args.outdir)
-            else:
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
-                writer.write('pkn.dot', args.outdir)
-    
-        if args.networks:
-            reader.read(args.networks)
-            networks = core.IBooleLogicNetworkSet(reader)
-            if args.sample:
-                try:
-                    sample = random.sample(networks, args.sample)
-                except ValueError as e:
-                    print "Warning: %s, there are only %s logical networks." % (str(e), len(networks))
-                    sample = networks
-            else:
-                sample = networks
-                
-            for i, network in enumerate(sample):
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
-                writer.write('network-%s.dot' % i, args.outdir)
-                
-                
-            if args.union:
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
-                writer.write('networks.dot', args.outdir)
-                    
-    if args.strategies:
-        reader.read(args.strategies)
-        strategies = control.IStrategySet(reader)
-        writer = visualize.IDotWriter(visualize.IDiGraph(strategies))
-        writer.write('strategies.dot', args.outdir)
-        
-    return 0
-
 def run():
     parser = argparse.ArgumentParser()
 
@@ -94,6 +38,9 @@ def run():
                                                                         
     parser.add_argument("--strategies",
                         help="intervention stratgies in CSV format", metavar="S")
+        
+    parser.add_argument("--quiet", dest="quiet", action="store_true",
+                        help="do not print anything to stdout")
                         
     parser.add_argument("--out", dest="outdir", default='.',
                         help="output directory path (Default to current directory)", metavar="O")
@@ -101,6 +48,60 @@ def run():
     parser.add_argument('--version', action='version', version='caspo version %s' % pkg_resources.get_distribution("caspo").version)
     
     args = parser.parse_args()
+
+    if not args.quiet:
+        print "Initializing caspo-visualize...\n"    
+    
+    from zope import component
+    from caspo import core, visualize, control, learn
+
+    reader = component.getUtility(core.ICsvReader)
+    if args.midas:
+        reader.read(args.midas)
+        dataset = core.IDataset(reader)
         
-    return main(args)
+        if args.pkn:
+            sif = component.getUtility(core.IFileReader)
+            sif.read(args.pkn)
+            graph = core.IGraph(sif)
+            
+            zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
         
+            if zipgraph.nodes != graph.nodes:
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
+                writer.write('pkn-orig.dot', args.outdir, args.quiet)
+            
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(zipgraph), dataset.setup), visualize.IDotWriter)
+                writer.write('pkn-zip.dot', args.outdir, args.quiet)
+            else:
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
+                writer.write('pkn.dot', args.outdir, args.quiet)
+    
+        if args.networks:
+            reader.read(args.networks)
+            networks = core.IBooleLogicNetworkSet(reader)
+            if args.sample:
+                try:
+                    sample = random.sample(networks, args.sample)
+                except ValueError as e:
+                    print "Warning: %s, there are only %s logical networks." % (str(e), len(networks))
+                    sample = networks
+            else:
+                sample = networks
+                
+            for i, network in enumerate(sample):
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
+                writer.write('network-%s.dot' % i, args.outdir, args.quiet)
+                
+                
+            if args.union:
+                writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
+                writer.write('networks.dot', args.outdir, args.quiet)
+                    
+    if args.strategies:
+        reader.read(args.strategies)
+        strategies = control.IStrategySet(reader)
+        writer = visualize.IDotWriter(visualize.IDiGraph(strategies))
+        writer.write('strategies.dot', args.outdir, args.quiet)
+        
+    return 0        

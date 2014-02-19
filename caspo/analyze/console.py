@@ -18,63 +18,6 @@
 
 import os, sys, argparse, pkg_resources
 
-from zope import component
-
-from pyzcasp import asp, potassco
-from caspo import core, analyze, learn, control
- 
-def main(args):
-    reader = component.getUtility(core.ICsvReader)
-
-    lines = []
-    if args.networks:
-        reader.read(args.networks)
-        networks = core.IBooleLogicNetworkSet(reader)
-        
-        stats = analyze.IStats(networks)
-        writer = core.ICsvWriter(stats)
-        writer.write('networks-stats.csv', args.outdir, args.quiet)
-        lines.append("Total Boolean logic networks: %s" % len(networks))
-        
-        if args.midas:
-            reader.read(args.midas[0])
-            dataset = core.IDataset(reader)
-            point = core.TimePoint(int(args.midas[1]))
-    
-            writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
-            writer.write('networks-mse.csv', args.outdir, args.quiet)
-    
-            grounder = component.getUtility(asp.IGrounder)
-            solver = component.getUtility(asp.ISolver)
-            behaviors =  component.getMultiAdapter((networks, dataset, grounder, solver), analyze.IBooleLogicBehaviorSet)
-            multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-            multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir, args.quiet)
-            
-            lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
-            lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))
-            lines.append("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
-    
-    if args.strategies:
-        reader.read(args.strategies)
-        strategies = control.IStrategySet(reader)
-        stats = analyze.IStats(strategies)
-        writer = core.ICsvWriter(stats)
-        writer.write('strategies-stats.csv', args.outdir, args.quiet)
-        
-        lines.append("Total intervention strategies: %s" % len(strategies))
-
-    writer = component.getUtility(core.IFileWriter)
-    writer.load(lines, "caspo analytics summary")
-    writer.write('summary.txt', args.outdir, args.quiet)
-    
-    if not args.quiet:
-        print "\ncaspo analytics summary"
-        print "======================="
-        for line in lines:
-            print line
-        
-    return 0
-
 def run():    
     parser = argparse.ArgumentParser()
     parser.add_argument("--networks", dest="networks",
@@ -108,16 +51,63 @@ def run():
     if not args.quiet:
         print "Initializing caspo-analyze...\n"
     
-    gsm = component.getGlobalSiteManager()
-
+    from zope import component
+    from pyzcasp import asp, potassco
+    from caspo import core, analyze, learn, control
+    
     if args.gringo_series == 3:
-        grounder = potassco.Gringo3(args.gringo)
-        gsm.registerUtility(grounder, potassco.IGringo3)
+        gringo = potassco.Gringo3(args.gringo)
     else:
-        grounder = potassco.Gringo4(args.gringo)
-        gsm.registerUtility(grounder, potassco.IGringo4)
+        gringo = potassco.Gringo4(args.gringo)
     
-    solver = potassco.Clasp2(args.clasp)
-    gsm.registerUtility(solver, potassco.IClasp2)
+    clasp = potassco.Clasp2(args.clasp)    
     
-    return main(args)
+    reader = component.getUtility(core.ICsvReader)
+
+    lines = []
+    if args.networks:
+        reader.read(args.networks)
+        networks = core.IBooleLogicNetworkSet(reader)
+        
+        stats = analyze.IStats(networks)
+        writer = core.ICsvWriter(stats)
+        writer.write('networks-stats.csv', args.outdir, args.quiet)
+        lines.append("Total Boolean logic networks: %s" % len(networks))
+        
+        if args.midas:
+            reader.read(args.midas[0])
+            dataset = core.IDataset(reader)
+            point = core.TimePoint(int(args.midas[1]))
+    
+            writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
+            writer.write('networks-mse.csv', args.outdir, args.quiet)
+    
+            behaviors =  component.getMultiAdapter((networks, dataset, gringo, clasp), analyze.IBooleLogicBehaviorSet)
+            multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
+            multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir, args.quiet)
+            
+            lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
+            lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))
+            lines.append("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
+    
+    if args.strategies:
+        reader.read(args.strategies)
+        strategies = control.IStrategySet(reader)
+        stats = analyze.IStats(strategies)
+        writer = core.ICsvWriter(stats)
+        writer.write('strategies-stats.csv', args.outdir, args.quiet)
+        
+        lines.append("Total intervention strategies: %s" % len(strategies))
+
+    writer = component.getUtility(core.IFileWriter)
+    writer.load(lines, "caspo analytics summary")
+    writer.write('summary.txt', args.outdir, args.quiet)
+    
+    if not args.quiet:
+        print "\ncaspo analytics summary"
+        print "======================="
+        for line in lines:
+            print line
+        
+    return 0
+    

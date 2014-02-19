@@ -18,34 +18,6 @@
 
 import os, sys, argparse, pkg_resources
 
-from zope import component
-
-from pyzcasp import potassco, asp
-from caspo import core, control
-
-def main(args):
-    reader = component.getUtility(core.ICsvReader)
-    
-    reader.read(args.networks)
-    networks = core.ILogicalNetworkSet(reader)
-    
-    reader.read(args.scenarios)
-    multiscenario = control.IMultiScenario(reader)
-    multiscenario.allow_constraints = args.iconstraints
-    multiscenario.allow_goals = args.igoals
-    
-    grounder = component.getUtility(asp.IGrounder)
-    solver = component.getUtility(asp.ISubsetMinimalSolver)
-    instance = component.getMultiAdapter((networks, multiscenario), asp.ITermSet)
-
-    controller = component.getMultiAdapter((instance, grounder, solver), control.IController)
-    strategies = controller.control(args.size)
-    
-    writer = core.ICsvWriter(strategies)
-    writer.write('strategies.csv', args.outdir, args.quiet)
-        
-    return 0
-
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("networks",
@@ -91,20 +63,37 @@ def run():
     if not args.quiet:
         print "Initializing caspo-control...\n"
     
-    gsm = component.getGlobalSiteManager()
+    from zope import component
+
+    from pyzcasp import potassco, asp
+    from caspo import core, control
 
     if args.gringo_series == 3:
-        grounder = potassco.Gringo3(args.gringo)
-        gsm.registerUtility(grounder, potassco.IGringo3)
+        gringo = potassco.Gringo3(args.gringo)
     else:
-        grounder = potassco.Gringo4(args.gringo)
-        gsm.registerUtility(grounder, potassco.IGringo4)
+        gringo = potassco.Gringo4(args.gringo)
     
     if args.solver == 'hclasp':
-        solver = potassco.ClaspHSolver(args.hclasp)
+        clasp = potassco.ClaspHSolver(args.hclasp)
     else:
-        solver = potassco.ClaspDSolver(args.claspD)
+        clasp = potassco.ClaspDSolver(args.claspD)
     
-    gsm.registerUtility(solver, potassco.IClaspSubsetMinimalSolver)
+    reader = component.getUtility(core.ICsvReader)
     
-    return main(args)
+    reader.read(args.networks)
+    networks = core.ILogicalNetworkSet(reader)
+    
+    reader.read(args.scenarios)
+    multiscenario = control.IMultiScenario(reader)
+    multiscenario.allow_constraints = args.iconstraints
+    multiscenario.allow_goals = args.igoals
+    
+    instance = component.getMultiAdapter((networks, multiscenario), asp.ITermSet)
+
+    controller = component.getMultiAdapter((instance, gringo, clasp), control.IController)
+    strategies = controller.control(args.size)
+    
+    writer = core.ICsvWriter(strategies)
+    writer.write('strategies.csv', args.outdir, args.quiet)
+        
+    return 0
