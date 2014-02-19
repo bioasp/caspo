@@ -75,7 +75,7 @@ def run():
     exp = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
     if exp:
         writer = component.getMultiAdapter((exp, dataset.setup), core.ICsvWriter)
-        writer.write('opt-design.csv', args.outdir)
+        writer.write('opt-design.csv', args.outdir, args.quiet)
     else:
         print "There is no solutions matching your experimental design criteria."
         
