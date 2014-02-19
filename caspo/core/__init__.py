@@ -45,6 +45,7 @@ gsm.registerAdapter(ClampingTermInClampingList2TermSet)
 gsm.registerAdapter(Clamping2TermSet)
 gsm.registerAdapter(ClampingInClampingList2TermSet)
 gsm.registerAdapter(TermSet2Clamping)
+gsm.registerAdapter(TermSet2ClampingList)
 
 gsm.registerUtility(FileReader(), IFileReader)
 gsm.registerUtility(CsvReader(), ICsvReader)

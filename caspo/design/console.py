@@ -72,12 +72,11 @@ def run():
 
     designer = component.getMultiAdapter((instance, clingo), design.IDesigner)
     
-    exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
-    for d in exps:
-        for c in sorted(d, key=lambda t: t.arg(0)):
-            print c
-            
-        print d.score
-            
+    exp = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
+    if exp:
+        writer = component.getMultiAdapter((exp, dataset.setup), core.ICsvWriter)
+        writer.write('opt-design.csv', args.outdir)
+    else:
+        print "There is no solutions matching your experimental design criteria."
+        
     return 0
-

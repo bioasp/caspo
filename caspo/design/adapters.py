@@ -53,7 +53,38 @@ class PotasscoDesigner(object):
 
         solutions = self.clingo.run("#show clamped/3.", 
                             grounder_args=programs + constraints, 
-                            solver_args=solver_args('caspo.design.opt'))
+                            solver_args=solver_args('caspo.design.opt'),
+                            adapter=core.IClampingList)
+                            
+        if self.clingo.optimum:
+            return solutions[0]
         
-        return set(solutions)
+class ClampingList2CsvWriter(object):
+    component.adapts(core.IClampingList, core.ISetup)
+    interface.implements(core.ICsvWriter)
+    
+    def __init__(self, clist, setup):
+        self.clist = clist
+        self.setup = setup
+        
+    def clampings(self, header):
+        for clamping in self.clist.clampings:
+            dc = dict(clamping)
+            nrow = dict.fromkeys(header, 0)
+            for inh in self.setup.inhibitors:
+                if inh in dc:
+                    nrow[inh + 'i'] = 1
+
+            for sti in self.setup.stimuli:
+                if dc[sti] == 1:
+                    nrow[sti] = dc[sti]
+
+            yield nrow    
+        
+    def write(self, filename, path="./", quiet=False):
+        writer = component.getUtility(core.ICsvWriter)
+        header = self.setup.stimuli + map(lambda i: i+'i', self.setup.inhibitors)
+        
+        writer.load(self.clampings(header), header)
+        writer.write(filename, path, quiet)
         

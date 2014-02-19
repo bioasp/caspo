@@ -30,6 +30,7 @@ gsm = component.getGlobalSiteManager()
 
 gsm.registerAdapter(NetworksSetup2TermSet)
 gsm.registerAdapter(PotasscoDesigner)
+gsm.registerAdapter(ClampingList2CsvWriter)
 
 root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)

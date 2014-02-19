@@ -341,3 +341,15 @@ class TermSet2Clamping(object):
     def __iter__(self):
         return iter(self.clamping)
         
+class TermSet2ClampingList(object):
+    component.adapts(asp.ITermSet)
+    interface.implements(IClampingList)
+    
+    def __init__(self, termset):
+        clampings = defaultdict(list)
+        
+        for term in termset:
+            if term.pred == 'clamped':
+                clampings[term.arg(0)].append(Literal(term.arg(1), term.arg(2)))
+                
+        self.clampings = map(lambda literals: Clamping(literals), clampings.values())
