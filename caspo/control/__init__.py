@@ -38,3 +38,6 @@ root = __file__.rsplit('/', 1)[0]
 reg = component.getUtility(asp.IEncodingRegistry)
 reg.register('caspo.control.full', root + '/encodings/gringo3/encoding.lp', potassco.IGringo3)
 reg.register('caspo.control.heuristic', root + '/encodings/gringo3/heuristic.lp', potassco.IGringo3)
+
+reg.register('caspo.control.full', root + '/encodings/gringo4/encoding.lp', potassco.IGringo4)
+reg.register('caspo.control.heuristic', root + '/encodings/gringo4/heuristic.lp', potassco.IGringo4)
