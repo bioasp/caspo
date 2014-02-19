@@ -29,10 +29,10 @@ def main(args):
     graph = core.IGraph(sif)
     
     reader = component.getUtility(core.ICsvReader)
-    reader.read(args.midas[0])
+    reader.read(args.midas)
     dataset = core.IDataset(reader)
     
-    point = core.TimePoint(int(args.midas[1]))
+    point = core.TimePoint(args.time)
     
     discretize = component.createObject(args.discretization, args.factor)
     discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
@@ -53,10 +53,13 @@ def main(args):
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("pkn",
-                        help="Prior knowledge network in SIF format")
+                        help="prior knowledge network in SIF format")
 
-    parser.add_argument("midas", nargs=2, metavar=("M","T"),
-                        help="experimental dataset in MIDAS file and time-point to be used")
+    parser.add_argument("midas",
+                        help="experimental dataset in MIDAS file")
+
+    parser.add_argument("time", type=int,
+                        help="time-point to be used in MIDAS")
                         
     parser.add_argument("--clingo", dest="clingo", default="clingo",
                         help="clingo solver binary (Default to 'clingo')", metavar="C")
@@ -90,7 +93,7 @@ def run():
     gsm = component.getGlobalSiteManager()
 
     clingo = potassco.Clingo(args.clingo)
-    gsm.registerUtility(clingo, potassco.IGrounderSolver)
+    gsm.registerUtility(clingo, potassco.IClingo)
     
     return main(args)
         
