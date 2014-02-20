@@ -1,5 +1,9 @@
-include caspo/learn/encodings/*.lp
-include caspo/control/encodings/*.lp
-include caspo/analyze/encodings/*.lp
+include caspo/learn/encodings/gringo3/*.lp
+include caspo/learn/encodings/gringo4/*.lp
+include caspo/control/encodings/gringo3/*.lp
+include caspo/control/encodings/gringo4/*.lp
+include caspo/analyze/encodings/gringo3/*.lp
+include caspo/analyze/encodings/gringo4/*.lp
+include caspo/design/encodings/gringo4/*.lp
 include LICENSE
 include README.md
