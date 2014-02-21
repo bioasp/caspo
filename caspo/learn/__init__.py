@@ -61,7 +61,6 @@ reg.register('caspo.learn.enum', root + '/encodings/gringo4/enumeration.lp', pot
 
 reg = component.getUtility(asp.IArgumentRegistry)
 reg.register('caspo.learn.enum', ['-c maxrss={rss}', '-c maxsize={size}'], potassco.IGringoGrounder)
-# To be changed as soon clingo 4 adopts clasp 3
-reg.register('caspo.learn.opt', ["--quiet=1", "--conf=jumpy", "--opt-hier=2", "--opt-heu=2"], potassco.IClasp3)
+reg.register('caspo.learn.opt', ["--quiet=1", "--conf=jumpy", "--opt-strategy=4"], potassco.IClasp3)
 reg.register('caspo.learn.rescale', ["--quiet=2,1"], potassco.IClasp3)
-reg.register('caspo.learn.enum', ["--opt-ignore", "0", "--conf=jumpy"], potassco.IClasp3)
+reg.register('caspo.learn.enum', ["--opt-mode=ignore", "0", "--conf=jumpy"], potassco.IClasp3)
