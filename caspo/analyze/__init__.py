@@ -28,7 +28,7 @@ from zope import component
 
 gsm = component.getGlobalSiteManager()
 
-gsm.registerAdapter(BoolLogicNetworkSet2BooleLogicBehaviorSet, (core.IBooleLogicNetworkSet, core.IDataset, potassco.IGringoGrounder, potassco.IClaspSolver), IBooleLogicBehaviorSet)
+gsm.registerAdapter(BoolLogicNetworkSet2BooleLogicBehaviorSet, (core.IBooleLogicNetworkSet, core.IDataset, potassco.IGrounderSolver), IBooleLogicBehaviorSet)
 gsm.registerAdapter(BooleLogicNetworkSet2Stats)
 gsm.registerAdapter(StatsMappings2CsvWriter)
 gsm.registerAdapter(BooleLogicBehaviorSet2MultiCsvWriter)

@@ -19,7 +19,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '2.0dev'
+version = '2.0.0dev'
 
 setup(name='caspo',
       version=version,
@@ -45,18 +45,12 @@ setup(name='caspo',
       zip_safe=False,
       install_requires=[
           "pyzcasp",
-          "numpy"
+          "numpy",
+          "networkx"
       ],
-      extras_require={
-          "DOT": ["networkx", "pygraphviz"]
-      },
       entry_points={
           'console_scripts': [
-              'caspo-learn=caspo.learn.console:run',
-              'caspo-design=caspo.design.console:run',
-              'caspo-control=caspo.control.console:run',
-              'caspo-analyze=caspo.analyze.console:run',
-              'caspo-visualize=caspo.visualize.console:run [DOT]'
+              'caspo=caspo.console.main:run',
           ]
       }
       )

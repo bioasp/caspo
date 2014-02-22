@@ -29,14 +29,14 @@ from impl import *
 import numpy
 
 class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
-    component.adapts(core.IBooleLogicNetworkSet, core.IDataset, potassco.IGringoGrounder, potassco.IClaspSolver)
+    component.adapts(core.IBooleLogicNetworkSet, core.IDataset, potassco.IGrounderSolver)
     interface.implements(IBooleLogicBehaviorSet)
     
-    def __init__(self, networks, dataset, grounder, solver):
+    def __init__(self, networks, dataset, clingo):
         super(BoolLogicNetworkSet2BooleLogicBehaviorSet, self).__init__()
         
         self.networks = networks
-        self.grover = component.getMultiAdapter((grounder, solver), asp.IGrounderSolver)
+        self.clingo = clingo
         self.dataset = dataset
         self.setup = dataset.setup
         self.__core_clampings = set()
@@ -56,7 +56,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         if self.__core_clampings:
             return self.__core_clampings
         else:
-            encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+            encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)
             clamping = encodings('caspo.analyze.guess')
             fixpoint = encodings('caspo.analyze.fixpoint')
             diff = encodings('caspo.analyze.diff')
@@ -67,7 +67,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             """
             setup = asp.ITermSet(self.dataset.setup)
             instance = setup.union(asp.ITermSet(self))
-            clampings = self.grover.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], 
+            clampings = self.clingo.run(stdin, grounder_args=[instance.to_file(), clamping, fixpoint, diff], 
                                                solver_args=["0"], adapter=core.IClamping)
                                                
             self.__core_clampings = set(clampings)
@@ -113,7 +113,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
 
     @asp.cleanrun
     def __io_discovery__(self):
-        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)
         clamping = encodings('caspo.analyze.guess')
         fixpoint = encodings('caspo.analyze.fixpoint')
         diff = encodings('caspo.analyze.diff')
@@ -127,11 +127,11 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                 pair = core.BooleLogicNetworkSet([eb, network], False)
                 
                 instance = setup.union(asp.ITermSet(pair))
-                self.grover.run(stdin, 
+                self.clingo.run(stdin, 
                         grounder_args=[instance.to_file(), clamping, fixpoint, diff], 
                         solver_args=["--quiet"])
                     
-                if self.grover.solver.unsat:
+                if self.clingo.solver.unsat:
                     eb.networks.add(network)
                     found = True
                     break
