@@ -46,7 +46,10 @@ setup(name='caspo',
       install_requires=[
           "pyzcasp",
           "numpy",
-          "networkx"
+          "networkx", 
+          #http://stackoverflow.com/questions/15951748/pydot-and-graphviz-error-couldnt-import-dot-parser-loading-of-dot-files-will          
+          "pyparsing==1.5.7",
+          "pydot"
       ],
       entry_points={
           'console_scripts': [
