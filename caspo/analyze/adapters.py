@@ -82,6 +82,11 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         setup = self.dataset.setup
         for clamping in setup.iterclampings(self.active_cues):
             row = dict(clamping)
+            for inh in setup.inhibitors:
+                if inh in row:
+                    row[inh + 'i'] = 1
+                    del row[inh]
+                    
             for readout in setup.readouts:
                 predictions = numpy.zeros(n, dtype=int)
                 for i,network in enumerate(self):
@@ -237,8 +242,8 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
         for row in self.behaviors.variances():
             nrow = dict.fromkeys(header, 0)
             for inh in setup.inhibitors:
-                if inh in row:
-                    nrow[inh + 'i'] = 1
+                if inh + 'i' in row:
+                    nrow[inh + 'i'] = row[inh + 'i']
                     
             for sti in setup.stimuli:
                 if row[sti] == 1:

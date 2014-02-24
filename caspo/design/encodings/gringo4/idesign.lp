@@ -38,8 +38,8 @@ diff(k,M1,M2)   :- diff(k,M1,M2,_).
 #external query(k).
 :- model(M1;M2); M1<M2; not diff(K,M1,M2) : K <= k, clamping(K); query(k).
 
-#minimize{1@1,clamped,V : clamped(K,V,-1), inhibitor(V), K <= k, query(k)}.
-#minimize{1@2,clamped,V : clamped(K,V,1), stimulus(V), K <= k, query(k)}.
+#minimize{1@1,clamped,K,V : clamped(K,V,-1), inhibitor(V), K <= k, query(k)}.
+#minimize{1@2,clamped,K,V : clamped(K,V,1), stimulus(V), K <= k, query(k)}.
 #maximize{1@3,diff,K,M1,M2,V : diff(K,M1,M2,V), K <= k, query(k)}.
 
 #show clamped/3.
