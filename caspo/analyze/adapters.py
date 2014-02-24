@@ -126,7 +126,10 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         :- not diff.
         """
         setup = asp.ITermSet(self.setup)
-        for network in self.networks:
+
+        printer = component.getUtility(core.IPrinter)
+        printer.pprint("")
+        for i, network in enumerate(self.networks):
             found = False
             for eb in self:
                 pair = core.BooleLogicNetworkSet([eb, network], False)
@@ -143,6 +146,10 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
 
             if not found:
                 self.add(BooleLogicBehavior(network.variables, network.mapping))
+                
+            printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
+            
+        printer.pprint("\n")
 
 class BooleLogicNetworkSet2Stats(object):
     component.adapts(core.IBooleLogicNetworkSet)
@@ -215,7 +222,7 @@ class StatsMappings2CsvWriter(object):
         
             yield row
             
-    def write(self, filename, path="./", quiet=False):
+    def write(self, filename, path="./"):
         self.writer = component.getUtility(core.ICsvWriter)
         header = ["key","frequency","exclusive","inclusive"]
         self.writer.load(self, header)
@@ -269,7 +276,7 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
                     
             yield nrow
         
-    def write(self, filenames, path="./", quiet=False):
+    def write(self, filenames, path="./"):
         writer = core.ICsvWriter(self.behaviors)
         writer.write(filenames[0], path)
         
@@ -279,19 +286,19 @@ class BooleLogicBehaviorSet2MultiCsvWriter(object):
         header.append("MSE")
         header.append("Networks")
         writer.load(self.mses(), header)
-        writer.write(filenames[1], path, quiet)
+        writer.write(filenames[1], path)
         
         setup = self.behaviors.dataset.setup
         
         header = setup.stimuli + map(lambda i: i+'i', setup.inhibitors) + setup.readouts
         writer.load(self.variances(header), header)
-        writer.write(filenames[2], path, quiet)
+        writer.write(filenames[2], path)
         
         stimuli = self.behaviors.active_cues.intersection(setup.stimuli)
         inhibitors = self.behaviors.active_cues.intersection(setup.inhibitors)
         header =  list(stimuli) + map(lambda i: i+'i', inhibitors)
         writer.load(self.core(header), header)
-        writer.write(filenames[3], path, quiet)
+        writer.write(filenames[3], path)
         
 class StrategySet2Stats(object):
     component.adapts(control.IStrategySet)

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
-import os, csv
+import os, csv, sys
 from collections import defaultdict
 from itertools import chain, combinations
 
@@ -60,7 +60,7 @@ class FileWriter(File):
         self.iterable = iterable
         self.header = header
         
-    def write(self, filename, path="./", quiet=False):
+    def write(self, filename, path="./"):
         if not os.path.exists(path):
             os.mkdir(path)
             
@@ -74,8 +74,9 @@ class FileWriter(File):
             self.fd.write(line + "\n")
         
         self.close()
-        if not quiet:
-            print "Wrote %s" % os.path.join(path, filename)
+        printer = component.queryUtility(IPrinter)
+        if printer:
+            printer.pprint("Wrote %s" % os.path.join(path, filename))
         
 
 class CsvReader(FileReader):
@@ -95,7 +96,7 @@ class CsvReader(FileReader):
 class CsvWriter(FileWriter):
     interface.implements(ICsvWriter)
         
-    def write(self, filename, path="./", quiet=False):
+    def write(self, filename, path="./"):
         if not os.path.exists(path):
             os.mkdir(path)
             
@@ -107,8 +108,9 @@ class CsvWriter(FileWriter):
             writer.writerow(row)
             
         self.close()
-        if not quiet:
-            print "Wrote %s" % os.path.join(path, filename)
+        printer = component.queryUtility(IPrinter)
+        if printer:
+            printer.pprint("Wrote %s" % os.path.join(path, filename))
         
 class LogicalNames(object):
     interface.implements(ILogicalNames)
@@ -190,3 +192,17 @@ class LogicalNames(object):
     def formulas(self):
         return self.__formulas_seq
         
+class Printer(object):
+    interface.implements(IPrinter)
+    
+    def __init__(self, quiet=False):
+        self.quiet = quiet
+        
+    def iprint(self, msg):
+        if not self.quiet:
+            sys.stdout.write("\r%s" % msg)
+            sys.stdout.flush()
+    
+    def pprint(self, msg):
+        if not self.quiet:
+            print msg

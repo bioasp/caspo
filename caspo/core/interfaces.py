@@ -241,3 +241,16 @@ class IBooleLogicNetworkSet(ILogicalNetworkSet):
     
     def itermses(self, dataset, time):
         """"""
+
+class IPrinter(interface.Interface):
+    """
+    """
+    
+    quiet = interface.Attribute("")
+    
+    def iprint(self, msg):
+        """"""
+        
+    def pprint(self, msg):
+        """"""
+        

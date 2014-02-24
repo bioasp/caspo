@@ -88,7 +88,13 @@ def run():
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION + '\n' + LICENSE)
     
     args = parser.parse_args()
-    if not args.quiet:
-        print "Running caspo %s...\n" % args.cmd
+    
+    from zope import component
+    from caspo.core import Printer, IPrinter
+    
+    printer = Printer(args.quiet)
+    gsm = component.getGlobalSiteManager()
+    gsm.registerUtility(printer, IPrinter)
+    printer.pprint("Running caspo %s...\n" % args.cmd)
     
     return args.handler(args)

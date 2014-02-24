@@ -208,10 +208,10 @@ class LogicalNetworkSet2CsvWriter(object):
             row = component.getMultiAdapter((network, self.header), ILogicalMapping)
             yield row.mapping
         
-    def write(self, filename, path="./", quiet=False):
+    def write(self, filename, path="./"):
         self.writer = component.getUtility(ICsvWriter)
         self.writer.load(self, self.header)
-        self.writer.write(filename, path, quiet)
+        self.writer.write(filename, path)
                 
 class LogicalNetworkSet2TermSet(asp.TermSetAdapter):
     component.adapts(ILogicalNetworkSet)

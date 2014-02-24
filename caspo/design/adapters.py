@@ -81,10 +81,10 @@ class ClampingList2CsvWriter(object):
 
             yield nrow    
         
-    def write(self, filename, path="./", quiet=False):
+    def write(self, filename, path="./"):
         writer = component.getUtility(core.ICsvWriter)
         header = self.setup.stimuli + map(lambda i: i+'i', self.setup.inhibitors)
         
         writer.load(self.clampings(header), header)
-        writer.write(filename, path, quiet)
+        writer.write(filename, path)
         

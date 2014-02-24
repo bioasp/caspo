@@ -38,13 +38,13 @@ class DotWriterAdapter(object):
         -1  : {'color': 'red', 'arrowhead': 'tee'}
     }
     
-    def write(self, filename, path="./", quiet=False):
+    def write(self, filename, path="./"):
         if not os.path.exists(path):
             os.mkdir(path)
 
         nx.write_dot(self.graph, os.path.join(path, filename))
-        if not quiet:
-            print "Wrote %s" % os.path.join(path, filename)
+        printer = component.getUtility(core.IPrinter)
+        printer.pprint("Wrote %s" % os.path.join(path, filename))
 
 class Graph2MultiDiGraph(object):
     component.adapts(core.IGraph)
