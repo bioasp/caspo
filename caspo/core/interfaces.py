@@ -23,8 +23,21 @@ class IFile(interface.Interface):
     File object
     """
     
+    fd = interface.Attribute("File descriptor")
+    
     def open(self, filename, mode='rbU'):
-        """"""
+        """
+        It opens `filename` with `mode`. The resulting file descriptor is
+        saved in `self.fd`.
+        
+        :param str filename: the path to a file
+        :param str mode: a valid mode for standard python `open`
+        """
+        
+    def close(self):
+        """
+        It closes the file pointed by `self.fd`.
+        """
         
 class IFileReader(IFile):
     """
@@ -32,20 +45,40 @@ class IFileReader(IFile):
     """
     
     def read(self, filename):
-        """"""
+        """
+        It opens `filename` in read-only mode
+        
+        :param str filename: the path to a file
+        """
 
     def __iter__(self):
-        """"""
+        """
+        Returns an iterator over `self.fd`
+        """
 
 class IFileWriter(IFile):
     """
     File writer
     """
-    def load(self, iterable, append=False):
-        """"""
+    
+    header = interface.Attribute("Header")
+    iterable = interface.Attribute("Contents to be written")
+    
+    def load(self, iterable, header=""):
+        """
+        It loads an iterable to be dumped to the file.
         
-    def write(self, filename, path="./", quiet=False):
-        """"""
+        :param iterable iterable: an interable object
+        :param str header: an optional header title
+        """
+        
+    def write(self, filename, path="./"):
+        """
+        It writes the loaded contents
+        
+        :param str filename: file where to write
+        :param str path: optional path to be joined with `filename`
+        """
     
 class ICsvReader(IFileReader):
     """
@@ -64,8 +97,7 @@ class IMultiFileWriter(interface.Interface):
     Multiple files writer
     """
     
-    
-    def write(self, filenames, path="./", quiet=False):
+    def write(self, filenames, path="./"):
         """"""
         
 class IGraphReader(IFileReader):
