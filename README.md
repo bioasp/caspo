@@ -12,6 +12,10 @@ a set of target species or compounds into a desired steady state.
 Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks. 
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
+### Install & Usage
+
+For detailed instructions on how to install and use **caspo**, please visit the [caspo wiki](https://github.com/bioasp/caspo/wiki).
+
 ### Related publications
 
 * Minimal intervention strategies in logical signaling networks with ASP. (2013). Theory and Practice of Logic Programming. [DOI](http://dx.doi.org/10.1017/S1471068413000422)
