@@ -153,6 +153,7 @@ def analyze(args):
 def visualize(args):
     from zope import component
     from caspo import core, visualize, control, learn
+    import random
 
     reader = component.getUtility(core.ICsvReader)
     if args.midas:
@@ -183,7 +184,9 @@ def visualize(args):
                 try:
                     sample = random.sample(networks, args.sample)
                 except ValueError as e:
-                    print "Warning: %s, there are only %s logical networks." % (str(e), len(networks))
+                    if not args.quiet:
+                        print "Warning: %s, there are only %s logical networks." % (str(e), len(networks))
+
                     sample = networks
             else:
                 sample = networks
