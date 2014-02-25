@@ -115,7 +115,7 @@ class PotasscoDisjunctiveController(object):
         
         programs = [self.termset.to_file(), encodings('caspo.control.full')]
         
-        self.grover.optimize = asp.TermSet([asp.Term('optimize',[1,1,asp.NativeTerm('incl')])])
+        self.grover.optimize = asp.TermSet([asp.Term('optimize',[1,1,asp.Term('incl')])])
         stdin="""
         #hide.
         #show hold(atom(intervention(_,_))).
