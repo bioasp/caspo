@@ -66,16 +66,9 @@ def control(args):
     from pyzcasp import potassco, asp
     from caspo import core, control
 
-    if args.gringo_series == 3:
-        gringo = potassco.Gringo3(args.gringo)
-    else:
-        gringo = potassco.Gringo4(args.gringo)
-    
-    if args.solver == 'hclasp':
-        clasp = potassco.ClaspHSolver(args.hclasp)
-    else:
-        clasp = potassco.ClaspDSolver(args.claspD)
-    
+    gringo = potassco.Gringo4(args.gringo)    
+    clasp = potassco.ClaspHSolver(args.hclasp)
+
     reader = component.getUtility(core.ICsvReader)
     
     reader.read(args.networks)

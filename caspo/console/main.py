@@ -62,10 +62,7 @@ def run():
     control.add_argument("--allow-constraints", dest="iconstraints", action='store_true', help="allow intervention over side constraints (Default to False)")    
     control.add_argument("--allow-goals", dest="igoals", action='store_true', help="allow intervention over goals (Default to False)")
     control.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
-    control.add_argument("--gringo-series", dest="gringo_series", default=3, choices=[3,4], type=int, help="gringo series (Default to 3)", metavar="S")
-    control.add_argument("--solver", dest="solver", default="hclasp", choices=["hclasp","claspD"], help="solver (Default to 'hclasp')", metavar="H")
     control.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")                    
-    control.add_argument("--claspD", dest="claspD", default="claspD", help="claspD solver binary (Default to 'claspD')", metavar="D")
     control.set_defaults(handler=handlers.control)
     
     analyze = subparsers.add_parser("analyze", parents=[clingo_parser])
@@ -83,8 +80,10 @@ def run():
     visualize.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
     visualize.set_defaults(handler=handlers.visualize)
     
-    test = subparsers.add_parser("test")
-    test.add_argument("--testcase", help="the name of the testcase", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
+    test = subparsers.add_parser("test", parents=[clingo_parser])
+    test.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
+    test.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")
+    test.add_argument("--testcase", help="testcase name", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true", help="do not print anything to standard output")
     parser.add_argument("--out", dest="outdir", default='.', help="output directory path (Default to current directory)", metavar="O")
@@ -104,6 +103,10 @@ def run():
         return args.handler(args)
     else:
         testcase = args.testcase
+        clingo = args.clingo
+        gringo = args.gringo
+        hclasp = args.hclasp
+        
         printer.pprint("Testing caspo subcommands using test case %s.\n" % testcase)
         import caspo
         from subprocess import check_call
@@ -131,39 +134,58 @@ def run():
         }
         
         params = testcases[testcase]
-        args = parser.parse_args(['--out', 'test', 'learn', 
+        args = parser.parse_args(['--out', 'test', 'learn', '--clingo', clingo,
                                   os.path.join('test', 'pkn.sif'), 
                                   os.path.join('test', 'dataset.csv'), 
                                   params[0], '--fit', params[1], '--size', params[2]])
 
-        printer.pprint("Running caspo %s...\n" % args.cmd)                          
-        args.handler(args)
+        printer.pprint("Running caspo %s...\n" % args.cmd)
+        try:
+            args.handler(args)
+        except Exception as e:
+            printer.pprint(e)
+            printer.pprint("Testing on caspo %s has failed." % args.cmd)
+            
         printer.pprint("")
         
-        args = parser.parse_args(['--out', 'test', 'control', 
+        args = parser.parse_args(['--out', 'test', 'control', '--gringo', gringo, '--hclasp', hclasp,
                                   os.path.join('test', 'networks.csv'), 
                                   os.path.join('test', 'scenarios.csv')])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
-        args.handler(args)
+        try:
+            args.handler(args)
+        except Exception as e:
+            printer.pprint(e)
+            printer.pprint("Testing on caspo %s has failed." % args.cmd)
+            
         printer.pprint("")
                 
-        args = parser.parse_args(['--out', 'test', 'analyze', 
+        args = parser.parse_args(['--out', 'test', 'analyze', '--clingo', clingo,
                                   '--networks', os.path.join('test', 'networks.csv'), 
                                   '--midas', os.path.join('test', 'dataset.csv'), 
-                                  params[0],
-                                  '--strategies', os.path.join('test', 'strategies.csv')])
+                                  params[0], '--strategies', os.path.join('test', 'strategies.csv')])
                                   
         printer.pprint("Running caspo %s...\n" % args.cmd)
-        args.handler(args)
+        try:
+            args.handler(args)
+        except Exception as e:
+            printer.pprint(e)
+            printer.pprint("Testing on caspo %s has failed." % args.cmd)
+            
         printer.pprint("")
                 
-        args = parser.parse_args(['--out', 'test', 'design', 
+        args = parser.parse_args(['--out', 'test', 'design', '--clingo', clingo,
                                   os.path.join('test', 'behaviors.csv'), 
                                   os.path.join('test', 'dataset.csv')])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
-        args.handler(args)
+        try:
+            args.handler(args)
+        except Exception as e:
+            printer.pprint(e)
+            printer.pprint("Testing on caspo %s has failed." % args.cmd)
+            
         printer.pprint("")
                 
         args = parser.parse_args(['--out', 'test', 'visualize', 
@@ -174,6 +196,11 @@ def run():
                                   '--union'])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
-        args.handler(args)
+        try:
+            args.handler(args)
+        except Exception as e:
+            printer.pprint(e)
+            printer.pprint("Testing on caspo %s has failed." % args.cmd)
+    
         printer.pprint("")
 
