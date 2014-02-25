@@ -127,8 +127,10 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         """
         setup = asp.ITermSet(self.setup)
 
-        printer = component.getUtility(core.IPrinter)
-        printer.pprint("")
+        printer = component.queryUtility(core.IPrinter)
+        if printer:
+            printer.pprint("")
+
         for i, network in enumerate(self.networks):
             found = False
             for eb in self:
@@ -146,10 +148,12 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
 
             if not found:
                 self.add(BooleLogicBehavior(network.variables, network.mapping))
-                
-            printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
             
-        printer.pprint("\n")
+            if printer:    
+                printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
+            
+        if printer:
+            printer.pprint("\n")
 
 class BooleLogicNetworkSet2Stats(object):
     component.adapts(core.IBooleLogicNetworkSet)
