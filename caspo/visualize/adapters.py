@@ -43,8 +43,9 @@ class DotWriterAdapter(object):
             os.mkdir(path)
 
         nx.write_dot(self.graph, os.path.join(path, filename))
-        printer = component.getUtility(core.IPrinter)
-        printer.pprint("Wrote %s" % os.path.join(path, filename))
+        printer = component.queryUtility(core.IPrinter)
+        if printer:
+            printer.pprint("Wrote %s" % os.path.join(path, filename))
 
 class Graph2MultiDiGraph(object):
     component.adapts(core.IGraph)
