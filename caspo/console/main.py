@@ -82,9 +82,12 @@ def run():
     visualize.add_argument("--union", dest="union", action='store_true', help="visualize the union of logical networks (Default to False)")
     visualize.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
     visualize.set_defaults(handler=handlers.visualize)
+    
+    test = subparsers.add_parser("test")
+    test.add_argument("--testcase", help="the name of the testcase", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true", help="do not print anything to standard output")
-    parser.add_argument("--out", dest="outdir", default='.', help="output directory path (Default to current directory)", metavar="O")    
+    parser.add_argument("--out", dest="outdir", default='.', help="output directory path (Default to current directory)", metavar="O")
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION + '\n' + LICENSE)
     
     args = parser.parse_args()
@@ -95,6 +98,82 @@ def run():
     printer = Printer(args.quiet)
     gsm = component.getGlobalSiteManager()
     gsm.registerUtility(printer, IPrinter)
-    printer.pprint("Running caspo %s...\n" % args.cmd)
     
-    return args.handler(args)
+    if args.cmd != "test":
+        printer.pprint("Running caspo %s...\n" % args.cmd)
+        return args.handler(args)
+    else:
+        testcase = args.testcase
+        printer.pprint("Testing caspo subcommands using test case %s.\n" % testcase)
+        import caspo
+        from subprocess import check_call
+        
+        if os.path.exists('test'):
+            check_call(['rm', '-fr', 'test'])
+
+        os.mkdir('test')
+        path = os.path.dirname(caspo.__file__)
+        printer.pprint("Copying files for running tests:")
+        printer.pprint("\tPrior knowledge network: test/pkn.sif")
+        printer.pprint("\tPhospho-proteomics dataset: test/dataset.csv")
+        printer.pprint("\tIntervention scenarios: test/scenarios.csv")
+        printer.pprint("")
+        
+        check_call(['cp', os.path.join(path, 'data', args.testcase, 'pkn.sif'), 'test/'])
+        check_call(['cp', os.path.join(path, 'data', args.testcase, 'dataset.csv'), 'test/'])
+        check_call(['cp', os.path.join(path, 'data', args.testcase, 'scenarios.csv'), 'test/'])
+        
+        testcases = {
+            "Toy":        ('10', '0.1' , '5'),
+            "LiverToy":   ('10', '0.1' , '5'),
+            "LiverDREAM": ('30', '0.1' , '2'),
+            "ExtLiver":   ('30', '0.02', '0'),
+        }
+        
+        params = testcases[testcase]
+        args = parser.parse_args(['--out', 'test', 'learn', 
+                                  os.path.join('test', 'pkn.sif'), 
+                                  os.path.join('test', 'dataset.csv'), 
+                                  params[0], '--fit', params[1], '--size', params[2]])
+
+        printer.pprint("Running caspo %s...\n" % args.cmd)                          
+        args.handler(args)
+        printer.pprint("")
+        
+        args = parser.parse_args(['--out', 'test', 'control', 
+                                  os.path.join('test', 'networks.csv'), 
+                                  os.path.join('test', 'scenarios.csv')])
+
+        printer.pprint("Running caspo %s...\n" % args.cmd)
+        args.handler(args)
+        printer.pprint("")
+                
+        args = parser.parse_args(['--out', 'test', 'analyze', 
+                                  '--networks', os.path.join('test', 'networks.csv'), 
+                                  '--midas', os.path.join('test', 'dataset.csv'), 
+                                  params[0],
+                                  '--strategies', os.path.join('test', 'strategies.csv')])
+                                  
+        printer.pprint("Running caspo %s...\n" % args.cmd)
+        args.handler(args)
+        printer.pprint("")
+                
+        args = parser.parse_args(['--out', 'test', 'design', 
+                                  os.path.join('test', 'behaviors.csv'), 
+                                  os.path.join('test', 'dataset.csv')])
+
+        printer.pprint("Running caspo %s...\n" % args.cmd)
+        args.handler(args)
+        printer.pprint("")
+                
+        args = parser.parse_args(['--out', 'test', 'visualize', 
+                                  '--pkn', os.path.join('test', 'pkn.sif'),
+                                  '--networks', os.path.join('test', 'networks.csv'), 
+                                  '--midas', os.path.join('test', 'dataset.csv'),
+                                  '--strategies', os.path.join('test', 'strategies.csv'),
+                                  '--union'])
+
+        printer.pprint("Running caspo %s...\n" % args.cmd)
+        args.handler(args)
+        printer.pprint("")
+

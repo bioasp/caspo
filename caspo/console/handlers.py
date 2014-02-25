@@ -152,6 +152,7 @@ def analyze(args):
     return 0
     
 def visualize(args):
+    import os
     from zope import component
     from caspo import core, visualize, control, learn
     import random
@@ -190,15 +191,19 @@ def visualize(args):
                     sample = networks
             else:
                 sample = networks
-                
+            
+            printer = component.getUtility(core.IPrinter)
             for i, network in enumerate(sample):
                 writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
-                writer.write('network-%s.dot' % i, args.outdir)
-                
-                
+                printer.quiet = True
+                writer.write('network-%s.dot' % (i+1), args.outdir)
+                printer.quiet = False
+                printer.iprint("Wrote %s to %s" % (os.path.join(args.outdir, 'network-1.dot'), os.path.join(args.outdir, 'network-%s.dot' % (i+1))))
+            
+            printer.pprint("")                
             if args.union:
                 writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
-                writer.write('networks.dot', args.outdir)
+                writer.write('networks-union.dot', args.outdir)
                     
     if args.strategies:
         reader.read(args.strategies)

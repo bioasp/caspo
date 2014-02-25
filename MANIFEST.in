@@ -1,9 +1,7 @@
-include caspo/learn/encodings/gringo3/*.lp
-include caspo/learn/encodings/gringo4/*.lp
-include caspo/control/encodings/gringo3/*.lp
-include caspo/control/encodings/gringo4/*.lp
-include caspo/analyze/encodings/gringo3/*.lp
-include caspo/analyze/encodings/gringo4/*.lp
-include caspo/design/encodings/gringo4/*.lp
+recursive-include caspo/learn/encodings *.lp
+recursive-include caspo/control/encodings *.lp
+recursive-include caspo/analyze/encodings *.lp
+recursive-include caspo/design/encodings *.lp
+recursive-include caspo/data *.csv *.sif
 include LICENSE
 include README.md
