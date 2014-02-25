@@ -86,7 +86,7 @@ def run():
     test.add_argument("--testcase", help="testcase name", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true", help="do not print anything to standard output")
-    parser.add_argument("--out", dest="outdir", default='.', help="output directory path (Default to current directory)", metavar="O")
+    parser.add_argument("--out", dest="outdir", default='out', help="output directory path (Default to './out')", metavar="O")
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION + '\n' + LICENSE)
     
     args = parser.parse_args()
@@ -106,25 +106,26 @@ def run():
         clingo = args.clingo
         gringo = args.gringo
         hclasp = args.hclasp
+        out = args.outdir
         
         printer.pprint("Testing caspo subcommands using test case %s.\n" % testcase)
         import caspo
         from subprocess import check_call
         
-        if os.path.exists('test'):
-            check_call(['rm', '-fr', 'test'])
+        if os.path.exists(out):
+            check_call(['rm', '-fr', out])
 
-        os.mkdir('test')
+        os.mkdir(out)
         path = os.path.dirname(caspo.__file__)
         printer.pprint("Copying files for running tests:")
-        printer.pprint("\tPrior knowledge network: test/pkn.sif")
-        printer.pprint("\tPhospho-proteomics dataset: test/dataset.csv")
-        printer.pprint("\tIntervention scenarios: test/scenarios.csv")
+        printer.pprint("\tPrior knowledge network: pkn.sif")
+        printer.pprint("\tPhospho-proteomics dataset: dataset.csv")
+        printer.pprint("\tIntervention scenarios: scenarios.csv")
         printer.pprint("")
         
-        check_call(['cp', os.path.join(path, 'data', args.testcase, 'pkn.sif'), 'test/'])
-        check_call(['cp', os.path.join(path, 'data', args.testcase, 'dataset.csv'), 'test/'])
-        check_call(['cp', os.path.join(path, 'data', args.testcase, 'scenarios.csv'), 'test/'])
+        check_call(['cp', os.path.join(path, 'data', args.testcase, 'pkn.sif'), out])
+        check_call(['cp', os.path.join(path, 'data', args.testcase, 'dataset.csv'), out])
+        check_call(['cp', os.path.join(path, 'data', args.testcase, 'scenarios.csv'), out])
         
         testcases = {
             "Toy":        ('10', '0.1' , '5'),
@@ -134,9 +135,9 @@ def run():
         }
         
         params = testcases[testcase]
-        args = parser.parse_args(['--out', 'test', 'learn', '--clingo', clingo,
-                                  os.path.join('test', 'pkn.sif'), 
-                                  os.path.join('test', 'dataset.csv'), 
+        args = parser.parse_args(['--out', out, 'learn', '--clingo', clingo,
+                                  os.path.join(out, 'pkn.sif'), 
+                                  os.path.join(out, 'dataset.csv'), 
                                   params[0], '--fit', params[1], '--size', params[2]])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
@@ -148,9 +149,9 @@ def run():
             
         printer.pprint("")
         
-        args = parser.parse_args(['--out', 'test', 'control', '--gringo', gringo, '--hclasp', hclasp,
-                                  os.path.join('test', 'networks.csv'), 
-                                  os.path.join('test', 'scenarios.csv')])
+        args = parser.parse_args(['--out', out, 'control', '--gringo', gringo, '--hclasp', hclasp,
+                                  os.path.join(out, 'networks.csv'), 
+                                  os.path.join(out, 'scenarios.csv')])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
         try:
@@ -161,10 +162,10 @@ def run():
             
         printer.pprint("")
                 
-        args = parser.parse_args(['--out', 'test', 'analyze', '--clingo', clingo,
-                                  '--networks', os.path.join('test', 'networks.csv'), 
-                                  '--midas', os.path.join('test', 'dataset.csv'), 
-                                  params[0], '--strategies', os.path.join('test', 'strategies.csv')])
+        args = parser.parse_args(['--out', out, 'analyze', '--clingo', clingo,
+                                  '--networks', os.path.join(out, 'networks.csv'), 
+                                  '--midas', os.path.join(out, 'dataset.csv'), 
+                                  params[0], '--strategies', os.path.join(out, 'strategies.csv')])
                                   
         printer.pprint("Running caspo %s...\n" % args.cmd)
         try:
@@ -175,9 +176,9 @@ def run():
             
         printer.pprint("")
                 
-        args = parser.parse_args(['--out', 'test', 'design', '--clingo', clingo,
-                                  os.path.join('test', 'behaviors.csv'), 
-                                  os.path.join('test', 'dataset.csv')])
+        args = parser.parse_args(['--out', out, 'design', '--clingo', clingo,
+                                  os.path.join(out, 'behaviors.csv'), 
+                                  os.path.join(out, 'dataset.csv')])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
         try:
@@ -188,11 +189,11 @@ def run():
             
         printer.pprint("")
                 
-        args = parser.parse_args(['--out', 'test', 'visualize', 
-                                  '--pkn', os.path.join('test', 'pkn.sif'),
-                                  '--networks', os.path.join('test', 'networks.csv'), 
-                                  '--midas', os.path.join('test', 'dataset.csv'),
-                                  '--strategies', os.path.join('test', 'strategies.csv'),
+        args = parser.parse_args(['--out', out, 'visualize', 
+                                  '--pkn', os.path.join(out, 'pkn.sif'),
+                                  '--networks', os.path.join(out, 'networks.csv'), 
+                                  '--midas', os.path.join(out, 'dataset.csv'),
+                                  '--strategies', os.path.join(out, 'strategies.csv'),
                                   '--union'])
 
         printer.pprint("Running caspo %s...\n" % args.cmd)
