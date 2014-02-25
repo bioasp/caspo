@@ -14,7 +14,19 @@ Hence, the aim of **caspo** is to implement such a pipeline providing a powerful
 
 ### Install & Usage
 
-For detailed instructions on how to install and use **caspo**, please visit the [caspo wiki](https://github.com/bioasp/caspo/wiki).
+Usually, you would install **caspo** simply by running:
+
+```
+$ pip install caspo
+```
+
+Alternatively, you can download the sources of **caspo** and after unpacking run:
+
+```
+$ python setup.py install
+```
+
+For detailed instructions on how to install (pre-requisites) and use **caspo**, please visit the [caspo wiki](https://github.com/bioasp/caspo/wiki).
 
 ### Related publications
 
