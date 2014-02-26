@@ -155,8 +155,8 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         if printer:
             printer.pprint("\n")
 
-class BooleLogicNetworkSet2Stats(object):
-    component.adapts(core.IBooleLogicNetworkSet)
+class LogicalNetworkSet2Stats(object):
+    component.adapts(core.ILogicalNetworkSet)
     interface.implements(IStats)
     
     def __init__(self, networks):
