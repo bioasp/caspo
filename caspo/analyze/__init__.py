@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+import os
 
 from interfaces import *
 from utilities import *
@@ -34,12 +35,12 @@ gsm.registerAdapter(StatsMappings2CsvWriter)
 gsm.registerAdapter(BooleLogicBehaviorSet2MultiCsvWriter)
 gsm.registerAdapter(StrategySet2Stats)
 
-root = __file__.rsplit('/', 1)[0]
+root = os.path.dirname(__file__)
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.analyze.guess', root + '/encodings/gringo3/guess.lp', potassco.IGringo3)
-reg.register('caspo.analyze.fixpoint', root + '/encodings/gringo3/fixpoint.lp', potassco.IGringo3)
-reg.register('caspo.analyze.diff', root + '/encodings/gringo3/diff.lp', potassco.IGringo3)
+reg.register('caspo.analyze.guess',    os.path.join(root, 'encodings/gringo3/guess.lp'),    potassco.IGringo3)
+reg.register('caspo.analyze.fixpoint', os.path.join(root, 'encodings/gringo3/fixpoint.lp'), potassco.IGringo3)
+reg.register('caspo.analyze.diff',     os.path.join(root, 'encodings/gringo3/diff.lp'),     potassco.IGringo3)
 
-reg.register('caspo.analyze.guess', root + '/encodings/gringo4/guess.lp', potassco.IGringo4)
-reg.register('caspo.analyze.fixpoint', root + '/encodings/gringo4/fixpoint.lp', potassco.IGringo4)
-reg.register('caspo.analyze.diff', root + '/encodings/gringo4/diff.lp', potassco.IGringo4)
+reg.register('caspo.analyze.guess',    os.path.join(root, 'encodings/gringo4/guess.lp'),    potassco.IGringo4)
+reg.register('caspo.analyze.fixpoint', os.path.join(root, 'encodings/gringo4/fixpoint.lp'), potassco.IGringo4)
+reg.register('caspo.analyze.diff',     os.path.join(root, 'encodings/gringo4/diff.lp'),     potassco.IGringo4)

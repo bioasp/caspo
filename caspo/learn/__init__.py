@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+import os
 
 from interfaces import *
 from utilities import *
@@ -41,26 +42,26 @@ gsm.registerAdapter(BooleLogicNetworkSet2CsvWriter)
 
 gsm.registerUtility(Factory(Round), IFactory, 'round')
 gsm.registerUtility(Factory(Floor), IFactory, 'floor')
-gsm.registerUtility(Factory(Ceil), IFactory, 'ceil')
+gsm.registerUtility(Factory(Ceil),  IFactory, 'ceil')
 
-root = __file__.rsplit('/', 1)[0]
+root = os.path.dirname(__file__)
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.learn.guess', root + '/encodings/gringo3/guess.lp', potassco.IGringo3)
-reg.register('caspo.learn.fixpoint', root + '/encodings/gringo3/fixpoint.lp', potassco.IGringo3)
-reg.register('caspo.learn.rss', root + '/encodings/gringo3/residual.lp', potassco.IGringo3)
-reg.register('caspo.learn.opt', root + '/encodings/gringo3/optimization.lp', potassco.IGringo3)
-reg.register('caspo.learn.rescale', root + '/encodings/gringo3/rescale.lp', potassco.IGringo3)
-reg.register('caspo.learn.enum', root + '/encodings/gringo3/enumeration.lp', potassco.IGringo3)
+reg.register('caspo.learn.guess',    os.path.join(root, 'encodings/gringo3/guess.lp'),         potassco.IGringo3)
+reg.register('caspo.learn.fixpoint', os.path.join(root, 'encodings/gringo3/fixpoint.lp'),     potassco.IGringo3)
+reg.register('caspo.learn.rss',      os.path.join(root, 'encodings/gringo3/residual.lp'),     potassco.IGringo3)
+reg.register('caspo.learn.opt',      os.path.join(root, 'encodings/gringo3/optimization.lp'), potassco.IGringo3)
+reg.register('caspo.learn.rescale',  os.path.join(root, 'encodings/gringo3/rescale.lp'),      potassco.IGringo3)
+reg.register('caspo.learn.enum',     os.path.join(root, 'encodings/gringo3/enumeration.lp'),  potassco.IGringo3)
 
-reg.register('caspo.learn.guess', root + '/encodings/gringo4/guess.lp', potassco.IGringo4)
-reg.register('caspo.learn.fixpoint', root + '/encodings/gringo4/fixpoint.lp', potassco.IGringo4)
-reg.register('caspo.learn.rss', root + '/encodings/gringo4/residual.lp', potassco.IGringo4)
-reg.register('caspo.learn.opt', root + '/encodings/gringo4/optimization.lp', potassco.IGringo4)
-reg.register('caspo.learn.rescale', root + '/encodings/gringo4/rescale.lp', potassco.IGringo4)
-reg.register('caspo.learn.enum', root + '/encodings/gringo4/enumeration.lp', potassco.IGringo4)
+reg.register('caspo.learn.guess',    os.path.join(root, 'encodings/gringo4/guess.lp'),        potassco.IGringo4)
+reg.register('caspo.learn.fixpoint', os.path.join(root, 'encodings/gringo4/fixpoint.lp'),     potassco.IGringo4)
+reg.register('caspo.learn.rss',      os.path.join(root, 'encodings/gringo4/residual.lp'),     potassco.IGringo4)
+reg.register('caspo.learn.opt',      os.path.join(root, 'encodings/gringo4/optimization.lp'), potassco.IGringo4)
+reg.register('caspo.learn.rescale',  os.path.join(root, 'encodings/gringo4/rescale.lp'),      potassco.IGringo4)
+reg.register('caspo.learn.enum',     os.path.join(root, 'encodings/gringo4/enumeration.lp'),  potassco.IGringo4)
 
 reg = component.getUtility(asp.IArgumentRegistry)
-reg.register('caspo.learn.enum', ['-c maxrss={rss}', '-c maxsize={size}'], potassco.IGringoGrounder)
-reg.register('caspo.learn.opt', ["--quiet=1", "--conf=jumpy", "--opt-strategy=4"], potassco.IClasp3)
-reg.register('caspo.learn.rescale', ["--quiet=2,1"], potassco.IClasp3)
-reg.register('caspo.learn.enum', ["--opt-mode=ignore", "0", "--conf=jumpy"], potassco.IClasp3)
+reg.register('caspo.learn.enum',    ['-c maxrss={rss}', '-c maxsize={size}'],          potassco.IGringoGrounder)
+reg.register('caspo.learn.opt',     ["--quiet=1", "--conf=jumpy", "--opt-strategy=4"], potassco.IClasp3)
+reg.register('caspo.learn.rescale', ["--quiet=2,1"],                                   potassco.IClasp3)
+reg.register('caspo.learn.enum',    ["--opt-mode=ignore", "0", "--conf=jumpy"],        potassco.IClasp3)
