@@ -145,17 +145,21 @@ class PotasscoHeuristicController(object):
         strategies = self.grover.run(stdin, 
             grounder_args=programs + ['-c maxsize=%s' % size], 
             solver_args=['0', '-e record', '--opt-ignore'],
-            adapter=IStrategy,
-            termset_filter=lambda t: len(t.args) == 2)
+            adapter=IStrategy)
             
         return StrategySet(strategies)
         
-class TermSet2Strategy(object):
-    component.adapts(asp.ITermSet)
+class AnswerSet2Strategy(object):
+    component.adapts(asp.IAnswerSet)
     interface.implements(IStrategy)
     
-    def __init__(self, termset):
-        self.strategy = Strategy(map(lambda term: core.Literal(term.arg(0),term.arg(1)), termset))
+    def __init__(self, answer):
+        parser = asp.Grammar()
+        literals = []
+        parser.function.setParseAction(lambda t: literals.append(core.Literal(t['args'][0],t['args'][1])) if len(t['args']) == 2 else None)
+        [parser.parse(atom) for atom in answer.atoms]
+        
+        self.strategy = Strategy(literals)
         
     def __iter__(self):
         return iter(self.strategy)

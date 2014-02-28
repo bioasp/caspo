@@ -326,30 +326,29 @@ class ClampingInClampingList2TermSet(ClampingTermInClampingList2TermSet):
     def __init__(self, clamping, clist):
         super(ClampingInClampingList2TermSet, self).__init__(clamping, clist, asp.Term('clamped'))
 
-class TermSet2Clamping(object):
-    component.adapts(asp.ITermSet)
+class AnswerSet2Clamping(object):
+    component.adapts(asp.IAnswerSet)
     interface.implements(IClamping)
     
-    def __init__(self, termset):
+    def __init__(self, answer):
+        parser = asp.Grammar()
         literals = []
-        for term in termset:
-            if term.pred == 'clamped':
-                literals.append(Literal(term.arg(0), term.arg(1)))
+        parser.function.setParseAction(lambda t: literals.append(Literal(t['args'][0],t['args'][1])))
+        [parser.parse(atom) for atom in answer.atoms]
                 
         self.clamping = Clamping(literals)
         
     def __iter__(self):
         return iter(self.clamping)
         
-class TermSet2ClampingList(object):
-    component.adapts(asp.ITermSet)
+class AnswerSet2ClampingList(object):
+    component.adapts(asp.IAnswerSet)
     interface.implements(IClampingList)
     
-    def __init__(self, termset):
+    def __init__(self, answer):
         clampings = defaultdict(list)
-        
-        for term in termset:
-            if term.pred == 'clamped':
-                clampings[term.arg(0)].append(Literal(term.arg(1), term.arg(2)))
-                
+        parser = asp.Grammar()
+        parser.function.setParseAction(lambda t: clampings[t['args'][0]].append(Literal(t['args'][1],t['args'][2])))
+        [parser.parse(atom) for atom in answer.atoms]
+                        
         self.clampings = map(lambda literals: Clamping(literals), clampings.values())

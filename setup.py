@@ -44,11 +44,12 @@ setup(name='caspo',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
+          "zope.component",
+          "zope.interface",
           "pyzcasp",
           "numpy",
-          "networkx", 
-          #http://stackoverflow.com/questions/15951748/pydot-and-graphviz-error-couldnt-import-dot-parser-loading-of-dot-files-will          
-          "pyparsing==1.5.7",
+          "networkx",
+          "pyparsing>=1.5.7,<2.0.0", #latest pyparsing version for Python 2.x
           "pydot"
       ],
       entry_points={

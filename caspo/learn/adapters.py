@@ -55,17 +55,17 @@ class Dataset2DiscreteDataset(object):
             yield i, cues, dict(map(lambda (r,v): (r, self.discretize(v)), obs.iteritems()))
             
 
-class TermSet2BooleLogicNetwork(object):
-    component.adapts(asp.ITermSet)
+class AnswerSet2BooleLogicNetwork(object):
+    component.adapts(asp.IAnswerSet)
     interface.implements(core.IBooleLogicNetwork)
     
-    def __init__(self, termset):
+    def __init__(self, answer):
         names = component.getUtility(core.ILogicalNames)
         mapping = defaultdict(set)
-        for term in termset:
-            if term.pred == 'dnf':
-                mapping[names.variables[term.arg(0)]].add(names.clauses[term.arg(1)])
-        
+        parser = asp.Grammar()
+        parser.function.setParseAction(lambda t: mapping[names.variables[t['args'][0]]].add(names.clauses[t['args'][1]]))
+        [parser.parse(atom) for atom in answer.atoms]
+
         self._network = core.BooleLogicNetwork(names.variables, mapping)
         names.add(self._network.mapping.itervalues())
         
