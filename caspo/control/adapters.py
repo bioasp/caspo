@@ -120,9 +120,8 @@ class PotasscoDisjunctiveController(object):
         #hide.
         #show hold(atom(intervention(_,_))).
         """
-        strategies = self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=["0"], adapter=IStrategy)
-        
-        return StrategySet(strategies)
+        strategies = self.grover.run(stdin, grounder_args=programs + ['-c maxsize=%s' % size], solver_args=["0"])
+        return StrategySet(map(lambda ts: Strategy(map(lambda t: core.Literal(t.arg(0),t.arg(1)), ts)), strategies))
 
 class PotasscoHeuristicController(object):
     component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver)
