@@ -63,8 +63,10 @@ class AnswerSet2BooleLogicNetwork(object):
         names = component.getUtility(core.ILogicalNames)
         mapping = defaultdict(set)
         parser = asp.Grammar()
-        parser.function.setParseAction(lambda t: mapping[names.variables[t['args'][0]]].add(names.clauses[t['args'][1]]))
-        [parser.parse(atom) for atom in answer.atoms]
+        parser.function.setParseAction(lambda t: (names.variables[t['args'][0]], names.clauses[t['args'][1]]))
+        for atom in answer.atoms:
+            var,clause = parser.parse(atom)
+            mapping[var].add(clause)
 
         self._network = core.BooleLogicNetwork(names.variables, mapping)
         names.add(self._network.mapping.itervalues())

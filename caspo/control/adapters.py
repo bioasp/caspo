@@ -155,8 +155,12 @@ class AnswerSet2Strategy(object):
     def __init__(self, answer):
         parser = asp.Grammar()
         literals = []
-        parser.function.setParseAction(lambda t: literals.append(core.Literal(t['args'][0],t['args'][1])) if len(t['args']) == 2 else None)
-        [parser.parse(atom) for atom in answer.atoms]
+        parser.function.setParseAction(lambda t: core.Literal(t['args'][0],t['args'][1]) if len(t['args']) == 2 else False)
+
+        for atom in answer.atoms:
+            literal = parser.parse(atom)
+            if literal:
+                literals.append(literal)
         
         self.strategy = Strategy(literals)
         

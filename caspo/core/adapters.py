@@ -333,8 +333,8 @@ class AnswerSet2Clamping(object):
     def __init__(self, answer):
         parser = asp.Grammar()
         literals = []
-        parser.function.setParseAction(lambda t: literals.append(Literal(t['args'][0],t['args'][1])))
-        [parser.parse(atom) for atom in answer.atoms]
+        parser.function.setParseAction(lambda t: Literal(t['args'][0],t['args'][1]))
+        [literals.append(parser.parse(atom)) for atom in answer.atoms]
                 
         self.clamping = Clamping(literals)
         
@@ -348,7 +348,9 @@ class AnswerSet2ClampingList(object):
     def __init__(self, answer):
         clampings = defaultdict(list)
         parser = asp.Grammar()
-        parser.function.setParseAction(lambda t: clampings[t['args'][0]].append(Literal(t['args'][1],t['args'][2])))
-        [parser.parse(atom) for atom in answer.atoms]
-                        
+        parser.function.setParseAction(lambda t: (t['args'][0], Literal(t['args'][1],t['args'][2])))
+        for atom in answer.atoms:
+            key, lit = parser.parse(atom)
+            clampings[key].append(lit)
+
         self.clampings = map(lambda literals: Clamping(literals), clampings.values())
