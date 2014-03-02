@@ -67,7 +67,7 @@ def control(args):
     from caspo import core, control
 
     gringo = potassco.Gringo4(args.gringo)    
-    clasp = potassco.ClaspHSolver(args.hclasp)
+    clasp = potassco.HClasp(args.hclasp)
 
     reader = component.getUtility(core.ICsvReader)
     

@@ -100,7 +100,7 @@ class NetworksMultiScenario2TermSet(asp.TermSetAdapter):
         self._termset = self._termset.union(asp.ITermSet(multiscenario))    
 
 class PotasscoDisjunctiveController(object):
-    component.adapts(asp.ITermSet, potassco.IGringo3, potassco.IClaspDSolver)
+    component.adapts(asp.ITermSet, potassco.IGringo3, potassco.IDisjunctiveSolver)
     interface.implements(IController)
     
     def __init__(self, termset, gringo, clasp):
@@ -124,7 +124,7 @@ class PotasscoDisjunctiveController(object):
         return StrategySet(map(lambda ts: Strategy(map(lambda t: core.Literal(t.arg(0),t.arg(1)), ts)), strategies))
 
 class PotasscoHeuristicController(object):
-    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClaspHSolver)
+    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IHClasp)
     interface.implements(IController)
         
     def __init__(self, termset, gringo, clasp):
