@@ -4,7 +4,7 @@ def learn(args):
     from pyzcasp import asp, potassco
     from caspo import core, learn
 
-    clingo = potassco.Clingo(args.clingo)
+    clingo = component.getUtility(potassco.IClingo)
 
     sif = component.getUtility(core.IFileReader)
     sif.read(args.pkn)
@@ -37,7 +37,7 @@ def design(args):
     from pyzcasp import asp, potassco
     from caspo import core, design
     
-    clingo = potassco.Clingo(args.clingo)
+    clingo = component.getUtility(potassco.IClingo)
     
     reader = component.getUtility(core.ICsvReader)
     reader.read(args.networks)
@@ -66,8 +66,8 @@ def control(args):
     from pyzcasp import potassco, asp
     from caspo import core, control
 
-    gringo = potassco.Gringo4(args.gringo)    
-    clasp = potassco.HClasp(args.hclasp)
+    gringo = component.getUtility(potassco.IGringo4)
+    hclasp = component.getUtility(potassco.IHClasp)
 
     reader = component.getUtility(core.ICsvReader)
     
@@ -81,7 +81,7 @@ def control(args):
     
     instance = component.getMultiAdapter((networks, multiscenario), asp.ITermSet)
 
-    controller = component.getMultiAdapter((instance, gringo, clasp), control.IController)
+    controller = component.getMultiAdapter((instance, gringo, hclasp), control.IController)
     strategies = controller.control(args.size)
     
     writer = core.ICsvWriter(strategies)
