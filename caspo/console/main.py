@@ -28,10 +28,8 @@ There is NO WARRANTY, to the extent permitted by law.\n
 """
 
 def run():
-    potassco_parser = argparse.ArgumentParser(add_help=False)
-    potassco_parser.add_argument("--clingo", dest="clingo", default="clingo", help="clingo solver binary (Default to 'clingo')", metavar="C")
-    potassco_parser.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
-    potassco_parser.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")
+    clingo_parser = argparse.ArgumentParser(add_help=False)
+    clingo_parser.add_argument("--clingo", dest="clingo", default="clingo", help="clingo solver binary (Default to 'clingo')", metavar="C")
     
     parser = argparse.ArgumentParser("caspo", formatter_class=argparse.RawTextHelpFormatter,
                                      description="Reasoning on the response of logical signaling networks with Answer Set Programming")
@@ -39,7 +37,7 @@ def run():
     subparsers = parser.add_subparsers(title='caspo subcommands', dest='cmd',
                                        description='for specific help on each subcommand use: caspo {cmd} --help')
     
-    learn = subparsers.add_parser("learn", parents=[potassco_parser])
+    learn = subparsers.add_parser("learn", parents=[clingo_parser])
     learn.add_argument("pkn", help="prior knowledge network in SIF format")
     learn.add_argument("midas", help="experimental dataset in MIDAS file")
     learn.add_argument("time", type=int, help="time-point to be used in MIDAS")    
@@ -49,7 +47,7 @@ def run():
     learn.add_argument("--discretization", dest="discretization", default='round', choices=['round', 'floor', 'ceil'], help="discretization function: round, floor, ceil (Default to round)", metavar="T")                        
     learn.set_defaults(handler=handlers.learn)
     
-    design = subparsers.add_parser("design", parents=[potassco_parser])
+    design = subparsers.add_parser("design", parents=[clingo_parser])
     design.add_argument("networks", help="logical networks in CSV format")
     design.add_argument("midas", help="experimental dataset in MIDAS file")                    
     design.add_argument("--stimuli", dest="stimuli", type=int, default=-1,help="maximum number of stimuli per experiment", metavar="S")
@@ -57,15 +55,17 @@ def run():
     design.add_argument("--experiments", dest="experiments", type=int, default=20, help="maximum number of experiments (Default to 20)", metavar="E")
     design.set_defaults(handler=handlers.design)
     
-    control = subparsers.add_parser("control", parents=[potassco_parser])
+    control = subparsers.add_parser("control")
     control.add_argument("networks", help="Logical networks in CSV format")
     control.add_argument("scenarios", help="intervention scenarios in csv format")                        
     control.add_argument("--size", dest="size", type=int, default=0, help="maximum size for interventions strategies (Default to 0 (no limit))", metavar="M")
     control.add_argument("--allow-constraints", dest="iconstraints", action='store_true', help="allow intervention over side constraints (Default to False)")    
     control.add_argument("--allow-goals", dest="igoals", action='store_true', help="allow intervention over goals (Default to False)")
+    control.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
+    control.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")
     control.set_defaults(handler=handlers.control)
     
-    analyze = subparsers.add_parser("analyze", parents=[potassco_parser])
+    analyze = subparsers.add_parser("analyze", parents=[clingo_parser])
     analyze.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
     analyze.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point to be used")
     analyze.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
@@ -80,7 +80,9 @@ def run():
     visualize.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
     visualize.set_defaults(handler=handlers.visualize)
     
-    test = subparsers.add_parser("test", parents=[potassco_parser])
+    test = subparsers.add_parser("test", parents=[clingo_parser])
+    test.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
+    test.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")
     test.add_argument("--testcase", help="testcase name", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true", help="do not print anything to standard output")
@@ -96,16 +98,21 @@ def run():
     printer = Printer(args.quiet)
     gsm = component.getGlobalSiteManager()
     gsm.registerUtility(printer, IPrinter)
-    potassco.configure(gringo4=args.gringo, hclasp=args.hclasp, clingo=args.clingo)
     
     if args.cmd != "test":
         printer.pprint("Running caspo %s...\n" % args.cmd)
+        if args.cmd in ['learn', 'design', 'analyze']:
+            potassco.configure(clingo=args.clingo)
+        elif args.cmd == 'control':
+            potassco.configure(gringo4=args.gringo, hclasp=args.hclasp)
+            
         return args.handler(args)
     else:
         testcase = args.testcase
         clingo = args.clingo
         gringo = args.gringo
         hclasp = args.hclasp
+        potassco.configure(gringo4=args.gringo, hclasp=args.hclasp, clingo=args.clingo)
         out = args.outdir
         
         printer.pprint("Testing caspo subcommands using test case %s.\n" % testcase)
