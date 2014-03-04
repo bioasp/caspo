@@ -26,4 +26,4 @@ eval(M,Z,V,-1) :- free(M,Z,V,D); eval_clause(M,Z,C,-1) :        dnf(D,C).
 :- goal(Z,T,S); not eval(M,Z,T,S); model(M).
 
 #const maxsize=0.
-:- maxsize>0; maxsize + 1 { intervention(_) }.
+:- maxsize>0; maxsize + 1 { intervention(X) }.
