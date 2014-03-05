@@ -106,7 +106,7 @@ class PotasscoDisjunctiveController(object):
     def __init__(self, termset, gringo, clasp):
         super(PotasscoDisjunctiveController, self).__init__()
         self.termset = termset
-        self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver)
+        self.grover = component.getMultiAdapter((gringo, clasp), potassco.IMetaGrounderSolver, 'metasp')
         self._stratgies = StrategySet()
             
     @asp.cleanrun        
