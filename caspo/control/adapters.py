@@ -138,10 +138,7 @@ class PotasscoHeuristicController(object):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
         
         programs = [self.termset.to_file(), encodings('caspo.control.full'), encodings('caspo.control.heuristic')]
-        stdin = """
-        #show intervention/2.
-        """     
-        strategies = self.grover.run(stdin, 
+        strategies = self.grover.run( 
             grounder_args=programs + ['-c maxsize=%s' % size], 
             solver_args=['0', '-e record', '--opt-ignore'],
             adapter=IStrategy)
@@ -155,7 +152,7 @@ class AnswerSet2Strategy(object):
     def __init__(self, answer):
         parser = asp.Grammar()
         literals = []
-        parser.function.setParseAction(lambda t: core.Literal(t['args'][0],t['args'][1]) if len(t['args']) == 2 else False)
+        parser.function.setParseAction(lambda t: core.Literal(t['args'][0],t['args'][1]))
 
         for atom in answer.atoms:
             literal = parser.parse(atom)
