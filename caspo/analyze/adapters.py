@@ -321,7 +321,31 @@ class StrategySet2Stats(object):
             yield lit, occu / n
         
     def frequency(self, key):
-        pass
+        return self.__occu[key] / float(len(self.strategies))
+        
+    def __mutuals__(self, candidates, mutually):
+        pairs = defaultdict(set)
+        for l1,l2 in combinations(candidates, 2):
+            valid = True
+            for strategy in self.strategies:
+                if not mutually(l1 in strategy, l2 in strategy):
+                    valid = False
+                    break
+                    
+            if valid:
+                pairs[l1].add(l2)
+                pairs[l2].add(l1)
+                
+        return pairs
         
     def combinatorics(self):
-        return dict(), dict()
+        n = len(self.strategies)
+        candidates = set()
+        for lit, occu in self.__occu.iteritems():
+            if occu < n:
+                candidates.add(lit)
+        
+        exclusive = self.__mutuals__(candidates, lambda b1,b2: b1 != b2)
+        inclusive = self.__mutuals__(candidates, lambda b1,b2: b1 == b2)
+        return exclusive, inclusive
+        
