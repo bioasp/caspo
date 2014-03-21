@@ -16,6 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
+import os, tempfile, numpy
 from collections import defaultdict
 from itertools import combinations
 from zope import component, interface
@@ -25,8 +26,6 @@ from pyzcasp import asp, potassco
 from caspo import core, control
 from interfaces import *
 from impl import *
-
-import numpy
 
 class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
     component.adapts(core.IBooleLogicNetworkSet, core.IDataset, potassco.IGrounderSolver)
@@ -116,7 +115,6 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         rss = numpy.nansum((predictions - observations) ** 2)
         return rss / self.dataset.nobs[time]
 
-    @asp.cleanrun
     def __io_discovery__(self):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)
         clamping = encodings('caspo.analyze.guess')
@@ -131,6 +129,9 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         if printer:
             printer.pprint("")
 
+        #When the number of networks is large, using @asp.cleanrun with tmp files kills performance. 
+        #because a lot of time is needed only for removing the created tmp files (clean_files function).
+        TEMP_IO_LP = tempfile.NamedTemporaryFile(delete=False)
         for i, network in enumerate(self.networks):
             found = False
             for eb in self:
@@ -138,7 +139,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                 
                 instance = setup.union(asp.ITermSet(pair))
                 self.clingo.run(stdin, 
-                        grounder_args=[instance.to_file(), clamping, fixpoint, diff], 
+                        grounder_args=[instance.to_file(TEMP_IO_LP.name), clamping, fixpoint, diff], 
                         solver_args=["--quiet"])
                     
                 if self.clingo.solver.unsat:
@@ -151,7 +152,9 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             
             if printer:    
                 printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
-            
+        
+        #explicitly unlink the single tmp file created
+        os.unlink(TEMP_IO_LP.name)
         if printer:
             printer.pprint("\n")
 
