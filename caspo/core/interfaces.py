@@ -218,6 +218,9 @@ class ILogicalNetwork(interface.Interface):
     variables = interface.Attribute("Variables in the network")
     mapping = interface.Attribute("Mapping from variables to sets of clauses")
     
+    def __len__(self):
+        """"""
+    
 class IClamping(interface.Interface):
     """
     """

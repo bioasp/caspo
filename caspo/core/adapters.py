@@ -131,6 +131,9 @@ class LogicalMapping2LogicalNetwork(object):
     def mapping(self):
         return self._network.mapping
         
+    def __len__(self):
+        return len(self._network)
+        
 class LogicalMapping2BooleLogicNetwork(LogicalMapping2LogicalNetwork):
     component.adapts(ILogicalMapping)
     interface.implements(IBooleLogicNetwork)

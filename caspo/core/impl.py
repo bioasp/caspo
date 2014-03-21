@@ -111,6 +111,9 @@ class LogicalNetwork(object):
             for v, f in mapping.iteritems():
                 self.mapping[v] = frozenset(f)
                 
+    def __len__(self):
+        return reduce(lambda x,y: [sum(x)+sum(y)], map(lambda f: map(len, f), self.mapping.values()))[0]
+                
 class BooleLogicNetwork(LogicalNetwork):
     interface.implements(IBooleLogicNetwork)
     
