@@ -154,6 +154,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                 printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
         
         #explicitly unlink the single tmp file created
+        TEMP_IO_LP.close() # this is needed in windows... maybe clingo leaves the file open (?)
         os.unlink(TEMP_IO_LP.name)
         if printer:
             printer.pprint("\n")

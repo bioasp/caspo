@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, sys, argparse, pkg_resources
+import os, sys, shutil, argparse, pkg_resources
 import handlers
 
 VERSION = pkg_resources.get_distribution("caspo").version
@@ -120,7 +120,7 @@ def run():
         from subprocess import check_call
         
         if os.path.exists(out):
-            check_call(['rm', '-fr', out])
+            shutil.rmtree(out)
 
         os.mkdir(out)
         path = os.path.dirname(caspo.__file__)
@@ -130,9 +130,9 @@ def run():
         printer.pprint("\tIntervention scenarios: scenarios.csv")
         printer.pprint("")
         
-        check_call(['cp', os.path.join(path, 'data', args.testcase, 'pkn.sif'), out])
-        check_call(['cp', os.path.join(path, 'data', args.testcase, 'dataset.csv'), out])
-        check_call(['cp', os.path.join(path, 'data', args.testcase, 'scenarios.csv'), out])
+        shutil.copy(os.path.join(path, 'data', args.testcase, 'pkn.sif'), out)
+        shutil.copy(os.path.join(path, 'data', args.testcase, 'dataset.csv'), out)
+        shutil.copy(os.path.join(path, 'data', args.testcase, 'scenarios.csv'), out)
         
         testcases = {
             "Toy":        ('10', '0.1' , '5'),
