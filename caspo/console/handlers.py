@@ -94,7 +94,7 @@ def analyze(args):
     from pyzcasp import asp, potassco
     from caspo import core, analyze, learn, control
     
-    clingo = potassco.Clingo(args.clingo)    
+    clingo = component.getUtility(potassco.IClingo)
     reader = component.getUtility(core.ICsvReader)
 
     lines = []
@@ -113,8 +113,8 @@ def analyze(args):
             point = core.TimePoint(int(args.midas[1]))
     
             writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
-            writer.write('networks-mse.csv', args.outdir)
-    
+            writer.write('networks-mse-len.csv', args.outdir)
+            
             behaviors =  component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet)
             multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
             multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)

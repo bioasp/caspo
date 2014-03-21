@@ -33,7 +33,7 @@ class Sif2Graph(core.GraphAdapter):
             line = line.strip()
             if line:
                 try:
-                    source, rel, target = line.split('\t')
+                    source, rel, target = line.split()
                     sign = int(rel)
                 except Exception, e:
                     raise IOError("Cannot read line %s in SIF file: %s" % (line, str(e)))
@@ -242,12 +242,14 @@ class BooleLogicNetworkSet2CsvWriter(object):
         for network, mse in self.networks.itermses(self.dataset, self.point.time):
             row = component.getMultiAdapter((network, self._nheader), core.ILogicalMapping)
             row.mapping["MSE"] = "%.4f" % mse
+            row.mapping["SIZE"] = len(network)
             yield row.mapping
         
     def write(self, filename, path="./"):
         self.writer = component.getUtility(core.ICsvWriter)
         header = list(self._nheader)
         header.append("MSE")
+        header.append("SIZE")
         
         self.writer.load(self.mses(), header)
         self.writer.write(filename, path)
