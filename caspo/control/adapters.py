@@ -124,7 +124,7 @@ class PotasscoDisjunctiveController(object):
         return StrategySet(map(lambda ts: Strategy(map(lambda t: core.Literal(t.arg(0),t.arg(1)), ts)), strategies))
 
 class PotasscoHeuristicController(object):
-    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IHClasp)
+    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClasp3)
     interface.implements(IController)
         
     def __init__(self, termset, gringo, clasp):
@@ -137,10 +137,13 @@ class PotasscoHeuristicController(object):
     def control(self, size=0):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
         
-        programs = [self.termset.to_file(), encodings('caspo.control.full'), encodings('caspo.control.heuristic')]
-        strategies = self.grover.run( 
-            grounder_args=programs + ['-c maxsize=%s' % size], 
-            solver_args=['0', '-e record', '--opt-ignore'],
+        grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.grover.grounder)
+        solver_args = component.getUtility(asp.IArgumentRegistry).arguments(self.grover.solver)
+        
+        programs = [self.termset.to_file(), encodings('caspo.control.full')]
+        strategies = self.grover.run("#show intervention/2.", 
+            grounder_args=programs + map(lambda arg: arg.format(size=size), grounder_args('caspo.control.enum')), 
+            solver_args= solver_args('caspo.control.enum'),
             adapter=IStrategy)
             
         return StrategySet(strategies)

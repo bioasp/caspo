@@ -62,7 +62,7 @@ def run():
     control.add_argument("--allow-constraints", dest="iconstraints", action='store_true', help="allow intervention over side constraints (Default to False)")    
     control.add_argument("--allow-goals", dest="igoals", action='store_true', help="allow intervention over goals (Default to False)")
     control.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
-    control.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")
+    control.add_argument("--clasp",  dest="clasp", default="clasp", help="clasp solver binary (Default to 'clasp')", metavar="C")
     control.set_defaults(handler=handlers.control)
     
     analyze = subparsers.add_parser("analyze", parents=[clingo_parser])
@@ -82,7 +82,7 @@ def run():
     
     test = subparsers.add_parser("test", parents=[clingo_parser])
     test.add_argument("--gringo", dest="gringo", default="gringo", help="gringo grounder binary (Default to 'gringo')", metavar="G")
-    test.add_argument("--hclasp", dest="hclasp", default="hclasp", help="hclasp solver binary (Default to 'hclasp')", metavar="H")
+    test.add_argument("--clasp", dest="clasp", default="clasp", help="clasp solver binary (Default to 'clasp')", metavar="C")
     test.add_argument("--testcase", help="testcase name", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true", help="do not print anything to standard output")
@@ -104,15 +104,15 @@ def run():
         if args.cmd in ['learn', 'design', 'analyze']:
             potassco.configure(clingo=args.clingo)
         elif args.cmd == 'control':
-            potassco.configure(gringo4=args.gringo, hclasp=args.hclasp)
+            potassco.configure(gringo4=args.gringo, clasp3=args.clasp)
             
         return args.handler(args)
     else:
         testcase = args.testcase
         clingo = args.clingo
         gringo = args.gringo
-        hclasp = args.hclasp
-        potassco.configure(gringo4=args.gringo, hclasp=args.hclasp, clingo=args.clingo)
+        clasp = args.clasp
+        potassco.configure(gringo4=args.gringo, clasp3=args.clasp, clingo=args.clingo)
         out = args.outdir
         
         printer.pprint("Testing caspo subcommands using test case %s.\n" % testcase)
@@ -162,18 +162,18 @@ def run():
             
         printer.pprint("")
         
-        args = parser.parse_args(['--out', out, 'control', '--gringo', gringo, '--hclasp', hclasp,
+        args = parser.parse_args(['--out', out, 'control', '--gringo', gringo, '--clasp', clasp,
                                   os.path.join(out, 'networks.csv'), 
                                   os.path.join(out, 'scenarios.csv')])
 
         cmdline = "$ caspo --out {out} control {networks} {scenarios}"
         if gringo != 'gringo':
             cmdline += " --gringo {gringo}"
-        if hclasp != 'hclasp':
-            cmdline += " --hclasp {hclasp}"
+        if clasp != 'clasp':
+            cmdline += " --clasp {clasp}"
         cmdline += "\n"
         printer.pprint(cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'), 
-                                      scenarios=os.path.join(out, 'scenarios.csv'), gringo=gringo, hclasp=hclasp))
+                                      scenarios=os.path.join(out, 'scenarios.csv'), gringo=gringo, clasp=clasp))
         try:
             args.handler(args)
         except Exception as e:

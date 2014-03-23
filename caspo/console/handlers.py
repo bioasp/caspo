@@ -67,7 +67,7 @@ def control(args):
     from caspo import core, control
 
     gringo = component.getUtility(potassco.IGringo4)
-    hclasp = component.getUtility(potassco.IHClasp)
+    clasp = component.getUtility(potassco.IClasp3)
 
     reader = component.getUtility(core.ICsvReader)
     
@@ -81,7 +81,7 @@ def control(args):
     
     instance = component.getMultiAdapter((networks, multiscenario), asp.ITermSet)
 
-    controller = component.getMultiAdapter((instance, gringo, hclasp), control.IController)
+    controller = component.getMultiAdapter((instance, gringo, clasp), control.IController)
     strategies = controller.control(args.size)
     
     writer = core.ICsvWriter(strategies)
