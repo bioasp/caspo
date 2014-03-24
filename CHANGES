@@ -1,0 +1,10 @@
+2.0.0 (unreleased)
+------------------
+- Complete refactoring with (no backwards compatibility)
+- Introduce subcommands: 
+    - learn: learning logical networks
+    - control: finding intervention strategies
+    - analyze: compute I/O behaviors and basic stats
+    - design: experimental design to discriminate I/O behaviors
+    - visualize: dump results from other subcommands to dot files
+- Uses latest potassco tools: clingo >= 4.3.0, gringo >= 4.3.0 and clasp >= 3.0.2

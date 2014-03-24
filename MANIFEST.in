@@ -4,4 +4,5 @@ recursive-include caspo/analyze/encodings *.lp
 recursive-include caspo/design/encodings *.lp
 recursive-include caspo/data *.csv *.sif
 include LICENSE
+include CHANGES
 include README.md
