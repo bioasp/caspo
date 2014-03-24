@@ -3,7 +3,7 @@
 
 2.0.0 (2014-03-24)
 ------------------
-- Complete refactoring with (no backwards compatibility)
+- Complete refactoring (no backwards compatibility)
 - Introduce subcommands: 
     - learn: learning logical networks
     - control: finding intervention strategies
