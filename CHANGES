@@ -1,4 +1,4 @@
-2.0.0 (unreleased)
+2.0.0 (2014-03-24)
 ------------------
 - Complete refactoring with (no backwards compatibility)
 - Introduce subcommands: 
