@@ -14,13 +14,11 @@ Hence, the aim of **caspo** is to implement such a pipeline providing a powerful
 
 ### Install & Usage
 
-Usually, you would install **caspo** from [pypi](https://pypi.python.org/pypi/caspo) simply by running:
-
+If you are already using [Python](https://www.python.org/download/releases/2.7.6) with [NumPy](http://www.numpy.org/), you should be able to install **caspo** from [pypi](https://pypi.python.org/pypi/caspo) simply by running:
 ```
 $ pip install caspo
 ```
-
-Note that a major re-factoring (series 2) is under development and will be released soon. For detailed instructions on how to install (pre-requisites) and use **caspo 2**, please visit the [caspo wiki](https://github.com/bioasp/caspo/wiki).
+If you are not using Python and/or NumPy, please visit the [caspo wiki](https://github.com/bioasp/caspo/wiki) for detailed instructions.
 
 ### Related publications
 
