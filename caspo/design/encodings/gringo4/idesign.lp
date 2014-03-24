@@ -15,11 +15,10 @@ model(M) :- formula(M,_,_).
 
 clamping(k).
 
-1 {clamped(k,V,1);clamped(k,V,-1)} 1 :- stimulus(V); clause(_,V,_).
-{clamped(k,V,-1)}                    :- inhibitor(V); clause(_,V,_).
-
-clamped(k,V,-1) :- stimulus(V); not clause(_,V,_).
-
+{clamped(k,V, 1)} :- stimulus(V); clause(_,V,_).
+{clamped(k,V,-1)} :- inhibitor(V); clause(_,V,_).
+ clamped(k,V,-1)  :- stimulus(V); not clamped(k,V,1); clamping(k).
+ 
 :- maxstimuli + 1 { clamped(k,V,1) : stimulus(V) }; clamping(k); maxstimuli >= 0.
 :- maxinhibitors + 1 { clamped(k,V,-1) : inhibitor(V) }; clamping(k); maxinhibitors >= 0.
 
