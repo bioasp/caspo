@@ -12,13 +12,39 @@ a set of target species or compounds into a desired steady state.
 Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks. 
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
-### Install & Usage
+### Installation
 
 If you are already using [Python](https://www.python.org/download/releases/2.7.6) with [NumPy](http://www.numpy.org/), you should be able to install **caspo** from [pypi](https://pypi.python.org/pypi/caspo) simply by running:
 ```
 $ pip install caspo
 ```
-If you are not using Python and/or NumPy, please visit the [caspo wiki](https://github.com/bioasp/caspo/wiki) for detailed instructions.
+If you are not using Python and/or NumPy, please visit the [WIKI](https://github.com/bioasp/caspo/wiki) for detailed instructions.
+
+### Usage
+Ask for help by running:
+
+```
+$ caspo --help
+usage: caspo [-h] [--quiet] [--out O] [--version]
+             {control,visualize,design,learn,test,analyze} ...
+
+Reasoning on the response of logical signaling networks with Answer Set Programming
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --quiet               do not print anything to standard output
+  --out O               output directory path (Default to './out')
+  --version             show program's version number and exit
+
+caspo subcommands:
+  for specific help on each subcommand use: caspo {cmd} --help
+
+  {control,visualize,design,learn,test,analyze}```
+```
+
+### Sample
+
+Sample files are included and available for [download](https://github.com/bioasp/caspo/tree/master/caspo/data)
 
 ### Related publications
 
