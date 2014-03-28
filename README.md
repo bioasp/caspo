@@ -44,7 +44,7 @@ caspo subcommands:
 
 ### Samples
 
-Sample files are included and available for [download](https://github.com/bioasp/caspo/tree/master/caspo/data)
+Sample files are included with **caspo** and available for [download](http://bioasp.github.io/caspo/data.zip)
 
 ### Related publications
 
