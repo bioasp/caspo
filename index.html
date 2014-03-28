@@ -44,14 +44,42 @@ Altogether, this constitutes a pipeline for automated reasoning on logical signa
 Hence, the aim of <strong>caspo</strong> is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.</p>
 
 <h3>
-<a name="install--usage" class="anchor" href="#install--usage"><span class="octicon octicon-link"></span></a>Install &amp; Usage</h3>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h3>
 
 <p>If you are already using <a href="https://www.python.org/download/releases/2.7.6">Python</a> with <a href="http://www.numpy.org/">NumPy</a>, you should be able to install <strong>caspo</strong> from <a href="https://pypi.python.org/pypi/caspo">pypi</a> simply by running:</p>
 
 <pre><code>$ pip install caspo
 </code></pre>
 
-<p>If you are not using Python and/or NumPy, please visit the <a href="https://github.com/bioasp/caspo/wiki">caspo wiki</a> for detailed instructions.</p>
+<p>If you are not using Python and/or NumPy, please visit the <a href="https://github.com/bioasp/caspo/wiki">wiki</a> for detailed instructions.</p>
+
+<h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<p>Ask for help by running:</p>
+
+<pre><code>$ caspo --help
+usage: caspo [-h] [--quiet] [--out O] [--version]
+             {control,visualize,design,learn,test,analyze} ...
+
+Reasoning on the response of logical signaling networks with Answer Set Programming
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --quiet               do not print anything to standard output
+  --out O               output directory path (Default to './out')
+  --version             show program's version number and exit
+
+caspo subcommands:
+  for specific help on each subcommand use: caspo {cmd} --help
+
+  {control,visualize,design,learn,test,analyze}```
+</code></pre>
+
+<h3>
+<a name="samples" class="anchor" href="#samples"><span class="octicon octicon-link"></span></a>Samples</h3>
+
+<p>Sample files are included with <strong>caspo</strong> and available for <a href="http://bioasp.github.io/caspo/data.zip">download</a></p>
 
 <h3>
 <a name="related-publications" class="anchor" href="#related-publications"><span class="octicon octicon-link"></span></a>Related publications</h3>
