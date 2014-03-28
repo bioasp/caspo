@@ -42,7 +42,7 @@ caspo subcommands:
   {control,visualize,design,learn,test,analyze}```
 ```
 
-### Sample
+### Samples
 
 Sample files are included and available for [download](https://github.com/bioasp/caspo/tree/master/caspo/data)
 
