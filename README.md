@@ -18,7 +18,7 @@ If you are already using [Python](https://www.python.org/download/releases/2.7.6
 ```
 $ pip install caspo
 ```
-If you are not using Python and/or NumPy, please visit the [WIKI](https://github.com/bioasp/caspo/wiki) for detailed instructions.
+If you are not using Python and/or NumPy, please visit the [wiki](https://github.com/bioasp/caspo/wiki) for detailed instructions.
 
 ### Usage
 Ask for help by running:
