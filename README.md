@@ -39,7 +39,7 @@ optional arguments:
 caspo subcommands:
   for specific help on each subcommand use: caspo {cmd} --help
 
-  {control,visualize,design,learn,test,analyze}```
+  {control,visualize,design,learn,test,analyze}
 ```
 
 ### Samples
