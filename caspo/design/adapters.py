@@ -57,7 +57,7 @@ class PotasscoDesigner(object):
                             adapter=core.IClampingList)
                             
         if self.clingo.optimum:
-            return solutions[0]
+            return solutions
         
 class ClampingList2CsvWriter(object):
     component.adapts(core.IClampingList, core.ISetup)

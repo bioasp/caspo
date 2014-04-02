@@ -49,11 +49,12 @@ def design(args):
     instance = component.getMultiAdapter((networks, dataset.setup), asp.ITermSet)
 
     designer = component.getMultiAdapter((instance, clingo), design.IDesigner)
-    exp = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
+    exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
     
-    if exp:
-        writer = component.getMultiAdapter((exp, dataset.setup), core.ICsvWriter)
-        writer.write('opt-design.csv', args.outdir)
+    if exps:
+        for i,exp in enumerate(exps):
+            writer = component.getMultiAdapter((exp, dataset.setup), core.ICsvWriter)
+            writer.write('opt-design-%s.csv' % i, args.outdir)
     else:
         printer = component.getUtility(core.IPrinter)
         printer.pprint("There is no solutions matching your experimental design criteria.")
