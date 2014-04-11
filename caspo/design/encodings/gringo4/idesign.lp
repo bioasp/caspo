@@ -55,5 +55,3 @@ lt(k,k-1)   :- next(W,V); le(k-1,k,W); not exp(k-1,V); exp(k,V).
 #external query(k).
 
 :- not diff(K,M1,M2) : K=1..k; model(M1;M2); M1<M2; query(k).
-
-#show clamped/3.
