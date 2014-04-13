@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-import os, tempfile, numpy
+import os, numpy
 from collections import defaultdict
 from itertools import combinations
 from zope import component, interface
@@ -129,17 +129,14 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         if printer:
             printer.pprint("")
 
-        #When the number of networks is large, using @asp.cleanrun with tmp files kills performance. 
-        #because a lot of time is needed only for removing the created tmp files (clean_files function).
-        TEMP_IO_LP = tempfile.NamedTemporaryFile(delete=False)
         for i, network in enumerate(self.networks):
             found = False
             for eb in self:
                 pair = core.BooleLogicNetworkSet([eb, network], False)
                 
                 instance = setup.union(asp.ITermSet(pair))
-                self.clingo.run(stdin, 
-                        grounder_args=[instance.to_file(TEMP_IO_LP.name), clamping, fixpoint, diff], 
+                self.clingo.run(stdin + " " + instance.to_str(), 
+                        grounder_args=[clamping, fixpoint, diff], 
                         solver_args=["--quiet"])
                     
                 if self.clingo.solver.unsat:
@@ -153,9 +150,6 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             if printer:    
                 printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
         
-        #explicitly unlink the single tmp file created
-        TEMP_IO_LP.close() # this is needed in windows (?)
-        os.unlink(TEMP_IO_LP.name)
         if printer:
             printer.pprint("\n")
 
