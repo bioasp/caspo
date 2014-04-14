@@ -32,7 +32,7 @@ def run():
     clingo_parser.add_argument("--clingo", dest="clingo", default="clingo", help="clingo solver binary (Default to 'clingo')", metavar="C")
     
     parser = argparse.ArgumentParser("caspo", formatter_class=argparse.RawTextHelpFormatter,
-                                     description="Reasoning on the response of logical signaling networks with Answer Set Programming")
+                                     description="Reasoning on the response of logical signaling networks with ASP")
                                          
     subparsers = parser.add_subparsers(title='caspo subcommands', dest='cmd',
                                        description='for specific help on each subcommand use: caspo {cmd} --help')
@@ -56,7 +56,7 @@ def run():
     design.set_defaults(handler=handlers.design)
     
     control = subparsers.add_parser("control")
-    control.add_argument("networks", help="Logical networks in CSV format")
+    control.add_argument("networks", help="logical networks in CSV format")
     control.add_argument("scenarios", help="intervention scenarios in csv format")                        
     control.add_argument("--size", dest="size", type=int, default=0, help="maximum size for interventions strategies (Default to 0 (no limit))", metavar="M")
     control.add_argument("--allow-constraints", dest="iconstraints", action='store_true', help="allow intervention over side constraints (Default to False)")    
