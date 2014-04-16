@@ -57,7 +57,7 @@ def run():
     
     control = subparsers.add_parser("control")
     control.add_argument("networks", help="logical networks in CSV format")
-    control.add_argument("scenarios", help="intervention scenarios in csv format")                        
+    control.add_argument("scenarios", help="intervention scenarios in CSV format")                        
     control.add_argument("--size", dest="size", type=int, default=0, help="maximum size for interventions strategies (Default to 0 (no limit))", metavar="M")
     control.add_argument("--allow-constraints", dest="iconstraints", action='store_true', help="allow intervention over side constraints (Default to False)")    
     control.add_argument("--allow-goals", dest="igoals", action='store_true', help="allow intervention over goals (Default to False)")
@@ -75,7 +75,7 @@ def run():
     visualize.add_argument("--pkn", dest="pkn", help="prior knowledge network in SIF format", metavar="P")
     visualize.add_argument("--midas", dest="midas", help="experimental dataset in MIDAS file", metavar="M")
     visualize.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
-    visualize.add_argument("--sample", dest="sample", type=int, default=0, help="visualize a sample of N logical networks (Default to all)", metavar="R")
+    visualize.add_argument("--sample", dest="sample", type=int, default=0, help="visualize a sample of R logical networks (Default to all)", metavar="R")
     visualize.add_argument("--union", dest="union", action='store_true', help="visualize the union of logical networks (Default to False)")
     visualize.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
     visualize.set_defaults(handler=handlers.visualize)
