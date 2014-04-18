@@ -1,5 +1,10 @@
-2.0.1 (unreleased)
+2.0.2 (unreleased)
 ------------------
+
+2.0.1 (2014-04-18)
+------------------
+- Improve ASP encoding for caspo design
+- Use to_str method available in pyzcasp 1.0.1
 
 2.0.0 (2014-03-24)
 ------------------
