@@ -1,5 +1,6 @@
 2.0.2 (unreleased)
 ------------------
+- Bugfix in ASP encoding for caspo control
 
 2.0.1 (2014-04-18)
 ------------------
