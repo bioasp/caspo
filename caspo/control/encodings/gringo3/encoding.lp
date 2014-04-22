@@ -3,11 +3,11 @@ goal(T)          :- goal(T,_).
 constrained(Z,E) :- constrained(Z,E,_).
 constrained(E)   :- constrained(_,E).
 model(M)         :- formula(M,_,_).
-formula(W,D)     :- formula(_,W,D).
 
-satisfy(V,W,S) :- formula(W,D), dnf(D,C), clause(C,V,S).
-closure(V,T)   :- goal(V,T).
-closure(V,S*T) :- closure(W,T), satisfy(V,W,S), not goal(V,-S*T).
+satisfy(M,V,W,S) :- formula(M,W,D), dnf(D,C), clause(C,V,S).
+closure(M,V,T)   :- model(M), goal(V,T).
+closure(M,V,S*T) :- closure(M,W,T), satisfy(M,V,W,S), not goal(V,-S*T).
+closure(V,T)     :- closure(_,V,T).
 
 { intervention(V,S) : closure(V,S) : candidate(V) }.
 :- intervention(V,1), intervention(V,-1).
