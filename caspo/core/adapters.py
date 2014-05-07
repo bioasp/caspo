@@ -357,3 +357,32 @@ class AnswerSet2ClampingList(object):
             clampings[key].append(lit)
 
         self.clampings = map(lambda literals: Clamping(literals), clampings.values())
+
+class TermSet2LogicalNetwork(object):
+    component.adapts(asp.ITermSet)
+    interface.implements(ILogicalNetwork)
+    
+    def __init__(self, termset):
+        formula = filter(lambda t: t.pred == 'formula', termset)
+        dnf = filter(lambda t: t.pred == 'dnf', termset)
+        clause = filter(lambda t: t.pred == 'clause', termset)
+        
+        mapping = defaultdict(set)
+        
+        for f in formula:
+            for d in filter(lambda t: t.arg(0) == f.arg(1), dnf):
+                literals = [Literal(c.arg(1), c.arg(2)) for c in filter(lambda t: t.arg(0) == d.arg(1), clause)]
+                mapping[f.arg(0)].add(Clause(literals))
+                
+        self._network = LogicalNetwork([t.arg(0) for t in formula], mapping)
+
+    @property
+    def variables(self):
+        return self._network.variables
+
+    @property
+    def mapping(self):
+        return self._network.mapping
+
+    def __len__(self):
+        return len(self._network)
