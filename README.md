@@ -28,7 +28,7 @@ $ caspo --help
 usage: caspo [-h] [--quiet] [--out O] [--version]
              {control,visualize,design,learn,test,analyze} ...
 
-Reasoning on the response of logical signaling networks with Answer Set Programming
+Reasoning on the response of logical signaling networks with ASP
 
 optional arguments:
   -h, --help            show this help message and exit
