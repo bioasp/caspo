@@ -17,6 +17,9 @@
 # -*- coding: utf-8 -*-
 
 import math
+from zope import component
+from pyzcasp import asp 
+from caspo import core
 from interfaces import *
 
 class Discretization(object):
@@ -40,3 +43,20 @@ class Ceil(Discretization):
     
     def __call__(self, data):
         return int(math.ceil(data * self.factor))
+
+
+def learner(pkn, midas, time, isolver, discretization='round', factor=100, compress=True):
+    solver = component.getUtility(isolver)
+    point = core.TimePoint(time)
+    
+    discretize = component.createObject(discretization, factor)
+    discreteDS = component.getMultiAdapter((midas, discretize), IDiscreteDataset)
+    
+    if compress:
+        pkn = component.getMultiAdapter((pkn, midas.setup), core.IGraph)
+
+    instance = component.getMultiAdapter((pkn, point, discreteDS), asp.ITermSet)
+    learner = component.getMultiAdapter((instance, solver), ILearner)
+
+    return learner
+    

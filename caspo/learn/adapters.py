@@ -55,9 +55,9 @@ class Dataset2DiscreteDataset(object):
             yield i, cues, dict(map(lambda (r,v): (r, self.discretize(v)), obs.iteritems()))
             
 
-class AnswerSet2BooleLogicNetwork(object):
+class AnswerSet2LogicalNetwork(object):
     component.adapts(asp.IAnswerSet)
-    interface.implements(core.IBooleLogicNetwork)
+    interface.implements(core.ILogicalNetwork)
     
     def __init__(self, answer):
         names = component.getUtility(core.ILogicalNames)
@@ -68,7 +68,7 @@ class AnswerSet2BooleLogicNetwork(object):
             var,clause = parser.parse(atom)
             mapping[var].add(clause)
 
-        self._network = core.BooleLogicNetwork(names.variables, mapping)
+        self._network = core.LogicalNetwork(names.variables, mapping)
         names.add(self._network.mapping.itervalues())
         
     @property
@@ -78,10 +78,6 @@ class AnswerSet2BooleLogicNetwork(object):
     @property
     def mapping(self):
         return self._network.mapping
-    
-    def prediction(self, var, clamping):
-        return self._network.prediction(var, clamping)
-
 
 class Dataset2TermSet(asp.TermSetAdapter):
     component.adapts(core.ITimePoint, IDiscreteDataset)
@@ -119,7 +115,7 @@ class PotasscoLearner(object):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
         self.grover = solver
-        self._networks = core.BooleLogicNetworkSet()
+        self._networks = core.LogicalNetworkSet()
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
@@ -151,9 +147,9 @@ class PotasscoLearner(object):
         tolerance = map(lambda arg: arg.format(rss=int(opt_rss + opt_rss*fit), size=(opt_size + size)), grounder_args('caspo.learn.enum'))
         networks = self.grover.run("#show dnf/2.", 
                 grounder_args=programs + tolerance, 
-                solver_args=solver_args('caspo.learn.enum'), adapter=core.IBooleLogicNetwork)
+                solver_args=solver_args('caspo.learn.enum'), adapter=core.ILogicalNetwork)
         
-        return core.BooleLogicNetworkSet(networks, update_names=False)
+        return core.LogicalNetworkSet(networks, update_names=False)
                
 class CompressedGraph(core.GraphAdapter):
     component.adapts(core.IGraph, core.ISetup)
