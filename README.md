@@ -42,6 +42,8 @@ caspo subcommands:
   {control,visualize,design,learn,test,analyze}
 ```
 
+Also, you may want to check out some examples at our [notebook](http://nbviewer.ipython.org/github/bioasp/caspo/tree/master/notebook/)
+
 ### Samples
 
 Sample files are included with **caspo** and available for [download](http://bioasp.github.io/caspo/data.zip)
