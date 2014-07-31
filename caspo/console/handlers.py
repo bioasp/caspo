@@ -14,17 +14,7 @@ def learn(args):
     reader.read(args.midas)
     dataset = core.IDataset(reader)
     
-    point = core.TimePoint(args.time)
-    length = core.Length(args.length)
-    
-    discretize = component.createObject(args.discretization, args.factor)
-    discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
-    
-    zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
-
-    instance = component.getMultiAdapter((zipgraph, length, point, discreteDS), asp.ITermSet)
-    
-    learner = component.getMultiAdapter((instance, clingo), learn.ILearner)
+    learner = learn.learner(graph, dataset, args.time, args.length, potassco.IClingo, args.discretization, args.factor)
     networks = learner.learn(args.fit, args.size)
     
     writer = core.ICsvWriter(networks)

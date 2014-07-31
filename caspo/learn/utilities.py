@@ -45,9 +45,10 @@ class Ceil(Discretization):
         return int(math.ceil(data * self.factor))
 
 
-def learner(pkn, midas, time, isolver, discretization='round', factor=100, compress=True):
+def learner(pkn, midas, time, length, isolver, discretization='round', factor=100, compress=True):
     solver = component.getUtility(isolver)
     point = core.TimePoint(time)
+    length = core.Length(length)
     
     discretize = component.createObject(discretization, factor)
     discreteDS = component.getMultiAdapter((midas, discretize), IDiscreteDataset)
@@ -55,7 +56,7 @@ def learner(pkn, midas, time, isolver, discretization='round', factor=100, compr
     if compress:
         pkn = component.getMultiAdapter((pkn, midas.setup), core.IGraph)
 
-    instance = component.getMultiAdapter((pkn, point, discreteDS), asp.ITermSet)
+    instance = component.getMultiAdapter((pkn, length, point, discreteDS), asp.ITermSet)
     learner = component.getMultiAdapter((instance, solver), ILearner)
 
     return learner
