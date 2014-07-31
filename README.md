@@ -49,6 +49,7 @@ Also, you may want to check out some examples at our [notebook](http://nbviewer.
 Sample files are included with **caspo** and available for [download](http://bioasp.github.io/caspo/data.zip)
 
 ### Related publications
+* Learning Boolean logic models of signaling networks with ASP. (2014). Theoretical Computer Science. [DOI](http://dx.doi.org/10.1016/j.tcs.2014.06.022)
 
 * Minimal intervention strategies in logical signaling networks with ASP. (2013). Theory and Practice of Logic Programming. [DOI](http://dx.doi.org/10.1017/S1471068413000422)
 
