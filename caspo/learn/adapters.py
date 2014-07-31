@@ -98,7 +98,7 @@ class Dataset2TermSet(asp.TermSetAdapter):
 class GraphDataset2TermSet(asp.TermSetAdapter):
     component.adapts(core.IGraph, core.ILength, core.ITimePoint, IDiscreteDataset)
     
-    def __init__(self, graph, point, dd):
+    def __init__(self, graph, length, point, dd):
         super(GraphDataset2TermSet, self).__init__()
         
         names = component.getUtility(core.ILogicalNames)
