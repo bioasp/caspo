@@ -191,6 +191,9 @@ class ILogicalNames(interface.Interface):
     variables = interface.Attribute("")
     clauses = interface.Attribute("")
     formulas = interface.Attribute("")
+    
+    def load(self, graph, length):
+        """"""
 
     def get_variable(self, name):
         """"""
@@ -288,4 +291,11 @@ class IPrinter(interface.Interface):
         
     def pprint(self, msg):
         """"""
+        
+class ILength(interface.Interface):
+    """
+    """
+    
+    length = interface.Attribute("")
+    
         

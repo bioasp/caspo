@@ -44,7 +44,8 @@ def run():
     learn.add_argument("--fit", dest="fit", type=float, default=0., help="tolerance over fitness (Default to 0)", metavar="F")
     learn.add_argument("--size", dest="size", type=int, default=0, help="tolerance over size (Default to 0)", metavar="S")
     learn.add_argument("--factor", dest="factor", type=int, default=100, choices=[1, 10, 100, 1000], help="discretization over [0,D] (Default to 100)", metavar="D")                        
-    learn.add_argument("--discretization", dest="discretization", default='round', choices=['round', 'floor', 'ceil'], help="discretization function: round, floor, ceil (Default to round)", metavar="T")                        
+    learn.add_argument("--discretization", dest="discretization", default='round', choices=['round', 'floor', 'ceil'], help="discretization function: round, floor, ceil (Default to round)", metavar="T")
+    learn.add_argument("--length", dest="length", type=int, default=0, help="max length for conjunctions (hyperedges) (Default to 0; unbounded)", metavar="L")
     learn.set_defaults(handler=handlers.learn)
     
     design = subparsers.add_parser("design", parents=[clingo_parser])

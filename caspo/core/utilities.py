@@ -126,13 +126,16 @@ class LogicalNames(object):
         self.__formulas_seq = list()
         self.__formulas = dict()
         
-    def load(self, graph):
+    def load(self, graph, length=0):
         self.__reset()
         self.__variables = list(graph.nodes)
         
         for v in self.__variables:
             preds = list(graph.predecessors(v))
             l = len(preds)
+            if length > 0:
+                l = min(length, l)
+
             for litset in chain.from_iterable(combinations(preds, r+1) for r in xrange(l)):
                 literals = map(lambda (n,s): Literal(n,s), litset)
                 

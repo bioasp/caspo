@@ -187,3 +187,9 @@ class TimePoint(object):
     def __init__(self, time):
         self.time = time
 
+class Length(object):
+    interface.implements(ILength)
+    
+    def __init__(self, length):
+        self.length = length
+        

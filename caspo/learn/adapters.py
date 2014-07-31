@@ -96,13 +96,13 @@ class Dataset2TermSet(asp.TermSetAdapter):
                 self._termset.add(asp.Term('obs', [i, name, value]))
 
 class GraphDataset2TermSet(asp.TermSetAdapter):
-    component.adapts(core.IGraph, core.ITimePoint, IDiscreteDataset)
+    component.adapts(core.IGraph, core.ILength, core.ITimePoint, IDiscreteDataset)
     
     def __init__(self, graph, point, dd):
         super(GraphDataset2TermSet, self).__init__()
         
         names = component.getUtility(core.ILogicalNames)
-        names.load(graph)
+        names.load(graph, length.length)
         
         self._termset = component.getMultiAdapter((point, dd), asp.ITermSet)
         self._termset = self._termset.union(asp.ITermSet(names))

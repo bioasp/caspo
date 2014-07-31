@@ -15,14 +15,15 @@ def learn(args):
     dataset = core.IDataset(reader)
     
     point = core.TimePoint(args.time)
+    length = core.Length(args.length)
     
     discretize = component.createObject(args.discretization, args.factor)
     discreteDS = component.getMultiAdapter((dataset, discretize), learn.IDiscreteDataset)
     
     zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
 
-    instance = component.getMultiAdapter((zipgraph, point, discreteDS), asp.ITermSet)
-
+    instance = component.getMultiAdapter((zipgraph, length, point, discreteDS), asp.ITermSet)
+    
     learner = component.getMultiAdapter((instance, clingo), learn.ILearner)
     networks = learner.learn(args.fit, args.size)
     
