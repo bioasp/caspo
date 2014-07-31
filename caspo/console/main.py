@@ -70,6 +70,7 @@ def run():
     analyze.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
     analyze.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point to be used")
     analyze.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
+    analyze.add_argument("--networks-stats", dest="netstats", action='store_true', help="compute mutually inclusive/exclusive modules and MSE for each logical network (Default to False)")
     analyze.set_defaults(handler=handlers.analyze)
     
     visualize = subparsers.add_parser("visualize")

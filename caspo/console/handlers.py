@@ -104,9 +104,11 @@ def analyze(args):
         reader.read(args.networks)
         networks = core.IBooleLogicNetworkSet(reader)
         
-        stats = analyze.IStats(networks)
-        writer = core.ICsvWriter(stats)
-        writer.write('networks-stats.csv', args.outdir)
+        if args.netstats:
+            stats = analyze.IStats(networks)
+            writer = core.ICsvWriter(stats)
+            writer.write('networks-stats.csv', args.outdir)
+            
         lines.append("Total Boolean logic networks: %s" % len(networks))
         
         if args.midas:
@@ -114,8 +116,9 @@ def analyze(args):
             dataset = core.IDataset(reader)
             point = core.TimePoint(int(args.midas[1]))
     
-            writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
-            writer.write('networks-mse-len.csv', args.outdir)
+            if args.netstats:
+                writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
+                writer.write('networks-mse-len.csv', args.outdir)
             
             behaviors =  component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet)
             multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
