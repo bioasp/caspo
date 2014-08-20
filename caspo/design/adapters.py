@@ -30,6 +30,18 @@ class NetworksSetup2TermSet(asp.TermSetAdapter):
         self._termset = asp.ITermSet(networks)
         self._termset = self._termset.union(asp.ITermSet(setup))
 
+class NetworksSetupClampings2TermSet(asp.TermSetAdapter):
+    component.adapts(core.IBooleLogicNetworkSet, core.ISetup, core.IClampingList)
+    
+    def __init__(self, networks, setup, clist):
+        super(NetworksSetupClampings2TermSet, self).__init__()
+        
+        self._termset = asp.ITermSet(networks)
+        self._termset = self._termset.union(asp.ITermSet(setup))
+        
+        for c in clist.clampings:
+            self._termset = self._termset.union(component.getMultiAdapter((c, clist, asp.Term('listed')), asp.ITermSet))
+
 class PotasscoDesigner(object):
     component.adapts(asp.ITermSet, potassco.IClingo)
     interface.implements(IDesigner)
@@ -39,7 +51,7 @@ class PotasscoDesigner(object):
         self.clingo = clingo
         
     @asp.cleanrun
-    def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=20):
+    def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=10, search_space=1, relax=0):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)
 
         grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.clingo.grounder)
@@ -48,8 +60,14 @@ class PotasscoDesigner(object):
         opt = encodings('caspo.design.opt')
         
         programs = [self.termset.to_file(), opt]
-        constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments), 
-                          grounder_args('caspo.design.opt'))
+        
+        if not relax:
+            constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments, 
+                                                     space=search_space, relax=relax, iquery=1), grounder_args('caspo.design.opt'))
+        else:                                         
+            constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments, 
+                                                     space=search_space, relax=relax, iquery=max_experiments), grounder_args('caspo.design.opt'))
+        
 
         solutions = self.clingo.run("#show clamped/3.", 
                             grounder_args=programs + constraints, 

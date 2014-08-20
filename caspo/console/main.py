@@ -53,7 +53,9 @@ def run():
     design.add_argument("midas", help="experimental dataset in MIDAS file")                    
     design.add_argument("--stimuli", dest="stimuli", type=int, default=-1,help="maximum number of stimuli per experiment", metavar="S")
     design.add_argument("--inhibitors", dest="inhibitors", type=int, default=-1, help="maximum number of inhibitors per experiment", metavar="I")
-    design.add_argument("--experiments", dest="experiments", type=int, default=20, help="maximum number of experiments (Default to 20)", metavar="E")
+    design.add_argument("--nexp", dest="experiments", type=int, default=10, help="maximum number of experiments (Default to 10)", metavar="E")
+    design.add_argument("--list", dest="list", help="list of possible experiments", metavar="L")
+    design.add_argument("--relax", dest="relax", action='store_true', help="relax constraint about pairwise discrimination (Default to False)")
     design.set_defaults(handler=handlers.design)
     
     control = subparsers.add_parser("control")

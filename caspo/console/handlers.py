@@ -37,16 +37,24 @@ def design(args):
     reader.read(args.midas)
     dataset = core.IDataset(reader)
     
-    instance = component.getMultiAdapter((networks, dataset.setup), asp.ITermSet)
+    if not args.list:
+        ss = 1
+        instance = component.getMultiAdapter((networks, dataset.setup), asp.ITermSet)
+    else:
+        reader.read(args.list)
+        clist = core.IClampingList(reader)
+        instance = component.getMultiAdapter((networks, dataset.setup, clist), asp.ITermSet)
+        ss = 2
 
     designer = component.getMultiAdapter((instance, clingo), design.IDesigner)
-    exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, max_experiments=args.experiments)
+    exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, 
+                           max_experiments=args.experiments, search_space=ss, relax=int(args.relax))
     
     if exps:
         for i,exp in enumerate(exps):
             writer = component.getMultiAdapter((exp, dataset.setup), core.ICsvWriter)
             writer.write('opt-design-%s.csv' % i, args.outdir)
-    else:
+    else:        
         printer = component.getUtility(core.IPrinter)
         printer.pprint("There is no solutions matching your experimental design criteria.")
         
@@ -105,7 +113,7 @@ def analyze(args):
             reader.read(args.midas[0])
             dataset = core.IDataset(reader)
             point = core.TimePoint(int(args.midas[1]))
-    
+            
             if args.netstats:
                 writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
                 writer.write('networks-mse-len.csv', args.outdir)

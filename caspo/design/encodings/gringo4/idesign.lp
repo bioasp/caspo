@@ -1,7 +1,9 @@
 #include <iclingo>.
-#const imax = 20.
+#const imax = 10.
 #const maxstimuli = -1.
 #const maxinhibitors = -1.
+#const searchspace = 1.%2
+#const relax = 0.
 
 model(M) :- formula(M,_,_).
 
@@ -15,12 +17,17 @@ ubs(S)             :- maxstimuli == -1; S = #count{V : stimulus(V)}.
 ubi(maxinhibitors) :- maxinhibitors != -1.
 ubi(I)             :- maxinhibitors == -1; I = #count{V : inhibitor(V)}.
 
+listed(C) :- listed(C,_,_).
+
 #program cumulative(k).
 
-{clamped(k,V, 1) : clause(_,V,_), stimulus(V) } S :- ubs(S).
-{clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I).
+{clamped(k,V, 1) : clause(_,V,_), stimulus(V) } S :- ubs(S); searchspace == 1.
+{clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I); searchspace == 1.
  clamped(k,V,-1) :- stimulus(V); not clamped(k,V,1).
- 
+
+{selected(k,C)} :- listed(C); searchspace == 2.
+clamped(k,V,S)  :- selected(k,C); listed(C,V,S); searchspace == 2.
+
 clamped(k,V)  :- clamped(k,V,_).
 free(k,M,V,I) :- formula(M,V,I); not clamped(k,V).
 
@@ -54,4 +61,4 @@ lt(k,k-1)   :- next(W,V); le(k-1,k,W); not exp(k-1,V); exp(k,V).
 #program volatile(k). 
 #external query(k).
 
-:- not diff(K,M1,M2) : K=1..k; model(M1;M2); M1<M2; query(k).
+:- not diff(K,M1,M2) : K=1..k; model(M1;M2); M1<M2; query(k); relax == 0.
