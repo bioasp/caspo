@@ -47,3 +47,7 @@ class ILearner(interface.Interface):
     
     def learn(self, fit, size):
         """"""
+        
+    def random(self, n, size, nand, maxin):
+        """"""
+        

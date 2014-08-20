@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+from random import randint
 from collections import defaultdict
 from zope import component, interface
 
@@ -55,20 +56,21 @@ class Dataset2DiscreteDataset(object):
             yield i, cues, dict(map(lambda (r,v): (r, self.discretize(v)), obs.iteritems()))
             
 
-class AnswerSet2LogicalNetwork(object):
+class AnswerSet2BooleLogicNetwork(object):
     component.adapts(asp.IAnswerSet)
-    interface.implements(core.ILogicalNetwork)
+    interface.implements(core.IBooleLogicNetwork)
     
     def __init__(self, answer):
         names = component.getUtility(core.ILogicalNames)
         mapping = defaultdict(set)
         parser = asp.Grammar()
         parser.function.setParseAction(lambda t: (names.variables[t['args'][0]], names.clauses[t['args'][1]]))
+
         for atom in answer.atoms:
             var,clause = parser.parse(atom)
             mapping[var].add(clause)
 
-        self._network = core.LogicalNetwork(names.variables, mapping)
+        self._network = core.BooleLogicNetwork(names.variables, mapping)
         names.add(self._network.mapping.itervalues())
         
     @property
@@ -78,6 +80,12 @@ class AnswerSet2LogicalNetwork(object):
     @property
     def mapping(self):
         return self._network.mapping
+        
+    def prediction(self, var, clamping):
+        return self._network.prediction(var, clamping)
+        
+    def mse(self, dataset, time):
+        return self._network.mse(dataset, time)
 
 class Dataset2TermSet(asp.TermSetAdapter):
     component.adapts(core.ITimePoint, IDiscreteDataset)
@@ -142,14 +150,35 @@ class PotasscoLearner(object):
         solutions = self.grover.run(grounder_args=programs, solver_args=solver_args('caspo.learn.rescale'))
 
         opt_rss = solutions[0].score[0]
-        
+
         programs = [self.termset.to_file(), guess, fixpoint, rss, enum]
         tolerance = map(lambda arg: arg.format(rss=int(opt_rss + opt_rss*fit), size=(opt_size + size)), grounder_args('caspo.learn.enum'))
         networks = self.grover.run("#show dnf/2.", 
                 grounder_args=programs + tolerance, 
-                solver_args=solver_args('caspo.learn.enum'), adapter=core.ILogicalNetwork)
+                solver_args=solver_args('caspo.learn.enum'), adapter=core.IBooleLogicNetwork)
         
-        return core.LogicalNetworkSet(networks, update_names=False)
+        return core.BooleLogicNetworkSet(networks, update_names=False)
+        
+    @asp.cleanrun
+    def random(self, n=1, size=(28,30), nand=(2,3), maxin=2):
+        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.grover.grounder)
+
+        grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.grover.grounder)
+        solver_args = component.getUtility(asp.IArgumentRegistry).arguments(self.grover.solver)
+        
+        guess = encodings('caspo.learn.guess')
+        random = encodings('caspo.learn.random')
+        
+        programs = [self.termset.to_file(), guess, random]
+        gargs = map(lambda arg: arg.format(minsize=size[0], maxsize=size[1], minnand=nand[0], maxnand=nand[1], maxin=maxin), 
+                        grounder_args('caspo.learn.random'))
+        sargs = map(lambda arg: arg.format(seed=randint(0,32767), n=n), solver_args('caspo.learn.random'))
+                        
+        networks = self.grover.run("#show dnf/2.", 
+                grounder_args=programs + gargs, 
+                solver_args=sargs, adapter=core.IBooleLogicNetwork)
+        
+        return core.BooleLogicNetworkSet(networks, update_names=False)
                
 class CompressedGraph(core.GraphAdapter):
     component.adapts(core.IGraph, core.ISetup)
