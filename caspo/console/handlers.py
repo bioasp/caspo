@@ -37,18 +37,9 @@ def design(args):
     reader.read(args.midas)
     dataset = core.IDataset(reader)
     
-    if not args.list:
-        ss = 1
-        instance = component.getMultiAdapter((networks, dataset.setup), asp.ITermSet)
-    else:
-        reader.read(args.list)
-        clist = core.IClampingList(reader)
-        instance = component.getMultiAdapter((networks, dataset.setup, clist), asp.ITermSet)
-        ss = 2
-
-    designer = component.getMultiAdapter((instance, clingo), design.IDesigner)
+    designer = design.designer(networks, dataset.setup, args.list, potassco.IClingo)
     exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, 
-                           max_experiments=args.experiments, search_space=ss, relax=int(args.relax))
+                           max_experiments=args.experiments, relax=int(args.relax))
     
     if exps:
         for i,exp in enumerate(exps):

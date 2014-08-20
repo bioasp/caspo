@@ -42,7 +42,6 @@ reg = component.getUtility(asp.IArgumentRegistry)
 reg.register('caspo.design.opt', ['-c maxstimuli={stimuli}', 
                                   '-c maxinhibitors={inhibitors}', 
                                   '-c imax={imax}',
-                                  '-c searchspace={space}',
                                   '-c relax={relax}',
                                   '-c iquery={iquery}'],                              potassco.IGringoGrounder)
 reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN", "--save-progress"], potassco.IClasp3)

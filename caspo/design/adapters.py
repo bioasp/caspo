@@ -51,7 +51,7 @@ class PotasscoDesigner(object):
         self.clingo = clingo
         
     @asp.cleanrun
-    def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=10, search_space=1, relax=0):
+    def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=10, relax=0):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)
 
         grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.clingo.grounder)
@@ -63,10 +63,10 @@ class PotasscoDesigner(object):
         
         if not relax:
             constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments, 
-                                                     space=search_space, relax=relax, iquery=1), grounder_args('caspo.design.opt'))
+                                                     relax=relax, iquery=1), grounder_args('caspo.design.opt'))
         else:                                         
             constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments, 
-                                                     space=search_space, relax=relax, iquery=max_experiments), grounder_args('caspo.design.opt'))
+                                                     relax=relax, iquery=max_experiments), grounder_args('caspo.design.opt'))
         
 
         solutions = self.clingo.run("#show clamped/3.", 

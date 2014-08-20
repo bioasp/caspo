@@ -2,7 +2,6 @@
 #const imax = 10.
 #const maxstimuli = -1.
 #const maxinhibitors = -1.
-#const searchspace = 1.%2
 #const relax = 0.
 
 model(M) :- formula(M,_,_).
@@ -21,12 +20,12 @@ listed(C) :- listed(C,_,_).
 
 #program cumulative(k).
 
-{clamped(k,V, 1) : clause(_,V,_), stimulus(V) } S :- ubs(S); searchspace == 1.
-{clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I); searchspace == 1.
+{clamped(k,V, 1) : clause(_,V,_), stimulus(V) } S :- ubs(S); mode(1).
+{clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I); mode(1).
  clamped(k,V,-1) :- stimulus(V); not clamped(k,V,1).
 
-{selected(k,C)} :- listed(C); searchspace == 2.
-clamped(k,V,S)  :- selected(k,C); listed(C,V,S); searchspace == 2.
+{selected(k,C)} :- listed(C); mode(2).
+clamped(k,V,S)  :- selected(k,C); listed(C,V,S); mode(2).
 
 clamped(k,V)  :- clamped(k,V,_).
 free(k,M,V,I) :- formula(M,V,I); not clamped(k,V).
