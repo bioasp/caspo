@@ -140,7 +140,21 @@ class BooleLogicNetwork(LogicalNetwork):
                 if value:
                     break
                 
-            return value
+            return int(value)
+            
+            
+    def mse(self, dataset, time):
+        predictions = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
+        observations = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
+        predictions[:] = numpy.nan
+        observations[:] = numpy.nan
+        for i, cond, obs in dataset.at(time):
+            for j, (var, val) in enumerate(obs.iteritems()):
+                predictions[i][j] = self.prediction(var, cond)
+                observations[i][j] = val
+        
+        rss = numpy.nansum((predictions - observations) ** 2)
+        return rss / dataset.nobs[time]
 
 class LogicalNetworkSet(set):
     interface.implements(ILogicalNetworkSet)
@@ -164,13 +178,17 @@ class BooleLogicNetworkSet(LogicalNetworkSet):
     def itermses(self, dataset, time):
         predictions = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
         observations = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
-        predictions[:] = numpy.nan
+
         observations[:] = numpy.nan
+        for i, cond, obs in dataset.at(time):
+            for j, (var, val) in enumerate(obs.iteritems()):
+                observations[i][j] = val
+                
         for network in self:
+            predictions[:] = numpy.nan
             for i, cond, obs in dataset.at(time):
                 for j, (var, val) in enumerate(obs.iteritems()):
                     predictions[i][j] = network.prediction(var, cond)
-                    observations[i][j] = val
         
             rss = numpy.nansum((predictions - observations) ** 2)
             yield network, rss / dataset.nobs[time]

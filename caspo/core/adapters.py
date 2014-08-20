@@ -143,6 +143,9 @@ class LogicalMapping2BooleLogicNetwork(LogicalMapping2LogicalNetwork):
     def prediction(self, var, clamping):
         return self._network.prediction(var, clamping)
         
+    def mse(self, dataset, time):
+        return self._network.mse(dataset, time)
+        
 class LogicalNetwork2LogicalMapping(object):
     component.adapts(ILogicalNetwork, ILogicalHeaderMapping)
     interface.implements(ILogicalMapping)
