@@ -15,3 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+from zope import component
+from interfaces import *
+
+def behaviors(networks, dataset, isolver):
+    solver = component.getUtility(isolver)
+    return component.getMultiAdapter((networks, dataset, solver), IBooleLogicBehaviorSet)
+    
