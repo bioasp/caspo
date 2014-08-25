@@ -97,13 +97,13 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             
             yield row
             
-    def mse(self, time):
+    def mse(self, dataset, time):
         n = sum([len(network) for network in self], 0.)            
-        predictions = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
-        observations = numpy.empty((self.dataset.nexps, len(self.dataset.setup.readouts)))
+        predictions = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
+        observations = numpy.empty((dataset.nexps, len(dataset.setup.readouts)))
         predictions[:] = numpy.nan
         observations[:] = numpy.nan
-        for i, cond, obs in self.dataset.at(time):
+        for i, cond, obs in dataset.at(time):
             for j, (var, val) in enumerate(obs.iteritems()):
                 weight = 0
                 for network in self:
@@ -113,7 +113,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                 observations[i][j] = val
         
         rss = numpy.nansum((predictions - observations) ** 2)
-        return rss / self.dataset.nobs[time]
+        return rss / dataset.nobs[time]
 
     def __io_discovery__(self):
         encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)

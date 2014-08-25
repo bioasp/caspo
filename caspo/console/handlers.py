@@ -117,7 +117,7 @@ def analyze(args):
             multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
             
             lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
-            lines.append("Weighted MSE: %.4f" % behaviors.mse(point.time))
+            lines.append("Weighted MSE: %.4f" % behaviors.mse(dataset, point.time))
             lines.append("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
     
     if args.strategies:
