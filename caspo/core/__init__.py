@@ -54,3 +54,7 @@ gsm.registerUtility(CsvReader(), ICsvReader)
 gsm.registerUtility(FileWriter(), IFileWriter)
 gsm.registerUtility(CsvWriter(), ICsvWriter)
 gsm.registerUtility(LogicalNames(), ILogicalNames)
+
+
+def configure_printer(quiet):
+    gsm.registerUtility(Printer(quiet), IPrinter)
