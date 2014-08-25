@@ -37,7 +37,10 @@ def design(args):
     reader.read(args.midas)
     dataset = core.IDataset(reader)
     
-    designer = design.designer(networks, dataset.setup, args.list, potassco.IClingo)
+    reader.read(args.list)
+    clist = core.IClampingList(reader)
+    
+    designer = design.designer(networks, dataset.setup, clist, potassco.IClingo)
     exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, 
                            max_experiments=args.experiments, relax=int(args.relax))
     

@@ -21,16 +21,13 @@ from caspo import core
 
 from interfaces import *
 
-def designer(networks, setup, flist, isolver):
+def designer(networks, setup, clist, isolver):
     solver = component.getUtility(isolver)
-    reader = component.getUtility(core.ICsvReader)
     
-    if not flist:
+    if not clist:
         instance = component.getMultiAdapter((networks, setup), asp.ITermSet)
         instance.add(asp.Term("mode", [1]))
     else:
-        reader.read(flist)
-        clist = core.IClampingList(reader)
         instance = component.getMultiAdapter((networks, setup, clist), asp.ITermSet)
         instance.add(asp.Term("mode", [2]))
         
