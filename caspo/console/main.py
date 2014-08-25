@@ -189,7 +189,8 @@ def run():
         args = parser.parse_args(['--out', out, 'analyze', '--clingo', clingo,
                                   '--networks', os.path.join(out, 'networks.csv'), 
                                   '--midas', os.path.join(out, 'dataset.csv'), 
-                                  params[0], '--strategies', os.path.join(out, 'strategies.csv')])
+                                  params[0], '--strategies', os.path.join(out, 'strategies.csv'),
+                                  '--networks-stats'])
                                   
         cmdline = "$ caspo --out {out} analyze --networks {networks} --midas {midas} {time} --strategies {strategies}"
         if clingo != 'clingo':
