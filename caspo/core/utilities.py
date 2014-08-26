@@ -125,38 +125,41 @@ class LogicalNames(object):
         self.__mappings = defaultdict(list)
         self.__formulas_seq = list()
         self.__formulas = dict()
+        self.__loaded = False
         
-    def load(self, graph, length=0):
-        self.__reset()
-        self.__variables = list(graph.nodes)
+    def load(self, graph, length=0, reset=False):
+        if not self.__loaded or reset:        
+            self.__reset()
+            self.__variables = list(graph.nodes)
         
-        for v in self.__variables:
-            preds = list(graph.predecessors(v))
-            l = len(preds)
-            if length > 0:
-                l = min(length, l)
+            for v in self.__variables:
+                preds = list(graph.predecessors(v))
+                l = len(preds)
+                if length > 0:
+                    l = min(length, l)
 
-            for litset in chain.from_iterable(combinations(preds, r+1) for r in xrange(l)):
-                literals = map(lambda (n,s): Literal(n,s), litset)
+                for litset in chain.from_iterable(combinations(preds, r+1) for r in xrange(l)):
+                    literals = map(lambda (n,s): Literal(n,s), litset)
                 
-                d = defaultdict(set)
-                valid = True
-                for lit in literals:
-                    d[lit.variable].add(lit.signature)
-                    if len(d[lit.variable]) > 1:
-                        valid = False
-                        break
+                    d = defaultdict(set)
+                    valid = True
+                    for lit in literals:
+                        d[lit.variable].add(lit.signature)
+                        if len(d[lit.variable]) > 1:
+                            valid = False
+                            break
                         
-                if valid:
-                    clause = Clause(literals)
-                    if clause not in self.__clauses:
-                        clause_name = len(self.__clauses_seq)
-                        self.__clauses_seq.append(clause)
-                        self.__clauses[clause] = clause_name
+                    if valid:
+                        clause = Clause(literals)
+                        if clause not in self.__clauses:
+                            clause_name = len(self.__clauses_seq)
+                            self.__clauses_seq.append(clause)
+                            self.__clauses[clause] = clause_name
                     
-                    self.__mappings[v].append(clause)
+                        self.__mappings[v].append(clause)
+                        
+            self.__loaded = True
        
-
     def iterclauses(self, var):
         for clause in self.__mappings[var]:
             yield self.__clauses[clause], clause
