@@ -24,7 +24,7 @@ listed(C) :- listed(C,_,_).
 {clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I); mode(1).
  clamped(k,V,-1) :- stimulus(V); not clamped(k,V,1).
 
-{selected(k,C)} :- listed(C); mode(2).
+0 {selected(k,C) : listed(C)} 1 :- mode(2).
 clamped(k,V,S)  :- selected(k,C); listed(C,V,S); mode(2).
 
 clamped(k,V)  :- clamped(k,V,_).
