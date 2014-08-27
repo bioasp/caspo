@@ -24,7 +24,7 @@ listed(C) :- listed(C,_,_).
 {clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I); mode(1).
  clamped(k,V,-1) :- stimulus(V); not clamped(k,V,1).
 
-0 {selected(k,C) : listed(C)} 1 :- mode(2).
+1 {selected(k,C) : listed(C)} 1 :- mode(2).
 clamped(k,V,S)  :- selected(k,C); listed(C,V,S); mode(2).
 
 clamped(k,V)  :- clamped(k,V,_).
@@ -61,3 +61,4 @@ lt(k,k-1)   :- next(W,V); le(k-1,k,W); not exp(k-1,V); exp(k,V).
 #external query(k).
 
 :- not diff(K,M1,M2) : K=1..k; model(M1;M2); M1<M2; query(k); relax == 0.
+:- #count{K,M1,M2,V : diff(K,M1,M2,V), K=1..k} 0; relax == 1.
