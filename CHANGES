@@ -1,6 +1,8 @@
-2.0.2 (unreleased)
+2.1.0 (2014-08-28)
 ------------------
 - Bugfix in ASP encoding for caspo control
+- Implements caspo design from a list of experiments
+- Optionally relax hard constraint in caspo design
 
 2.0.1 (2014-04-18)
 ------------------
