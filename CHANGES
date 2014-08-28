@@ -3,6 +3,7 @@
 - Bugfix in ASP encoding for caspo control
 - Implements caspo design from a list of experiments
 - Optionally relax hard constraint in caspo design
+- Implements random learner in caspo learn
 
 2.0.1 (2014-04-18)
 ------------------
