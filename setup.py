@@ -19,7 +19,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '2.1.1dev'
+version = '2.1.2dev'
 
 long_desc = """
 The aim of caspo is to implement a pipeline for automated reasoning on logical signaling networks. 
