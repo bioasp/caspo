@@ -1,5 +1,6 @@
 2.1.1 (unreleased)
 ------------------
+- Bugfix in console handler for caspo design
 
 2.1.0 (2014-08-28)
 ------------------
