@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>{{ page.title }} - {{ page.tagline }}</title>
+<link href="css/bootstrap.css" rel="stylesheet">
+<style type="text/css">
+body {
+padding-top: 40px;
+padding-bottom: 40px;
+padding-left: 40px;
+padding-right: 40px;
+}
+.container {
+margin-right: auto;
+margin-left: auto;
+max-width: 900px; /* or 950px */
+}
+.bs-docs-header {
+font-size: 24px;
+padding-bottom: 20px;
+padding-top: 20px;
+text-align: left;
+background-color: #76e076;
+/* background-image: linear-gradient(to bottom, #563D7C 0px, #6F5499 100%); */
+/* background-repeat: repeat-x; */
+color: #FFFFFF;
+}
+
+</style>
+</head>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+<span class="sr-only">Toggle navigation</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="https://bioasp.github.io">BioASP</a>
+</div>
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+<li><a href={{ site.github.repository_url }}>View on GitHub</a></li>
+</ul>
+</div><!--/.nav-collapse -->
+</div>
+</div>
+
+<!--<ul class="pager">
+  <li class="previous"><a href="https://bioasp.github.io">BioASP</a></li>
+  <li class="next"><a href="https://github.com/bioasp/iggy">View on GitHub</a></li>
+</ul>-->
+    <div class="bs-docs-header" id="content">
+    <div class="container">
+     <h1>{{ page.title }}</h1>
+     <p>{{ page.tagline }}</p>
+    </div>
+    </div>
+    
+  <body>
+    <div class="container">
+  
+
+     {{content}}
+
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/bioasp">bioasp</a></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
