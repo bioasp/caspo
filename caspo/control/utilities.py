@@ -15,3 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+
+from zope import component
+from pyzcasp import asp 
+from interfaces import *
+
+def controller(networks, multiscenario, isolver):
+    solver = component.getUtility(isolver)
+    instance = component.getMultiAdapter((networks, multiscenario), asp.ITermSet)
+    
+    controller = component.getMultiAdapter((instance, solver), IController)
+    
+    return controller

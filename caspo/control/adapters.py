@@ -124,13 +124,13 @@ class PotasscoDisjunctiveController(object):
         return StrategySet(map(lambda ts: Strategy(map(lambda t: core.Literal(t.arg(0),t.arg(1)), ts)), strategies))
 
 class PotasscoHeuristicController(object):
-    component.adapts(asp.ITermSet, potassco.IGringoGrounder, potassco.IClasp3)
+    component.adapts(asp.ITermSet, potassco.IGrounderSolver)
     interface.implements(IController)
         
-    def __init__(self, termset, gringo, clasp):
+    def __init__(self, termset, solver):
         super(PotasscoHeuristicController, self).__init__()
         self.termset = termset
-        self.grover = component.getMultiAdapter((gringo, clasp), asp.IGrounderSolver)
+        self.grover = solver
         self._stratgies = StrategySet()
 
     @asp.cleanrun            
