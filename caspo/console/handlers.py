@@ -21,6 +21,7 @@ def learn(args):
     return 0
     
 def design(args):
+    from itertools import combinations
     from zope import component
 
     from pyzcasp import asp, potassco
@@ -46,6 +47,27 @@ def design(args):
         for i,exp in enumerate(exps):
             writer = component.getMultiAdapter((exp, dataset.setup), core.ICsvWriter)
             writer.write('opt-design-%s.csv' % i, args.outdir)
+
+            diffs = []
+            readouts = dataset.setup.readouts
+            for clamping in exp.clampings:                
+                d = dict.fromkeys(readouts, 0)
+                d['pairs'] = 0
+                for m1,m2 in combinations(networks, 2):
+                    cd = False
+                    for r in readouts:
+                        if m1.prediction(r,clamping) != m2.prediction(r,clamping):
+                            d[r] += 1
+                            cd = True
+                    if cd:
+                        d['pairs'] += 1
+                
+                diffs.append(d)
+
+            writer = component.getUtility(core.ICsvWriter)
+            writer.load(diffs, readouts + ['pairs'])
+            writer.write('opt-design-%s-diffs.csv' % i, args.outdir)
+            
     else:        
         printer = component.getUtility(core.IPrinter)
         printer.pprint("There is no solutions matching your experimental design criteria.")
