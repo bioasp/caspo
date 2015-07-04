@@ -123,7 +123,7 @@ class PotasscoLearner(object):
         super(PotasscoLearner, self).__init__()
         self.termset = termset
         self.grover = solver
-        self._networks = core.LogicalNetworkSet()
+        self.optimal = None
                 
     @asp.cleanrun
     def learn(self, fit=0, size=0):
@@ -139,20 +139,27 @@ class PotasscoLearner(object):
         rescale = encodings('caspo.learn.rescale')
         enum = encodings('caspo.learn.enum')
         
-        programs = [self.termset.to_file(), guess, fixpoint, rss, opt]
-        solutions = self.grover.run("#show formula/2. #show dnf/2. #show clause/3.", 
-                            grounder_args=programs, 
-                            solver_args=solver_args('caspo.learn.opt'))
+        
+        if not self.optimal:
+            programs = [self.termset.to_file(), guess, fixpoint, rss, opt]
+            solutions = self.grover.run("#show formula/2. #show dnf/2. #show clause/3.", 
+                                grounder_args=programs, 
+                                solver_args=solver_args('caspo.learn.opt'))
 
-        opt_size = solutions[0].score[1]
+            opt_size = solutions[0].score[1]
 
-        programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, rescale]
-        solutions = self.grover.run(grounder_args=programs, solver_args=solver_args('caspo.learn.rescale'))
+            programs = [self.termset.union(solutions[0]).to_file(), fixpoint, rss, rescale]
+            solutions = self.grover.run(grounder_args=programs, solver_args=solver_args('caspo.learn.rescale'))
 
-        opt_rss = solutions[0].score[0]
+            opt_rss = solutions[0].score[0]
+        
+            self.optimal = (opt_rss, opt_size)
+
+        trss = int(self.optimal[0] + self.optimal[0]*fit)
+        tsize = self.optimal[1] + size
 
         programs = [self.termset.to_file(), guess, fixpoint, rss, enum]
-        tolerance = map(lambda arg: arg.format(rss=int(opt_rss + opt_rss*fit), size=(opt_size + size)), grounder_args('caspo.learn.enum'))
+        tolerance = map(lambda arg: arg.format(rss=trss, size=tsize), grounder_args('caspo.learn.enum'))
         networks = self.grover.run("#show dnf/2.", 
                 grounder_args=programs + tolerance, 
                 solver_args=solver_args('caspo.learn.enum'), adapter=core.IBooleLogicNetwork)
