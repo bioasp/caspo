@@ -1,5 +1,8 @@
 2.1.2 (unreleased)
 ------------------
+- Update subcommands to work with clingo 4.5.0
+- Output detailed differences for caspo design
+- Lazy optima computation in caspo learn
 
 2.1.1 (2014-08-30)
 ------------------
