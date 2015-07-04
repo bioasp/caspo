@@ -30,6 +30,8 @@ There is NO WARRANTY, to the extent permitted by law.\n
 def run():
     clingo_parser = argparse.ArgumentParser(add_help=False)
     clingo_parser.add_argument("--clingo", dest="clingo", default="clingo", help="clingo solver binary (Default to 'clingo')", metavar="C")
+    clingo_parser.add_argument("--threads", dest="threads", type=int, metavar="T", help="run parallel search with given number of threads")
+    clingo_parser.add_argument("--conf", dest="conf", default="many", metavar="C", help="threads configurations (Default to many)")
     
     parser = argparse.ArgumentParser("caspo", formatter_class=argparse.RawTextHelpFormatter,
                                      description="Reasoning on the response of logical signaling networks with ASP")
@@ -101,13 +103,17 @@ def run():
     
     if args.cmd != "test":
         printer.pprint("Running caspo %s...\n" % args.cmd)
-        potassco.configure(clingo=args.clingo)    
+        if args.cmd in ['learn','control','analyze','design']:
+            potassco.configure(clingo=args.clingo)
+            
         return args.handler(args)
     else:
         testcase = args.testcase
-        clingo = args.clingo
         potassco.configure(clingo=args.clingo)
+        clingo = args.clingo
         out = args.outdir
+        threads = args.threads
+        conf = args.conf
         
         printer.pprint("Testing caspo subcommands using test case %s.\n" % testcase)
         import caspo
@@ -136,10 +142,18 @@ def run():
         }
         
         params = testcases[testcase]
-        args = parser.parse_args(['--out', out, 'learn', '--clingo', clingo,
-                                  os.path.join(out, 'pkn.sif'), 
-                                  os.path.join(out, 'dataset.csv'), 
-                                  params[0], '--fit', params[1], '--size', params[2]])
+        
+        if threads:
+            args = parser.parse_args(['--out', out, 'learn', '--clingo', clingo,
+                                      os.path.join(out, 'pkn.sif'), 
+                                      os.path.join(out, 'dataset.csv'), 
+                                      params[0], '--fit', params[1], '--size', params[2],
+                                      '--threads', str(threads), '--conf', conf])
+        else:
+            args = parser.parse_args(['--out', out, 'learn', '--clingo', clingo,
+                                      os.path.join(out, 'pkn.sif'), 
+                                      os.path.join(out, 'dataset.csv'), 
+                                      params[0], '--fit', params[1], '--size', params[2]])
 
         cmdline = "$ caspo --out {out} learn {pkn} {midas} {time} --fit {fit} --size {size}"
         if clingo != 'clingo':
@@ -156,9 +170,15 @@ def run():
             
         printer.pprint("")
         
-        args = parser.parse_args(['--out', out, 'control', '--clingo', clingo,
-                                  os.path.join(out, 'networks.csv'), 
-                                  os.path.join(out, 'scenarios.csv')])
+        if threads:
+            args = parser.parse_args(['--out', out, 'control', '--clingo', clingo,
+                                      os.path.join(out, 'networks.csv'), 
+                                      os.path.join(out, 'scenarios.csv'), 
+                                      '--threads', str(threads), '--conf', conf])
+        else:            
+            args = parser.parse_args(['--out', out, 'control', '--clingo', clingo,
+                                      os.path.join(out, 'networks.csv'), 
+                                      os.path.join(out, 'scenarios.csv')])
 
         cmdline = "$ caspo --out {out} control {networks} {scenarios}"
         if clingo != 'clingo':
@@ -197,9 +217,15 @@ def run():
             
         printer.pprint("")
                 
-        args = parser.parse_args(['--out', out, 'design', '--clingo', clingo,
-                                  os.path.join(out, 'behaviors.csv'), 
-                                  os.path.join(out, 'dataset.csv')])
+        if threads:
+            args = parser.parse_args(['--out', out, 'design', '--clingo', clingo,
+                                      os.path.join(out, 'behaviors.csv'), 
+                                      os.path.join(out, 'dataset.csv'),
+                                      '--threads', str(threads), '--conf', conf])
+        else:
+            args = parser.parse_args(['--out', out, 'design', '--clingo', clingo,
+                                      os.path.join(out, 'behaviors.csv'), 
+                                      os.path.join(out, 'dataset.csv')])
 
         cmdline = "$ caspo --out {out} design {behaviors} {midas}"
         if clingo != 'clingo':

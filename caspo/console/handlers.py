@@ -3,6 +3,9 @@ def learn(args):
 
     from pyzcasp import asp, potassco
     from caspo import core, learn
+    
+    if args.threads:
+        learn.register_mt(args.threads, args.conf)
 
     sif = component.getUtility(core.IFileReader)
     sif.read(args.pkn)
@@ -26,6 +29,9 @@ def design(args):
 
     from pyzcasp import asp, potassco
     from caspo import core, design
+
+    if args.threads:
+        design.register_mt(args.threads, args.conf)
     
     reader = component.getUtility(core.ICsvReader)
     reader.read(args.networks)
@@ -79,6 +85,9 @@ def control(args):
 
     from pyzcasp import potassco, asp
     from caspo import core, control
+    
+    if args.threads:
+        control.register_mt(args.threads, args.conf)
 
     reader = component.getUtility(core.ICsvReader)
     

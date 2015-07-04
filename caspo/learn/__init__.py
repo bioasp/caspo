@@ -66,8 +66,11 @@ reg.register('caspo.learn.enum',    ['-c maxrss={rss}', '-c maxsize={size}'],   
 reg.register('caspo.learn.random',  ['-c minsize={minsize}', '-c maxsize={maxsize}',
                                      '-c minnand={minnand}', '-c maxnand={maxnand}',
                                      '-c maxin={maxin}'],                              potassco.IGringoGrounder)
-reg.register('caspo.learn.opt',     ["--quiet=1", "--opt-strategy=4"],                 potassco.IClasp3)
+reg.register('caspo.learn.opt',     ["--quiet=1"],                                     potassco.IClasp3)
 reg.register('caspo.learn.rescale', ["--quiet=2,1"],                                   potassco.IClasp3)
 reg.register('caspo.learn.enum',    ["--opt-mode=ignore", "0"],                        potassco.IClasp3)
 reg.register('caspo.learn.random',  ["--sign-def=3", "--seed={seed}", "{n}"],          potassco.IClasp3)
 
+def register_mt(threads, conf="many"):
+    reg.register('caspo.learn.opt',  ["--quiet=1", "--conf=%s" % conf, "-t %s" % threads],              potassco.IClasp3)
+    reg.register('caspo.learn.enum', ["--opt-mode=ignore", "0", "--conf=%s" % conf, "-t %s" % threads], potassco.IClasp3)

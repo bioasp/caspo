@@ -38,9 +38,16 @@ gsm.registerAdapter(CsvReader2StrategySet)
 
 root = os.path.dirname(__file__)
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.control.full',      os.path.join(root, 'encodings/gringo3/encoding.lp'),  potassco.IGringo3)
-reg.register('caspo.control.full',      os.path.join(root, 'encodings/gringo4/encoding.lp'),  potassco.IGringo4)
+reg.register('caspo.control.full', os.path.join(root, 'encodings/gringo3/encoding.lp'),  potassco.IGringo3)
+reg.register('caspo.control.full', os.path.join(root, 'encodings/gringo4/encoding.lp'),  potassco.IGringo4)
 
 reg = component.getUtility(asp.IArgumentRegistry)
-reg.register('caspo.control.enum', ['-c maxsize={size}'],                                                      potassco.IGringoGrounder)
-reg.register('caspo.control.enum', ["--dom-mod=5,16", "--heu=domain", "--opt-mode=ignore", "--enum-mode=domRec", "0"], potassco.IClasp3)
+reg.register('caspo.control.enum', ['-c maxsize={size}'],                              potassco.IGringoGrounder)
+reg.register('caspo.control.enum', 
+            ["--dom-mod=5,16", "--heu=Domain", "--opt-mode=ignore", "-e domRec", "0"], potassco.IClasp3)
+
+def register_mt(threads, conf="many"):
+    reg.register('caspo.control.enum', 
+                ["--dom-mod=5,16", "--heu=Domain", "--opt-mode=ignore", "-e domRec", "0", "--conf=%s" % conf, "-t %s" % threads], 
+                potassco.IClasp3)
+

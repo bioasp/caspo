@@ -43,5 +43,8 @@ reg.register('caspo.design.opt', ['-c maxstimuli={stimuli}',
                                   '-c maxinhibitors={inhibitors}', 
                                   '-c imax={imax}',
                                   '-c relax={relax}',
-                                  '-c iquery={iquery}'],                              potassco.IGringoGrounder)
-reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN", "--save-progress"], potassco.IClasp3)
+                                  '-c iquery={iquery}'],           potassco.IGringoGrounder)
+reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN"], potassco.IClasp3)
+
+def register_mt(threads, conf="many"):
+    reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN", "--conf=%s" % conf, "-t %s" % threads], potassco.IClasp3)
