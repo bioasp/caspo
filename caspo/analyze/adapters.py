@@ -17,7 +17,9 @@
 # -*- coding: utf-8 -*-
 
 import os, numpy
+import multiprocessing as mp
 from collections import defaultdict
+from math import ceil
 from itertools import combinations
 from zope import component, interface
 
@@ -27,6 +29,56 @@ from caspo import core, control
 from interfaces import *
 from impl import *
 
+def _io_discovery_(ioset, networks, setup, clingo):
+    if isinstance(clingo, str):
+        clingo = potassco.Clingo(clingo)
+    
+    encodings = component.getUtility(asp.IEncodingRegistry).encodings(clingo.grounder)
+    clamping = encodings('caspo.analyze.guess')
+    fixpoint = encodings('caspo.analyze.fixpoint')
+    diff = encodings('caspo.analyze.diff')
+    stdin = """
+    :- not diff.
+    """
+    setup = asp.ITermSet(setup)
+
+    printer = component.queryUtility(core.IPrinter)
+    if printer:
+        printer.pprint("")
+
+    for network in networks:
+        found = False
+        for eb in ioset:
+            pair = core.BooleLogicNetworkSet([eb, network], False)
+            
+            instance = setup.union(asp.ITermSet(pair))
+            clingo.run(stdin + " " + instance.to_str(), 
+                    grounder_args=[clamping, fixpoint, diff], 
+                    solver_args=["--quiet"])
+                
+            if clingo.solver.unsat:
+                eb.networks.add(network)
+                if hasattr(network, 'networks'):
+                    eb.networks = eb.networks.union(network.networks)
+                    
+                found = True
+                break
+
+        if not found:
+            eb = BooleLogicBehavior(network.variables, network.mapping)
+            if hasattr(network, 'networks'):
+                eb.networks = eb.networks.union(network.networks)
+                
+            ioset.add(eb)
+            
+        if printer:    
+            printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(ioset), sum(map(len, ioset))))
+    
+    if printer:
+        printer.pprint("\n")
+    
+    return ioset
+        
 class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
     component.adapts(core.IBooleLogicNetworkSet, core.IDataset, potassco.IGrounderSolver)
     interface.implements(IBooleLogicBehaviorSet)
@@ -48,7 +100,41 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                     self.active_cues = self.active_cues.union(map(lambda (l,s): l, filter(lambda (l,s): l in cues, clause)))
     
         self.inactive_cues = cues.difference(self.active_cues)
-        self.__io_discovery__()
+        
+        args = component.getUtility(asp.IArgumentRegistry).arguments(clingo)('caspo.analyze.io')
+        threads = args.get('threads', False)
+        
+        if threads:
+            printer = component.queryUtility(core.IPrinter)
+            if printer:
+                printer.quiet = True
+        
+            pool = mp.Pool(processes=threads)
+            lp = int(ceil(len(networks) / float(threads)))
+            parts = []
+            i = 0
+            for n in networks:
+                if i == 0:
+                    parts.append(core.BooleLogicNetworkSet())
+                    p = len(parts) - 1
+                    i = lp
+
+                parts[p].add(n)
+                i -= 1
+            
+            results = [pool.apply_async(_io_discovery_, args=(core.BooleLogicNetworkSet(), part, self.setup, args['clingo'])) for part in parts]
+            output = [p.get() for p in results]
+        
+            nb = core.BooleLogicNetworkSet()
+            for r in output:
+                nb = nb.union(r)
+            
+            if printer:
+                printer.quiet = False
+                
+            _io_discovery_(self, nb, self.setup, self.clingo)
+        else:
+            _io_discovery_(self, networks, self.setup, self.clingo)
         
     @asp.cleanrun
     def core(self):
@@ -114,51 +200,6 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         
         rss = numpy.nansum((predictions - observations) ** 2)
         return rss / dataset.nobs[time]
-
-    def __io_discovery__(self):
-        encodings = component.getUtility(asp.IEncodingRegistry).encodings(self.clingo.grounder)
-        clamping = encodings('caspo.analyze.guess')
-        fixpoint = encodings('caspo.analyze.fixpoint')
-        diff = encodings('caspo.analyze.diff')
-        stdin = """
-        :- not diff.
-        """
-        setup = asp.ITermSet(self.setup)
-
-        printer = component.queryUtility(core.IPrinter)
-        if printer:
-            printer.pprint("")
-
-        for network in self.networks:
-            found = False
-            for eb in self:
-                pair = core.BooleLogicNetworkSet([eb, network], False)
-                
-                instance = setup.union(asp.ITermSet(pair))
-                self.clingo.run(stdin + " " + instance.to_str(), 
-                        grounder_args=[clamping, fixpoint, diff], 
-                        solver_args=["--quiet"])
-                    
-                if self.clingo.solver.unsat:
-                    eb.networks.add(network)
-                    if hasattr(network, 'networks'):
-                        eb.networks = eb.networks.union(network.networks)
-                        
-                    found = True
-                    break
-
-            if not found:
-                eb = BooleLogicBehavior(network.variables, network.mapping)
-                if hasattr(network, 'networks'):
-                    eb.networks = eb.networks.union(network.networks)
-                    
-                self.add(eb)
-                
-            if printer:    
-                printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), sum(map(len, self))))
-        
-        if printer:
-            printer.pprint("\n")
 
 class LogicalNetworkSet2Stats(object):
     component.adapts(core.ILogicalNetworkSet)

@@ -44,3 +44,9 @@ reg.register('caspo.analyze.diff',     os.path.join(root, 'encodings/gringo3/dif
 reg.register('caspo.analyze.guess',    os.path.join(root, 'encodings/gringo4/guess.lp'),    potassco.IGringo4)
 reg.register('caspo.analyze.fixpoint', os.path.join(root, 'encodings/gringo4/fixpoint.lp'), potassco.IGringo4)
 reg.register('caspo.analyze.diff',     os.path.join(root, 'encodings/gringo4/diff.lp'),     potassco.IGringo4)
+
+reg = component.getUtility(asp.IArgumentRegistry)
+reg.register('caspo.analyze.io', {}, potassco.IClasp3)
+
+def register_mt(clingo, threads):
+    reg.register('caspo.analyze.io', {'clingo': clingo, 'threads': threads}, potassco.IClasp3)
