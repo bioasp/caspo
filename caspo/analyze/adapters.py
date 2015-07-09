@@ -106,6 +106,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         
         if threads:
             printer = component.queryUtility(core.IPrinter)
+            quiet = printer.quiet
             if printer:
                 printer.quiet = True
         
@@ -130,7 +131,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                 networks = networks.union(r)
             
             if printer:
-                printer.quiet = False
+                printer.quiet = quiet
 
         _io_discovery_(self, networks, self.setup, self.clingo)
         
