@@ -125,16 +125,14 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             results = [pool.apply_async(_io_discovery_, args=(core.BooleLogicNetworkSet(), part, self.setup, args['clingo'])) for part in parts]
             output = [p.get() for p in results]
         
-            nb = core.BooleLogicNetworkSet()
+            networks = core.BooleLogicNetworkSet()
             for r in output:
-                nb = nb.union(r)
+                networks = networks.union(r)
             
             if printer:
                 printer.quiet = False
-                
-            _io_discovery_(self, nb, self.setup, self.clingo)
-        else:
-            _io_discovery_(self, networks, self.setup, self.clingo)
+
+        _io_discovery_(self, networks, self.setup, self.clingo)
         
     @asp.cleanrun
     def core(self):
