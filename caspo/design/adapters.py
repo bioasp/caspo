@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+import itertools as it
 from zope import component
 from pyzcasp import asp, potassco
 
@@ -78,10 +79,11 @@ class PotasscoDesigner(object):
             return solutions
         
 class ClampingList2CsvWriter(object):
-    component.adapts(core.IClampingList, core.ISetup)
+    component.adapts(core.IBooleLogicNetworkSet, core.IClampingList, core.ISetup)
     interface.implements(core.ICsvWriter)
     
-    def __init__(self, clist, setup):
+    def __init__(self, networks, clist, setup):
+        self.networks = networks
         self.clist = clist
         self.setup = setup
         
@@ -96,12 +98,21 @@ class ClampingList2CsvWriter(object):
             for sti in self.setup.stimuli:
                 if dc[sti] == 1:
                     nrow[sti] = dc[sti]
+                    
+            for m1,m2 in it.combinations(self.networks, 2):
+                cd = False
+                for r in self.setup.readouts:
+                    if m1.prediction(r,clamping) != m2.prediction(r,clamping):
+                        nrow[r] += 1
+                        cd = True
+                if cd:
+                    nrow['pairs'] += 1            
 
             yield nrow    
         
     def write(self, filename, path="./"):
         writer = component.getUtility(core.ICsvWriter)
-        header = self.setup.stimuli + map(lambda i: i+'i', self.setup.inhibitors)
+        header = self.setup.stimuli + map(lambda i: i+'i', self.setup.inhibitors) + self.setup.readouts + ['pairs']
         
         writer.load(self.clampings(header), header)
         writer.write(filename, path)
