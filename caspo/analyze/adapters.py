@@ -129,7 +129,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         if printer:
             printer.pprint("")
 
-        for i, network in enumerate(self.networks):
+        for network in self.networks:
             found = False
             for eb in self:
                 pair = core.BooleLogicNetworkSet([eb, network], False)
@@ -141,14 +141,21 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                     
                 if self.clingo.solver.unsat:
                     eb.networks.add(network)
+                    if hasattr(network, 'networks'):
+                        eb.networks = eb.networks.union(network.networks)
+                        
                     found = True
                     break
 
             if not found:
-                self.add(BooleLogicBehavior(network.variables, network.mapping))
-            
+                eb = BooleLogicBehavior(network.variables, network.mapping)
+                if hasattr(network, 'networks'):
+                    eb.networks = eb.networks.union(network.networks)
+                    
+                self.add(eb)
+                
             if printer:    
-                printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), i+1))
+                printer.iprint("Searching input-output behaviors... %s behaviors have been found over %s logical networks." % (len(self), sum(map(len, self))))
         
         if printer:
             printer.pprint("\n")

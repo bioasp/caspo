@@ -158,10 +158,14 @@ def run():
         cmdline = "$ caspo --out {out} learn {pkn} {midas} {time} --fit {fit} --size {size}"
         if clingo != 'clingo':
             cmdline += " --clingo {clingo}"
+            
+        if threads:
+            cmdline += " --threads {threads}"
+        
 
         cmdline += "\n"
         printer.pprint(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), midas=os.path.join(out, 'dataset.csv'),
-                                      time=params[0], clingo=clingo, fit=params[1], size=params[2]))
+                                      time=params[0], clingo=clingo, fit=params[1], size=params[2], threads=threads))
         try:
             args.handler(args)
         except Exception as e:
@@ -184,9 +188,12 @@ def run():
         if clingo != 'clingo':
             cmdline += " --clingo {clingo}"
         
+        if threads:
+            cmdline += " --threads {threads}"
+            
         cmdline += "\n"
         printer.pprint(cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'), 
-                                      scenarios=os.path.join(out, 'scenarios.csv'), clingo=clingo))
+                                      scenarios=os.path.join(out, 'scenarios.csv'), clingo=clingo, threads=threads))
         try:
             args.handler(args)
         except Exception as e:
@@ -194,20 +201,30 @@ def run():
             printer.pprint("Testing on caspo %s has failed." % args.cmd)
             
         printer.pprint("")
-                
-        args = parser.parse_args(['--out', out, 'analyze', '--clingo', clingo,
-                                  '--networks', os.path.join(out, 'networks.csv'), 
-                                  '--midas', os.path.join(out, 'dataset.csv'), 
-                                  params[0], '--strategies', os.path.join(out, 'strategies.csv'),
-                                  '--networks-stats'])
+        
+        if threads:
+            args = parser.parse_args(['--out', out, 'analyze', '--clingo', clingo,
+                                      '--networks', os.path.join(out, 'networks.csv'), 
+                                      '--midas', os.path.join(out, 'dataset.csv'), 
+                                      params[0], '--strategies', os.path.join(out, 'strategies.csv'),
+                                      '--networks-stats', '--threads', str(threads)])
+        else:
+            args = parser.parse_args(['--out', out, 'analyze', '--clingo', clingo,
+                                      '--networks', os.path.join(out, 'networks.csv'), 
+                                      '--midas', os.path.join(out, 'dataset.csv'), 
+                                      params[0], '--strategies', os.path.join(out, 'strategies.csv'),
+                                      '--networks-stats'])
                                   
         cmdline = "$ caspo --out {out} analyze --networks {networks} --midas {midas} {time} --strategies {strategies}"
         if clingo != 'clingo':
             cmdline += " --clingo {clingo}"
 
+        if threads:
+            cmdline += " --threads {threads}"
+            
         cmdline += "\n"        
         printer.pprint(cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'), midas=os.path.join(out, 'dataset.csv'), 
-                                      time=params[0], strategies=os.path.join(out, 'strategies.csv'), clingo=clingo))
+                                      time=params[0], strategies=os.path.join(out, 'strategies.csv'), clingo=clingo, threads=threads))
         
         try:
             args.handler(args)
@@ -230,9 +247,13 @@ def run():
         cmdline = "$ caspo --out {out} design {behaviors} {midas}"
         if clingo != 'clingo':
             cmdline += " --clingo {clingo}"
-
+            
+        if threads:
+            cmdline += " --threads {threads}"
+            
         cmdline += "\n"        
-        printer.pprint(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), midas=os.path.join(out, 'dataset.csv'), clingo=clingo))
+        printer.pprint(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), 
+                                      midas=os.path.join(out, 'dataset.csv'), clingo=clingo, threads=threads))
         
         try:
             args.handler(args)

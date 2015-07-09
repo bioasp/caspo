@@ -84,8 +84,18 @@ def control(args):
     writer.write('strategies.csv', args.outdir)
         
     return 0
-
-def analyze(args):    
+    
+def _get_behaviors(networks, dataset):
+    from zope import component
+    from pyzcasp import potassco
+    from caspo import analyze
+    
+    clingo = component.getUtility(potassco.IClingo)
+    return set(component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet))
+    
+def analyze(args):
+    import multiprocessing as mp
+    from math import ceil
     from zope import component
     from pyzcasp import asp, potassco
     from caspo import core, analyze, learn, control
@@ -114,7 +124,35 @@ def analyze(args):
                 writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
                 writer.write('networks-mse-len.csv', args.outdir)
             
-            behaviors =  component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet)
+            if args.threads:
+                printer = component.queryUtility(core.IPrinter)
+                printer.quiet = True
+                
+                pool = mp.Pool(processes=args.threads)
+                lp = int(ceil(len(networks) / float(args.threads)))
+                parts = []
+                i = 0
+                for n in networks:
+                    if i == 0:
+                        parts.append(core.BooleLogicNetworkSet())
+                        p = len(parts) - 1
+                        i = lp
+
+                    parts[p].add(n)
+                    i -= 1
+                    
+                results = [pool.apply_async(_get_behaviors, args=(part, dataset,)) for part in parts]
+                output = [p.get() for p in results]
+                
+                nb = core.BooleLogicNetworkSet()
+                for r in output:
+                    nb = nb.union(r)
+                    
+                printer.quiet = False        
+                behaviors = component.getMultiAdapter((nb, dataset, clingo), analyze.IBooleLogicBehaviorSet)
+            else:
+                behaviors = component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet)
+                
             multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
             multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
             
