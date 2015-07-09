@@ -106,8 +106,8 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         
         if threads:
             printer = component.queryUtility(core.IPrinter)
-            quiet = printer.quiet
             if printer:
+                quiet = printer.quiet
                 printer.quiet = True
         
             pool = mp.Pool(processes=threads)
@@ -125,7 +125,8 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             
             results = [pool.apply_async(_io_discovery_, args=(core.BooleLogicNetworkSet(), part, self.setup, args['clingo'])) for part in parts]
             output = [p.get() for p in results]
-        
+            
+            pool.close()
             networks = core.BooleLogicNetworkSet()
             for r in output:
                 networks = networks.union(r)
