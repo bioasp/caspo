@@ -104,7 +104,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
         args = component.getUtility(asp.IArgumentRegistry).arguments(clingo)('caspo.analyze.io')
         threads = args.get('threads', False)
         
-        if threads:
+        if threads and len(networks) > threads:
             printer = component.queryUtility(core.IPrinter)
             if printer:
                 quiet = printer.quiet
