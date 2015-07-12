@@ -29,10 +29,8 @@ from caspo import core, control
 from interfaces import *
 from impl import *
 
-def _io_discovery_(ioset, networks, setup, clingo):
-    if isinstance(clingo, str):
-        clingo = potassco.Clingo(clingo)
-    
+def _io_discovery_(ioset, networks, setup):
+    clingo = component.getUtility(potassco.IClingo)
     encodings = component.getUtility(asp.IEncodingRegistry).encodings(clingo.grounder)
     clamping = encodings('caspo.analyze.guess')
     fixpoint = encodings('caspo.analyze.fixpoint')
@@ -123,10 +121,10 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
                 parts[p].add(n)
                 i -= 1
             
-            results = [pool.apply_async(_io_discovery_, args=(core.BooleLogicNetworkSet(), part, self.setup, args['clingo'])) for part in parts]
+            results = [pool.apply_async(_io_discovery_, args=(core.BooleLogicNetworkSet(), part, self.setup)) for part in parts]
             output = [p.get() for p in results]
-            
             pool.close()
+            
             networks = core.BooleLogicNetworkSet()
             for r in output:
                 networks = networks.union(r)
@@ -134,7 +132,7 @@ class BoolLogicNetworkSet2BooleLogicBehaviorSet(core.BooleLogicNetworkSet):
             if printer:
                 printer.quiet = quiet
 
-        _io_discovery_(self, networks, self.setup, self.clingo)
+        _io_discovery_(self, networks, self.setup)
         
     @asp.cleanrun
     def core(self):

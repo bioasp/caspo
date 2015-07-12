@@ -115,7 +115,7 @@ def analyze(args):
                 writer.write('networks-mse-len.csv', args.outdir)
             
             if args.threads:
-                analyze.register_mt(args.clingo, args.threads)
+                analyze.register_mt(args.threads)
                 
             behaviors = component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet)
                 
