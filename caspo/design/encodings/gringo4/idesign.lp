@@ -2,7 +2,6 @@
 #const imax = 10.
 #const maxstimuli = -1.
 #const maxinhibitors = -1.
-#const relax = 0.
 
 model(M) :- formula(M,_,_).
 
@@ -59,5 +58,4 @@ lt(k,k-1)   :- next(W,V); le(k-1,k,W); not exp(k-1,V); exp(k,V).
 
 #program check(k). 
 
-:- not diff(K,M1,M2) : K=1..k; model(M1); model(M2); M1<M2; query(k); relax == 0.
-:- #count{K,M1,M2,V : diff(K,M1,M2,V), K=1..k} 0; relax == 1.
+:- not diff(K,M1,M2) : K=1..k; model(M1); model(M2); M1<M2; query(k).

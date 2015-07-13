@@ -16,6 +16,9 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import itertools as it
+from math import log
+from collections import defaultdict
+
 from zope import component
 from pyzcasp import asp, potassco
 
@@ -58,17 +61,19 @@ class PotasscoDesigner(object):
         grounder_args = component.getUtility(asp.IArgumentRegistry).arguments(self.clingo.grounder)
         solver_args = component.getUtility(asp.IArgumentRegistry).arguments(self.clingo.solver)
         
+        iopt = encodings('caspo.design.iopt')
         opt = encodings('caspo.design.opt')
         
-        programs = [self.termset.to_file(), opt]
+        programs = [self.termset.to_file()]
         
         if not relax:
-            constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments, 
-                                                     relax=relax, iquery=1), grounder_args('caspo.design.opt'))
-        else:                                         
-            constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments, 
-                                                     relax=relax, iquery=max_experiments), grounder_args('caspo.design.opt'))
-        
+            programs.append(iopt)
+            constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, imax=max_experiments),
+                              grounder_args('caspo.design.iopt'))
+        else:
+            programs.append(opt)                 
+            constraints = map(lambda arg: arg.format(stimuli=max_stimuli, inhibitors=max_inhibitors, nexp=max_experiments), 
+                              grounder_args('caspo.design.opt'))
 
         solutions = self.clingo.run("#show clamped/3.", 
                             grounder_args=programs + constraints, 

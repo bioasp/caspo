@@ -36,14 +36,18 @@ gsm.registerAdapter(ClampingList2CsvWriter)
 
 root = os.path.dirname(__file__)
 reg = component.getUtility(asp.IEncodingRegistry)
-reg.register('caspo.design.opt', os.path.join(root, 'encodings/gringo4/idesign.lp'), potassco.IGringo4)
+reg.register('caspo.design.iopt', os.path.join(root, 'encodings/gringo4/idesign.lp'), potassco.IGringo4)
+reg.register('caspo.design.opt', os.path.join(root, 'encodings/gringo4/design.lp'), potassco.IGringo4)
 
 reg = component.getUtility(asp.IArgumentRegistry)
+reg.register('caspo.design.iopt', ['-c maxstimuli={stimuli}', 
+                                  '-c maxinhibitors={inhibitors}', 
+                                  '-c imax={imax}'],               potassco.IGringoGrounder)
+                                  
 reg.register('caspo.design.opt', ['-c maxstimuli={stimuli}', 
                                   '-c maxinhibitors={inhibitors}', 
-                                  '-c imax={imax}',
-                                  '-c relax={relax}',
-                                  '-c iquery={iquery}'],           potassco.IGringoGrounder)
+                                  '-c nexp={nexp}'],               potassco.IGringoGrounder)
+
 reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN"], potassco.IClasp3)
 
 def register_mt(threads, conf="many"):

@@ -25,4 +25,12 @@ class IDesigner(interface.Interface):
     def design(self):
         """
         """
+
+class IClampingListEntropy(interface.Interface):
+    """
+    """
+    
+    def entropy(self):
+        """
+        """
         
