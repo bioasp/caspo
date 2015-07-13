@@ -122,3 +122,37 @@ class ClampingList2CsvWriter(object):
         writer.load(self.clampings(header), header)
         writer.write(filename, path)
         
+class ClampingListEntropy(object):
+    component.adapts(core.IBooleLogicNetworkSet, core.IClampingList, core.ISetup)
+    interface.implements(IClampingListEntropy)
+    
+    
+    def __init__(self, networks, clist, setup):
+        self.networks = networks
+        self.clist = clist
+        self.setup = setup
+    
+    @property
+    def clampings(self):
+        return self.clist.clampings
+            
+    def entropy(self):
+        L = float(len(self.networks))
+        total = 0
+        for clamping in self.clist.clampings:
+            outputs = defaultdict(int)
+            for net in self.networks:
+                out = dict.fromkeys(self.setup.readouts, 0)
+                for r in self.setup.readouts:
+                    out[r] = net.prediction(r,clamping)
+                
+                outputs[frozenset(out.items())] += 1
+            
+            ec = 0    
+            for s,c in outputs.iteritems():
+                ps = c / L
+                ec += ps * log(ps,2)
+                
+            total -= ec
+            
+        return total

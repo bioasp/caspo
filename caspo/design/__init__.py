@@ -33,6 +33,7 @@ gsm.registerAdapter(NetworksSetup2TermSet)
 gsm.registerAdapter(NetworksSetupClampings2TermSet)
 gsm.registerAdapter(PotasscoDesigner)
 gsm.registerAdapter(ClampingList2CsvWriter)
+gsm.registerAdapter(ClampingListEntropy)
 
 root = os.path.dirname(__file__)
 reg = component.getUtility(asp.IEncodingRegistry)
