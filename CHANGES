@@ -1,4 +1,7 @@
-2.2.0 (unreleased)
+2.2.1 (unreleased)
+------------------
+
+2.2.0 (2015-08-06)
 ------------------
 - Update subcommands to work with clingo 4.5.x
 - Output detailed differences for caspo design
