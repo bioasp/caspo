@@ -1,6 +1,6 @@
 2.2.0 (unreleased)
 ------------------
-- Update subcommands to work with clingo 4.5.0
+- Update subcommands to work with clingo 4.5.x
 - Output detailed differences for caspo design
 - Lazy optima computation in caspo learn
 - Add multi-threading from command line
