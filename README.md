@@ -49,6 +49,8 @@ Also, you may want to check out some examples at our [notebook](http://nbviewer.
 Sample files are included with **caspo** and available for [download](http://bioasp.github.io/caspo/data.zip)
 
 ### Related publications
+*  Designing experiments to discriminate families of logic models. (2015). Frontiers in Bioengineering and Biotechnology 3:131. [DOI](http://dx.doi.org/10.3389/fbioe.2015.00131)
+
 * Reasoning on the Response of Logical Signaling Networks with ASP. (2014). John Wiley & Sons, Inc. [DOI](http://dx.doi.org/10.1002/9781119005223.ch2)
 
 * Learning Boolean logic models of signaling networks with ASP. (2014). Theoretical Computer Science. [DOI](http://dx.doi.org/10.1016/j.tcs.2014.06.022)
