@@ -1,153 +1,118 @@
-def learn(args):        
-    from zope import component
+# Copyright (c) 2015, Santiago Videla
+#
+# This file is part of caspo.
+#
+# caspo is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# caspo is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
+# -*- coding: utf-8 -*-
 
-    from pyzcasp import asp, potassco
-    from caspo import core, learn
-    
-    if args.threads:
-        learn.register_mt(args.threads, args.conf)
+import os, logging
+import functools as ft
+from caspo import core, learn, design, control, analyze
 
-    sif = component.getUtility(core.IFileReader)
-    sif.read(args.pkn)
-    graph = core.IGraph(sif)
+def configure_mt(args, proxy):
+    proxy.solve.parallel_mode = args.threads
+    proxy.configuration = args.conf
+
+def learn_handler(args):
+    graph = core.Graph.read_sif(args.pkn)
+    dataset = learn.Dataset(args.midas, args.time)
+    zipped = graph.compress(dataset.setup)
     
-    reader = component.getUtility(core.ICsvReader)
-    reader.read(args.midas)
-    dataset = core.IDataset(reader)
+    learner = learn.Learner(zipped, dataset, args.length, args.discretization, args.factor)
     
-    learner = learn.learner(graph, dataset, args.time, args.length, potassco.IClingo, args.discretization, args.factor)
-    networks = learner.learn(args.fit, args.size)
+    configure = ft.partial(configure_mt,args) if args.threads else None
+    learner.learn(args.fit, args.size, configure)
     
-    writer = core.ICsvWriter(networks)
-    writer.write('networks.csv', args.outdir)
+    learner.networks.to_csv(os.path.join(args.out, 'networks.csv'))
     
     return 0
-    
-def design(args):
-    from zope import component
 
-    from pyzcasp import asp, potassco
-    from caspo import core, design
-
-    if args.threads:
-        design.register_mt(args.threads, args.conf)
+def design_handler(args):
+    networks = core.LogicalNetworkList.from_csv(args.networks)
+    setup = core.Setup.from_json(args.setup)
+    listing = core.ClampingList.from_csv(args.list) if args.list else None
     
-    reader = component.getUtility(core.ICsvReader)
-    reader.read(args.networks)
-    networks = core.IBooleLogicNetworkSet(reader)
-        
-    reader.read(args.midas)
-    dataset = core.IDataset(reader)
+    designer = design.Designer(networks, setup, listing)
     
-    clist = None
-    if args.list:
-        reader.read(args.list)
-        clist = core.IClampingList(reader)
+    configure = ft.partial(configure_mt,args) if args.threads else None
+    designer.design(args.stimuli, args.inhibitors, args.experiments, args.relax, configure)
     
-    designer = design.designer(networks, dataset.setup, clist, potassco.IClingo)
-    exps = designer.design(max_stimuli=args.stimuli, max_inhibitors=args.inhibitors, 
-                           max_experiments=args.experiments, relax=int(args.relax))
-    
-    if exps:
-        for i,exp in enumerate(exps):
-            writer = component.getMultiAdapter((networks, exp, dataset.setup), core.ICsvWriter)
-            writer.write('opt-design-%s.csv' % i, args.outdir)            
-    else:        
-        printer = component.getUtility(core.IPrinter)
-        printer.pprint("There is no solutions matching your experimental design criteria.")
+    if designer.designs:
+        for i,d in enumerate(designer.designs):
+            d.to_csv(os.path.join(args.out, 'opt-design-%s.csv' % i))
+    else:
+       print "There is no solutions matching your experimental design criteria."
         
     return 0
 
-def control(args):    
-    from zope import component
-
-    from pyzcasp import potassco, asp
-    from caspo import core, control
+def control_handler(args):
+    networks = core.LogicalNetworkList.from_csv(args.networks)
+    scenarios = control.ScenarioList(args.scenarios, args.iconstraints, args.igoals)
     
-    if args.threads:
-        control.register_mt(args.threads, args.conf)
-
-    reader = component.getUtility(core.ICsvReader)
+    controller = control.Controller(networks, scenarios)
     
-    reader.read(args.networks)
-    networks = core.ILogicalNetworkSet(reader)
+    configure = ft.partial(configure_mt,args) if args.threads else None
+    controller.control(args.size, configure)
     
-    reader.read(args.scenarios)
-    multiscenario = control.IMultiScenario(reader)
-    multiscenario.allow_constraints = args.iconstraints
-    multiscenario.allow_goals = args.igoals
+    controller.strategies.to_csv(os.path.join(args.out, 'strategies.csv'))
     
-    controller = control.controller(networks, multiscenario, potassco.IClingo)
-    strategies = controller.control(args.size)
-    
-    writer = core.ICsvWriter(strategies)
-    writer.write('strategies.csv', args.outdir)
-        
     return 0
     
-def analyze(args):
-    from zope import component
-    from pyzcasp import asp, potassco
-    from caspo import core, analyze, learn, control
+def analyze_handler(args):
+    logger = logging.getLogger("caspo")
     
-    clingo = component.getUtility(potassco.IClingo)
-    reader = component.getUtility(core.ICsvReader)
-
-    lines = []
     if args.networks:
-        reader.read(args.networks)
-        networks = core.IBooleLogicNetworkSet(reader)
+        networks = core.LogicalNetworkList.from_csv(args.networks)
         
-        if args.netstats:
-            stats = analyze.IStats(networks)
-            writer = core.ICsvWriter(stats)
-            writer.write('networks-stats.csv', args.outdir)
-            
-        lines.append("Total Boolean logic networks: %s" % len(networks))
+        #if args.netstats:
+        #    stats = analyze.IStats(networks)
+        #    writer = core.ICsvWriter(stats)
+        #    writer.write('networks-stats.csv', args.outdir)
+        
+        logger.info("Analyzing %s logical networks" % len(networks))
         
         if args.midas:
-            reader.read(args.midas[0])
-            dataset = core.IDataset(reader)
-            point = core.TimePoint(int(args.midas[1]))
+            dataset = learn.Dataset(args.midas[0], args.midas[1])
             
             if args.netstats:
-                writer = component.getMultiAdapter((networks, dataset, point), core.ICsvWriter)
-                writer.write('networks-mse-len.csv', args.outdir)
+                networks.to_csv(os.path.join(args.out,'networks-mse-len.csv'), size=True, dataset=dataset)
             
-            if args.threads:
-                analyze.register_mt(args.threads)
+            configure = ft.partial(configure_mt, args) if args.threads else None
                 
-            behaviors = component.getMultiAdapter((networks, dataset, clingo), analyze.IBooleLogicBehaviorSet)
-                
-            multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-            multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
+            #multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
+            #multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
             
-            lines.append("Total I/O Boolean logic behaviors: %s" % len(behaviors))
-            lines.append("Weighted MSE: %.4f" % behaviors.mse(dataset, point.time))
-            lines.append("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
+            behaviors = analyze.learn_behaviors(networks, dataset.setup, configure, args.threads)
+            behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
+            behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
+            
+            logger.info("%s I/O logical behaviors were found" % len(behaviors))
+            #logger.info("Weighted MSE: %.4f" % behaviors.mse(dataset, point.time))
+            #logger.info("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
     
-    if args.strategies:
-        reader.read(args.strategies)
-        strategies = control.IStrategySet(reader)
-        stats = analyze.IStats(strategies)
-        writer = core.ICsvWriter(stats)
-        writer.write('strategies-stats.csv', args.outdir)
+    #if args.strategies:
+    #    reader.read(args.strategies)
+    #    strategies = control.IStrategySet(reader)
+    #    stats = analyze.IStats(strategies)
+    #    writer = core.ICsvWriter(stats)
+    #    writer.write('strategies-stats.csv', args.outdir)
         
-        lines.append("Total intervention strategies: %s" % len(strategies))
+    #    lines.append("Total intervention strategies: %s" % len(strategies))
 
-    writer = component.getUtility(core.IFileWriter)
-    writer.load(lines, "caspo analytics summary")
-    writer.write('summary.txt', args.outdir)
-    
-    printer = component.getUtility(core.IPrinter)
-    printer.pprint("\ncaspo analytics summary")
-    printer.pprint("=======================")
-    for line in lines:
-        printer.pprint(line)
-        
     return 0
     
-def visualize(args):
+def visualize_handler(args):
     import os
     from zope import component
     from caspo import core, visualize, control, learn

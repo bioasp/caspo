@@ -53,3 +53,5 @@ reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN"], potassco.ICla
 
 def register_mt(threads, conf="many"):
     reg.register('caspo.design.opt', ["--quiet=1", "--opt-mode=optN", "--conf=%s" % conf, "-t %s" % threads], potassco.IClasp3)
+
+from design import designer

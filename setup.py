@@ -19,7 +19,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '2.2.1dev'
+version = '3.0.0dev'
 
 long_desc = """
 The aim of caspo is to implement a pipeline for automated reasoning on logical signaling networks. 
@@ -52,12 +52,10 @@ setup(name='caspo',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          "zope.component",
-          "zope.interface",
-          "pyzcasp",
           "numpy",
+          "pandas",
+          "sklearn",
           "networkx",
-          "pyparsing>=1.5.7,<2.0.0", #latest pyparsing version for Python 2.x
           "pydot"
       ],
       entry_points={

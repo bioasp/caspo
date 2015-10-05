@@ -1,5 +1,3 @@
-#include <incmode>.
-#const imax = 10.
 #const maxstimuli = -1.
 #const maxinhibitors = -1.
 
@@ -15,15 +13,13 @@ ubs(S)             :- maxstimuli == -1; S = #count{V : stimulus(V)}.
 ubi(maxinhibitors) :- maxinhibitors != -1.
 ubi(I)             :- maxinhibitors == -1; I = #count{V : inhibitor(V)}.
 
-listed(C) :- listed(C,_,_).
-
 #program step(k).
 
 {clamped(k,V, 1) : clause(_,V,_), stimulus(V) } S :- ubs(S); mode(1).
 {clamped(k,V,-1) : clause(_,V,_), inhibitor(V)} I :- ubi(I); mode(1).
  clamped(k,V,-1) :- stimulus(V); not clamped(k,V,1).
 
-1 {selected(k,C) : listed(C)} 1 :- mode(2).
+1 {selected(k,C) : listing(C)} 1 :- mode(2).
 clamped(k,V,S)  :- selected(k,C); listed(C,V,S); mode(2).
 
 clamped(k,V)  :- clamped(k,V,_).
@@ -57,5 +53,10 @@ lt(k,k-1)   :- next(W,V); le(k-1,k,W); not exp(k-1,V); exp(k,V).
 :- not lt(k-1,k); k > 1.
 
 #program check(k). 
+#external query(k).
 
 :- not diff(K,M1,M2) : K=1..k; model(M1); model(M2); M1<M2; query(k).
+
+#program diff(k).
+
+:- #count{K,M1,M2,V : diff(K,M1,M2,V), K=1..k} 0.
