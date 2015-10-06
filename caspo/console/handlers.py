@@ -78,7 +78,7 @@ def analyze_handler(args):
         if args.netstats:
             with open(os.path.join(args.out,'networks-stats.csv'),'wb') as fd:
                 w = csv.DictWriter(fd,["key","frequency","exclusive","inclusive"])
-                
+                w.writeheader()
                 exclusive, inclusive = networks.combinatorics()        
                 for k,f in networks.frequencies_iter():
                     row = dict(key="%s=%s" % k, frequency="%.4f" % f)
@@ -89,8 +89,7 @@ def analyze_handler(args):
                         row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[k]))
                         
                     w.writerow(row)
-                
-        
+
         logger.info("Analyzing %s logical networks" % len(networks))
         
         if args.midas:

@@ -146,7 +146,8 @@ class LogicalNetworkList(object):
     def frequencies_iter(self):
         f = self.matrix.mean(axis=0)
         for i,m in self.hg.mappings.iteritems():
-            yield m,f[i]
+            if f[i] > 0:
+                yield m,f[i]
             
     def frequency(self, mapping):
         m = self.hg.mappings[self.hg.mappings==mapping]
