@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging
+import os, logging, csv
 import functools as ft
 from caspo import core, learn, design, control, analyze
 
@@ -75,15 +75,26 @@ def analyze_handler(args):
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
         
-        #if args.netstats:
-        #    stats = analyze.IStats(networks)
-        #    writer = core.ICsvWriter(stats)
-        #    writer.write('networks-stats.csv', args.outdir)
+        if args.netstats:
+            with open(os.path.join(args.out,'networks-stats.csv'),'wb') as fd:
+                w = csv.DictWriter(fd,["key","frequency","exclusive","inclusive"])
+                
+                exclusive, inclusive = networks.combinatorics()        
+                for k,f in networks.frequencies_iter():
+                    row = dict(key="%s=%s" % k, frequency="%.4f" % f)
+                    if k in exclusive:
+                        row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[k]))
+                
+                    if k in inclusive:
+                        row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[k]))
+                        
+                    w.writerow(row)
+                
         
         logger.info("Analyzing %s logical networks" % len(networks))
         
         if args.midas:
-            dataset = learn.Dataset(args.midas[0], args.midas[1])
+            dataset = learn.Dataset(args.midas[0], int(args.midas[1]))
             
             if args.netstats:
                 networks.to_csv(os.path.join(args.out,'networks-mse-len.csv'), size=True, dataset=dataset)

@@ -143,6 +143,34 @@ class LogicalNetworkList(object):
     def to_csv(self, filename, known_eq=False, dataset=None, size=False):
         self.to_dataframe(known_eq, dataset, size).to_csv(filename, index=False)
         
+    def frequencies_iter(self):
+        f = self.matrix.mean(axis=0)
+        for i,m in self.hg.mappings.iteritems():
+            yield m,f[i]
+            
+    def frequency(self, mapping):
+        m = self.hg.mappings[self.hg.mappings==mapping]
+        if not m.empty:
+            return self.matrix[:,m.index[0]].mean()
+        else:
+            raise ValueError("Mapping not found: %s" % mapping)
+            
+    def combinatorics(self):
+        f = self.matrix.mean(axis=0)
+        candidates = np.where((f < 1) & (f > 0))[0]
+        exclusive, inclusive = defaultdict(set), defaultdict(set)
+        for i,j in it.combinations(candidates, 2):
+            xor = np.logical_xor(self.matrix[:,i],self.matrix[:,j])
+            if xor.all():
+                exclusive[self.hg.mappings[i]].add(self.hg.mappings[j])
+                exclusive[self.hg.mappings[j]].add(self.hg.mappings[i])
+                
+            if (~xor).all():
+                inclusive[self.hg.mappings[i]].add(self.hg.mappings[j])
+                inclusive[self.hg.mappings[j]].add(self.hg.mappings[i])
+                
+        return exclusive, inclusive
+        
 class LogicalNetwork(nx.DiGraph):
                 
     @classmethod
