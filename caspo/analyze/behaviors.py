@@ -20,6 +20,7 @@ import os
 
 import multiprocessing as mp
 import numpy as np
+from sklearn.metrics import mean_squared_error
 
 import gringo
 
@@ -72,4 +73,14 @@ def learn_behaviors(networks, setup, configure, processes=1):
             networks = networks.union(l)
     
     return __learn_io__(networks, setup, configure)
+    
+def weighted_mse(behaviors, dataset):
+    predictions = np.zeros((len(behaviors), len(dataset.clampings), len(dataset.setup.readouts)))
+    for i,network in enumerate(behaviors):
+        predictions[i,:,:] = network.predictions(dataset.clampings, dataset.setup.readouts).values * behaviors.known_eq[i]
+        
+    readouts = dataset.readouts.values
+    pos = ~np.isnan(readouts)
+    
+    return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(behaviors.known_eq))[pos])
     

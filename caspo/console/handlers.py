@@ -109,7 +109,8 @@ def analyze_handler(args):
             behaviors.variances(dataset.setup).to_csv(os.path.join(args.out,'variances.csv'))
             
             logger.info("%s I/O logical behaviors were found" % len(behaviors))
-            #logger.info("Weighted MSE: %.4f" % behaviors.mse(dataset, point.time))
+            
+            logger.info("Weighted MSE: %.4f" % weighted_mse(behaviors, dataset))
             #logger.info("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
     
     #if args.strategies:
