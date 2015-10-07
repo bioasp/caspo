@@ -106,6 +106,7 @@ def analyze_handler(args):
             behaviors = analyze.learn_behaviors(networks, dataset.setup, configure, args.threads)
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
+            behaviors.variances(dataset.setup).to_csv(os.path.join(args.out,'variances.csv'))
             
             logger.info("%s I/O logical behaviors were found" % len(behaviors))
             #logger.info("Weighted MSE: %.4f" % behaviors.mse(dataset, point.time))

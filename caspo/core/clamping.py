@@ -84,12 +84,11 @@ class Clamping(frozenset):
         return dict(self).has_key(variable)
         
     def to_array(self, variables):
-        arr = np.zeros(len(variables),np.int8)
+        arr = np.zeros(len(variables), np.int8)
         dc = dict(self)
         
         for i,var in enumerate(variables):
             arr[i] = dc.get(var, arr[i])
             
         return arr
-        
-        
+                

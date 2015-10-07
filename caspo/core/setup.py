@@ -21,6 +21,8 @@ import itertools as it
 
 import gringo
 
+from clamping import Clamping
+
 class Setup(object):
     def __init__(self, stimuli, inhibitors, readouts):
         self.stimuli = stimuli
@@ -33,13 +35,13 @@ class Setup(object):
         
     def clampings_iter(self, cues=None):
         s = cues or list(self.stimuli + self.inhibitors)
-        it = it.chain.from_iterable(it.combinations(s,r) for r in xrange(len(s) + 1))
+        clampings = it.chain.from_iterable(it.combinations(s,r) for r in xrange(len(s) + 1))
 
         literals_tpl = {}
         for stimulus in self.stimuli:
             literals_tpl[stimulus] = -1
         
-        for c in it:
+        for c in clampings:
             literals = literals_tpl.copy() 
             for cues in c:
                 if cues in self.stimuli:
@@ -47,7 +49,7 @@ class Setup(object):
                 else:
                     literals[cues] = -1
                     
-            yield frozenset(literals.iteritems())
+            yield Clamping(literals.iteritems())
 
     def to_funset(self):
         fs = set((gringo.Fun('stimulus',[str(var)]) for var in self.stimuli))
@@ -66,4 +68,7 @@ class Setup(object):
     def to_json(self, filename):
         with open(filename, 'w') as fp:
             json.dump(dict(stimuli=self.stimuli, inhibitors=self.inhibitors, readouts=self.readouts), fp)
+            
+    def __len__(self):
+        return len(self.stimuli + self.inhibitors + self.readouts)
         

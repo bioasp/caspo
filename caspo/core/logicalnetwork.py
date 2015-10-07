@@ -37,7 +37,11 @@ class LogicalNetworkList(object):
     def __init__(self, hypergraph, matrix, known_eq=None):
         self.matrix = matrix
         self.hg = hypergraph
-        self.known_eq = known_eq or [0]*len(matrix)
+        if isinstance(known_eq, np.ndarray):
+            self.known_eq = known_eq
+        else:
+            self.known_eq = np.array(known_eq or [0]*len(matrix))
+            
          
     @classmethod    
     def from_csv(klass, filename):
@@ -60,6 +64,7 @@ class LogicalNetworkList(object):
         
     @classmethod    
     def from_hypergraph(klass, hypergraph, networks=[]):
+        known_eq=None
         if networks:
             matrix = np.array([networks[0].to_array(hypergraph.mappings)])
             known_eq = [networks[0].graph['known_eq']]
@@ -69,7 +74,7 @@ class LogicalNetworkList(object):
         else:
             matrix = np.array([])
                 
-        return klass(hypergraph, matrix)
+        return klass(hypergraph, matrix, known_eq)
         
     def split(self, indices):
         return map(lambda part: LogicalNetworkList(self.hg, part), np.split(self.matrix, indices))
@@ -80,16 +85,16 @@ class LogicalNetworkList(object):
         elif len(self) == 0:
             return other
         else:
-            return LogicalNetworkList(self.hg, np.append(self.matrix, other.matrix, axis=0), self.known_eq + other.known_eq)
+            return LogicalNetworkList(self.hg, np.append(self.matrix, other.matrix, axis=0), np.concatenate([self.known_eq,other.known_eq]))
         
     def append(self, network):
         arr = network.to_array(self.hg.mappings)
         if len(self.matrix):
             self.matrix = np.append(self.matrix, [arr], axis=0)
-            self.known_eq.append(network.graph['known_eq'])
+            self.known_eq = np.append(self.known_eq, network.graph['known_eq'])
         else:
             self.matrix = np.array([arr])
-            self.known_eq = [network.graph['known_eq']]
+            self.known_eq = np.array([network.graph['known_eq']])
         
     def __len__(self):
         return len(self.matrix)
@@ -172,6 +177,30 @@ class LogicalNetworkList(object):
                 
         return exclusive, inclusive
         
+    def variances(self, setup):
+        cues = set(setup.stimuli + setup.inhibitors)
+        active_cues = set()
+        
+        mappings = np.unique(self.hg.mappings.values[np.where(self.matrix==1)[1]])
+        for clause,_ in mappings:
+            active_cues = active_cues.union((l for (l,s) in clause if l in cues))
+        
+        nclampings = 2**len(active_cues)
+        predictions = np.zeros((len(self), nclampings, len(setup)))
+        stimuli, inhibitors, readouts = setup.stimuli, setup.inhibitors, setup.readouts
+        
+        clampings = list(setup.clampings_iter(active_cues))
+        for i,network in enumerate(self):
+            predictions[i,:,:] = network.predictions(clampings, readouts, stimuli, inhibitors).values
+    
+        si = len(stimuli+inhibitors)
+        weights = self.known_eq + 1
+
+        avg = np.average(predictions[:,:,si:], axis=0, weights=weights)
+        var = np.average((predictions[:,:,si:]-avg)**2, axis=0, weights=weights)
+        
+        return pd.DataFrame(np.concatenate([predictions[0,:,:si],var], axis=1), columns=np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts]))
+        
 class LogicalNetwork(nx.DiGraph):
                 
     @classmethod
@@ -215,14 +244,23 @@ class LogicalNetwork(nx.DiGraph):
         
         return current
         
-    def predictions(self, clampings, readouts):
-        predictions = np.zeros((len(clampings), len(readouts)))
+    def predictions(self, clampings, readouts, stimuli=[], inhibitors=[], nclampings=-1):
+        cues = stimuli + inhibitors
+        nc = len(cues)
+        ns = len(stimuli)
+        predictions = np.zeros((nclampings if nclampings > 0 else len(clampings), nc+len(readouts)), dtype=np.int8)
         for i, clamping in enumerate(clampings):
+            if nc > 0:
+                arr = clamping.to_array(cues)
+                arr[np.where(arr[:ns] == -1)[0]] = 0
+                arr[ns + np.where(arr[ns:] == -1)[0]] = 1
+                predictions[i,:nc] = arr
+            
             fixpoint = self.fixpoint(clamping)
             for j, readout in enumerate(readouts):
-                predictions[i][j] = fixpoint.get(readout,0)
+                predictions[i,nc+j] = fixpoint.get(readout,0)
 
-        return pd.DataFrame(predictions, columns=readouts)
+        return pd.DataFrame(predictions, columns=np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts]))
     
     def variables(self):
         variables = set()
