@@ -178,7 +178,8 @@ class LogicalNetworkList(object):
         return exclusive, inclusive
         
     def variances(self, setup):
-        cues = set(setup.stimuli + setup.inhibitors)
+        stimuli, inhibitors, readouts = setup.stimuli, setup.inhibitors, setup.readouts
+        cues = set(stimuli + inhibitors)
         active_cues = set()
         
         mappings = np.unique(self.hg.mappings.values[np.where(self.matrix==1)[1]])
@@ -187,19 +188,18 @@ class LogicalNetworkList(object):
         
         nclampings = 2**len(active_cues)
         predictions = np.zeros((len(self), nclampings, len(setup)))
-        stimuli, inhibitors, readouts = setup.stimuli, setup.inhibitors, setup.readouts
         
         clampings = list(setup.clampings_iter(active_cues))
         for i,network in enumerate(self):
             predictions[i,:,:] = network.predictions(clampings, readouts, stimuli, inhibitors).values
-    
-        si = len(stimuli+inhibitors)
-        weights = self.known_eq + 1
 
-        avg = np.average(predictions[:,:,si:], axis=0, weights=weights)
-        var = np.average((predictions[:,:,si:]-avg)**2, axis=0, weights=weights)
+        nc = len(cues)
+        weights = self.known_eq + 1
+        avg = np.average(predictions[:,:,nc:], axis=0, weights=weights)
+        var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=weights)
         
-        return pd.DataFrame(np.concatenate([predictions[0,:,:si],var], axis=1), columns=np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts]))
+        cols = np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts])
+        return pd.DataFrame(np.concatenate([predictions[0,:,:nc],var], axis=1), columns=cols)
         
 class LogicalNetwork(nx.DiGraph):
                 
