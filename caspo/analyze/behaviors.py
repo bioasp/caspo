@@ -20,7 +20,6 @@ import os
 
 import multiprocessing as mp
 import numpy as np
-from sklearn.metrics import mean_squared_error
 
 import gringo
 
@@ -58,7 +57,7 @@ def __learn_io__(networks, setup, configure):
         
     return behaviors
 
-def learn_behaviors(networks, setup, configure, processes=1):
+def learn_behaviors(networks, setup, processes=1, configure=None):
     n = len(networks)
     if processes > 1 and n > processes:
         pool = mp.Pool(processes)
@@ -73,3 +72,25 @@ def learn_behaviors(networks, setup, configure, processes=1):
             networks = networks.union(l)
     
     return __learn_io__(networks, setup, configure)
+    
+def core_clampings(networks, setup, configure=None):
+    root = os.path.dirname(__file__)
+    encoding = os.path.join(root, 'encodings/gringo4/io.lp')
+    
+    fs = setup.to_funset().union(networks.to_funset())
+    instance = ". ".join(map(str, fs)) + ". :- diff. #show clamped/2."
+
+    clingo = gringo.Control()
+    clingo.conf.solve.models = '0'
+    if configure is not None:
+        configure(clingo.conf)
+                
+    clingo.add("base", [], instance)
+    clingo.load(encoding)
+    
+    clampings = []
+    
+    clingo.ground([("base", [])])
+    clingo.solve(on_model=lambda m: clampings.append(core.Clamping.from_tuples((f.args() for f in m.atoms()))))
+    
+    return core.ClampingList(clampings)

@@ -99,14 +99,16 @@ def analyze_handler(args):
                 networks.to_csv(os.path.join(args.out,'networks-mse-len.csv'), size=True, dataset=dataset)
             
             configure = ft.partial(configure_mt, args) if args.threads else None
-                
-            #multiwriter = component.getMultiAdapter((behaviors, point), core.IMultiFileWriter)
-            #multiwriter.write(['behaviors.csv', 'behaviors-mse-len.csv', 'variances.csv', 'core.csv'], args.outdir)
             
             behaviors = analyze.learn_behaviors(networks, dataset.setup, configure, args.threads)
+
+            setup = dataset.setup.filter(behaviors)
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
-            behaviors.variances(dataset.setup).to_csv(os.path.join(args.out,'variances.csv'))
+            behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'))
+            
+            core = analyze.core_clampings(behaviors, setup, configure)
+            core.to_csv(os.path.join(args.out,'core.csv'), setup.stimuli, setup.inhibitors)
             
             logger.info("%s I/O logical behaviors were found" % len(behaviors))
             logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))

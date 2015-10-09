@@ -176,29 +176,23 @@ class LogicalNetworkList(object):
                 inclusive[self.hg.mappings[j]].add(self.hg.mappings[i])
                 
         return exclusive, inclusive
-        
+
     def variances(self, setup):
         stimuli, inhibitors, readouts = setup.stimuli, setup.inhibitors, setup.readouts
-        cues = set(stimuli + inhibitors)
-        active_cues = set()
-        
-        mappings = np.unique(self.hg.mappings.values[np.where(self.matrix==1)[1]])
-        for clause,_ in mappings:
-            active_cues = active_cues.union((l for (l,s) in clause if l in cues))
-        
-        nclampings = 2**len(active_cues)
+        cues = setup.cues()
+        nc = len(cues)
+        nclampings = 2**nc
         predictions = np.zeros((len(self), nclampings, len(setup)))
         
-        clampings = list(setup.clampings_iter(active_cues))
+        clampings = list(setup.clampings_iter(cues))
         for i,network in enumerate(self):
             predictions[i,:,:] = network.predictions(clampings, readouts, stimuli, inhibitors).values
 
-        nc = len(cues)
         weights = self.known_eq + 1
         avg = np.average(predictions[:,:,nc:], axis=0, weights=weights)
         var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=weights)
         
-        cols = np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts])
+        cols = np.concatenate([setup.cues(True), readouts])
         return pd.DataFrame(np.concatenate([predictions[0,:,:nc],var], axis=1), columns=cols)
         
     def weighted_mse(self, dataset):

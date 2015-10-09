@@ -35,25 +35,29 @@ class ClampingList(pd.Series):
 
         return fs
         
-    def to_dataframe(self):
-        variables = set()
-        for clamping in self:
-            for v,s in clamping:
-                variables.add(v)
-                
-        variables = np.array(list(variables))
+    def to_dataframe(self, stimuli=[], inhibitors=[]):
+        cues = stimuli + inhibitors
+        nc = len(cues)
+        ns = len(stimuli)
+        
+        variables = cues or np.array(list(set((v for (v,s) in it.chain.from_iterable(c)))))
+            
         matrix = np.array([])
         for clamping in self:
             arr = clamping.to_array(variables)
+            if nc > 0:
+                arr[np.where(arr[:ns] == -1)[0]] = 0
+                arr[ns + np.where(arr[ns:] == -1)[0]] = 1
+            
             if len(matrix):
                 matrix = np.append(matrix, [arr], axis=0)
             else:
                 matrix = np.array([arr])
 
-        return pd.DataFrame(matrix, columns=variables)
+        return pd.DataFrame(matrix, columns=stimuli + [i+'i' for i in inhibitors] if nc > 0 else variables)
         
-    def to_csv(self, filename):
-        self.to_dataframe().to_csv(filename, index=False)
+    def to_csv(self, filename, stimuli=[], inhibitors=[]):
+        self.to_dataframe(stimuli, inhibitors).to_csv(filename, index=False)
         
     @classmethod
     def from_csv(klass, filename):

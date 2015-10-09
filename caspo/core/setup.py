@@ -18,6 +18,7 @@
 
 import json
 import itertools as it
+import numpy as np
 
 import gringo
 
@@ -25,9 +26,9 @@ from clamping import Clamping
 
 class Setup(object):
     def __init__(self, stimuli, inhibitors, readouts):
-        self.stimuli = stimuli
-        self.inhibitors = inhibitors
-        self.readouts = readouts
+        self.stimuli = list(stimuli)
+        self.inhibitors = list(inhibitors)
+        self.readouts = list(readouts)
         
     @property
     def nodes(self):
@@ -68,6 +69,24 @@ class Setup(object):
     def to_json(self, filename):
         with open(filename, 'w') as fp:
             json.dump(dict(stimuli=self.stimuli, inhibitors=self.inhibitors, readouts=self.readouts), fp)
+            
+    def filter(self, networks):
+        cues = self.stimuli + self.inhibitors
+        active_cues = set()
+        active_readouts = set()
+        mappings = np.unique(networks.hg.mappings.values[np.where(networks.matrix==1)[1]])
+        for clause,var in mappings:
+            active_cues = active_cues.union((l for (l,s) in clause if l in cues))
+            if var in self.readouts:
+                active_readouts.add(var)
+            
+        return Setup(active_cues.intersection(self.stimuli), active_cues.intersection(self.inhibitors), active_readouts)
+        
+    def cues(self, rename_inhibitors=False):
+        if rename_inhibitors:
+            return self.stimuli + [i+'i' for i in self.inhibitors]
+        else:
+            return self.stimuli + self.inhibitors
             
     def __len__(self):
         return len(self.stimuli + self.inhibitors + self.readouts)
