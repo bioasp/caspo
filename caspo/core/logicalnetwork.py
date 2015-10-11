@@ -196,14 +196,15 @@ class LogicalNetworkList(object):
         return pd.DataFrame(np.concatenate([predictions[0,:,:nc],var], axis=1), columns=cols)
         
     def weighted_mse(self, dataset):
+        eq = self.known_eq + 1
         predictions = np.zeros((len(self), len(dataset.clampings), len(dataset.setup.readouts)))
         for i,network in enumerate(self):
-            predictions[i,:,:] = network.predictions(dataset.clampings, dataset.setup.readouts).values * self.known_eq[i]
+            predictions[i,:,:] = network.predictions(dataset.clampings, dataset.setup.readouts).values * eq[i]
         
         readouts = dataset.readouts.values
         pos = ~np.isnan(readouts)
-    
-        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(self.known_eq))[pos])
+
+        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(eq))[pos])
     
         
 class LogicalNetwork(nx.DiGraph):

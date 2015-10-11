@@ -100,19 +100,19 @@ def analyze_handler(args):
             
             configure = ft.partial(configure_mt, args) if args.threads else None
             
-            behaviors = analyze.learn_behaviors(networks, dataset.setup, configure, args.threads)
+            behaviors = analyze.learn_behaviors(networks, dataset.setup, args.threads if args.threads else 1, configure)
 
             setup = dataset.setup.filter(behaviors)
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
             behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'))
             
-            core = analyze.core_clampings(behaviors, setup, configure)
-            core.to_csv(os.path.join(args.out,'core.csv'), setup.stimuli, setup.inhibitors)
+            cc = analyze.core_clampings(behaviors, setup, configure)
+            cc.to_csv(os.path.join(args.out,'core.csv'), setup.stimuli, setup.inhibitors)
             
-            logger.info("%s I/O logical behaviors were found" % len(behaviors))
-            logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))
-            #logger.info("Core predictions: %.2f%%" % ((100. * len(behaviors.core())) / 2**(len(behaviors.active_cues))))
+            logger.info("\tI/O logical behaviors: %s" % len(behaviors))
+            logger.info("\tWeighted MSE: %.4f" % behaviors.weighted_mse(dataset))
+            logger.info("\tCore predictions: %.2f%%" % ((100. * len(cc)) / 2**(len(setup.cues()))))
     
     #if args.strategies:
     #    reader.read(args.strategies)
