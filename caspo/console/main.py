@@ -110,7 +110,7 @@ def run():
     
     
     if args.cmd != "test":
-        logger.info("Running caspo %s...\n" % args.cmd)    
+        logger.info("Running caspo %s..." % args.cmd)    
         return args.handler(args)
     else:
         testcase = args.testcase

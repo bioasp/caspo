@@ -16,6 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
 import itertools as it
 
 import numpy as np
@@ -40,7 +41,7 @@ class ClampingList(pd.Series):
         nc = len(cues)
         ns = len(stimuli)
         
-        variables = cues or np.array(list(set((v for (v,s) in it.chain.from_iterable(c)))))
+        variables = cues or np.array(list(set((v for (v,s) in it.chain.from_iterable(self)))))
             
         matrix = np.array([])
         for clamping in self:
@@ -67,6 +68,39 @@ class ClampingList(pd.Series):
             clampings.append(Clamping(map(lambda (v,s): Literal(v,s), row[row!=0].iteritems())))
             
         return klass(clampings)
+        
+    def frequencies_iter(self):
+        df = self.to_dataframe()
+        n = float(len(self))
+        for var,sign in it.product(df.columns, [-1,1]):
+            f = len(df[df[var]==sign]) / n
+            if f > 0:
+                yield Literal(var, sign), f
+            
+    def frequency(self, literal):
+        df = self.to_dataframe()
+        if literal.variable in df.columns:
+            return len(df[df[literal.variable]==literal.signature]) / float(len(self))
+        else:
+            raise ValueError("Variable not found: %s" % literal.variable)
+            
+    def combinatorics(self):
+        df = self.to_dataframe()
+        literals = set((l for l in it.chain.from_iterable(self)))
+        exclusive, inclusive = defaultdict(set), defaultdict(set)
+        
+        for l1,l2 in it.combinations(it.ifilter(lambda l: self.frequency(l) < 1., literals), 2):
+            a1, a2 = df[l1.variable] == l1.signature, df[l2.variable] == l2.signature
+            if (a1 != a2).all():
+                exclusive[l1].add(l2)
+                exclusive[l2].add(l1)
+                
+            if (a1 == a2).all():
+                inclusive[l1].add(l2)
+                inclusive[l2].add(l1)
+                
+        return exclusive, inclusive
+    
 
 class Clamping(frozenset):
     

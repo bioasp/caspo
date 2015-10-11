@@ -77,11 +77,11 @@ def analyze_handler(args):
         
         if args.netstats:
             with open(os.path.join(args.out,'networks-stats.csv'),'wb') as fd:
-                w = csv.DictWriter(fd,["key","frequency","exclusive","inclusive"])
+                w = csv.DictWriter(fd,["mapping","frequency","exclusive","inclusive"])
                 w.writeheader()
                 exclusive, inclusive = networks.combinatorics()        
                 for k,f in networks.frequencies_iter():
-                    row = dict(key="%s=%s" % k, frequency="%.4f" % f)
+                    row = dict(mapping="%s=%s" % k, frequency="%.4f" % f)
                     if k in exclusive:
                         row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[k]))
                 
@@ -90,7 +90,7 @@ def analyze_handler(args):
                         
                     w.writerow(row)
 
-        logger.info("Analyzing %s logical networks" % len(networks))
+        logger.info("\nAnalyzing %s logical networks..." % len(networks))
         
         if args.midas:
             dataset = learn.Dataset(args.midas[0], int(args.midas[1]))
@@ -113,15 +113,27 @@ def analyze_handler(args):
             logger.info("\tI/O logical behaviors: %s" % len(behaviors))
             logger.info("\tWeighted MSE: %.4f" % behaviors.weighted_mse(dataset))
             logger.info("\tCore predictions: %.2f%%" % ((100. * len(cc)) / 2**(len(setup.cues()))))
+            logger.info("done.")
     
-    #if args.strategies:
-    #    reader.read(args.strategies)
-    #    strategies = control.IStrategySet(reader)
-    #    stats = analyze.IStats(strategies)
-    #    writer = core.ICsvWriter(stats)
-    #    writer.write('strategies-stats.csv', args.outdir)
+    if args.strategies:
+        strategies = core.ClampingList.from_csv(args.strategies)
+        logger.info("\nAnalyzing %s intervention strategies..." % len(strategies))
         
-    #    lines.append("Total intervention strategies: %s" % len(strategies))
+        with open(os.path.join(args.out,'strategies-stats.csv'),'wb') as fd:
+            w = csv.DictWriter(fd,["literal","frequency","exclusive","inclusive"])
+            w.writeheader()
+            exclusive, inclusive = strategies.combinatorics()        
+            for l,f in strategies.frequencies_iter():
+                row = dict(literal="%s=%s" % l, frequency="%.4f" % f)
+                if l in exclusive:
+                    row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
+            
+                if l in inclusive:
+                    row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
+                    
+                w.writerow(row)
+
+        logger.info("done.")
 
     return 0
     
