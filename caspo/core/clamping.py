@@ -61,11 +61,22 @@ class ClampingList(pd.Series):
         self.to_dataframe(stimuli, inhibitors).to_csv(filename, index=False)
         
     @classmethod
-    def from_csv(klass, filename):
+    def from_csv(klass, filename, inhibitors=[]):
         df = pd.read_csv(filename)
         clampings = []
+        ni = len(inhibitors)
         for i,row in df.iterrows():
-            clampings.append(Clamping(map(lambda (v,s): Literal(v,s), row[row!=0].iteritems())))
+            if ni > 0:
+                literals = []
+                for v,s in row.iteritems():
+                    if v[:-1] in inhibitors:
+                        if s == 1:
+                            literals.append(Literal(v[:-1], -1))
+                    else:
+                        literals.append(Literal(v, 1 if s == 1 else -1))
+                clampings.append(Clamping(literals))
+            else:
+                clampings.append(Clamping(map(lambda (v,s): Literal(v,s), row[row!=0].iteritems())))
             
         return klass(clampings)
         
@@ -100,6 +111,15 @@ class ClampingList(pd.Series):
                 inclusive[l2].add(l1)
                 
         return exclusive, inclusive
+
+    def differences(self, networks, readouts):
+        z,p = np.zeros((len(self), len(readouts))), np.zeros(len(self))
+        for n1,n2 in it.combinations(networks,2):
+            r,c = np.where(n1.predictions(self,readouts) != n2.predictions(self,readouts))
+            z[r,c] += 1
+            p[r] += 1
+        
+        return pd.concat([pd.DataFrame(z, columns=readouts), pd.Series(p, name='pairs')], axis=1).astype(int)
     
 
 class Clamping(frozenset):

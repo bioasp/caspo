@@ -71,8 +71,11 @@ def run():
     analyze = subparsers.add_parser("analyze", parents=[clingo_parser])
     analyze.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
     analyze.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point to be used")
-    analyze.add_argument("--strategies", help="intervention stratgies in CSV format", metavar="S")
+    analyze.add_argument("--strategies", help="intervention strategies in CSV format", metavar="S")
     analyze.add_argument("--networks-stats", dest="netstats", action='store_true', help="compute mutually inclusive/exclusive modules and MSE for each logical network (Default to False)")
+    analyze.add_argument("--behaviors", dest="behaviors", help="logical behaviors in CSV format", metavar="B")
+    analyze.add_argument("--design", help="experimental design in CSV format", metavar="D")
+    analyze.add_argument("--setup", help="experimental setup in JSON format", metavar="S")
     analyze.set_defaults(handler=analyze_handler)
     
     visualize = subparsers.add_parser("visualize")

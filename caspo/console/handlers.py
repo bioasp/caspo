@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging, csv
+import os, logging, csv, ntpath
 import functools as ft
 from caspo import core, learn, design, control, analyze
 
@@ -39,6 +39,8 @@ def learn_handler(args):
     return 0
 
 def design_handler(args):
+    logger = logging.getLogger("caspo")
+    
     networks = core.LogicalNetworkList.from_csv(args.networks)
     setup = core.Setup.from_json(args.setup)
     listing = core.ClampingList.from_csv(args.list) if args.list else None
@@ -50,9 +52,9 @@ def design_handler(args):
     
     if designer.designs:
         for i,d in enumerate(designer.designs):
-            d.to_csv(os.path.join(args.out, 'opt-design-%s.csv' % i))
+            d.to_csv(os.path.join(args.out, 'opt-design-%s.csv' % i), setup.stimuli, setup.inhibitors)
     else:
-       print "There is no solutions matching your experimental design criteria."
+       logger.info("There is no solutions matching your experimental design criteria.")
         
     return 0
 
@@ -74,9 +76,10 @@ def analyze_handler(args):
     
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
+        logger.info("\nAnalyzing %s logical networks..." % len(networks))
         
         if args.netstats:
-            with open(os.path.join(args.out,'networks-stats.csv'),'wb') as fd:
+            with open(os.path.join(args.out,'stats-networks.csv'),'wb') as fd:
                 w = csv.DictWriter(fd,["mapping","frequency","exclusive","inclusive"])
                 w.writeheader()
                 exclusive, inclusive = networks.combinatorics()        
@@ -89,8 +92,6 @@ def analyze_handler(args):
                         row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[k]))
                         
                     w.writerow(row)
-
-        logger.info("\nAnalyzing %s logical networks..." % len(networks))
         
         if args.midas:
             dataset = learn.Dataset(args.midas[0], int(args.midas[1]))
@@ -113,13 +114,15 @@ def analyze_handler(args):
             logger.info("\tI/O logical behaviors: %s" % len(behaviors))
             logger.info("\tWeighted MSE: %.4f" % behaviors.weighted_mse(dataset))
             logger.info("\tCore predictions: %.2f%%" % ((100. * len(cc)) / 2**(len(setup.cues()))))
-            logger.info("done.")
+                        
+        logger.info("done.")
+            
     
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)
         logger.info("\nAnalyzing %s intervention strategies..." % len(strategies))
         
-        with open(os.path.join(args.out,'strategies-stats.csv'),'wb') as fd:
+        with open(os.path.join(args.out,'stats-strategies.csv'),'wb') as fd:
             w = csv.DictWriter(fd,["literal","frequency","exclusive","inclusive"])
             w.writeheader()
             exclusive, inclusive = strategies.combinatorics()        
@@ -134,7 +137,23 @@ def analyze_handler(args):
                 w.writerow(row)
 
         logger.info("done.")
-
+        
+    if args.design and args.behaviors and args.setup:
+        behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
+        setup = core.Setup.from_json(args.setup)
+        clampings = core.ClampingList.from_csv(args.design, setup.inhibitors)
+        
+        logger.info("\nAnalyzing experimental design with respect to %s I/O logical behaviors..." % len(behaviors))
+        
+        df = clampings.differences(behaviors, setup.readouts)    
+        
+        head, tail = ntpath.split(args.design)
+        fname = tail or ntpath.basename(head)
+        
+        df.to_csv('stats-' + fname, index=False)
+        
+        logger.info("done.")
+        
     return 0
     
 def visualize_handler(args):
