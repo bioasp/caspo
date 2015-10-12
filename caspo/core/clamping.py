@@ -113,13 +113,13 @@ class ClampingList(pd.Series):
         return exclusive, inclusive
 
     def differences(self, networks, readouts):
-        z,p = np.zeros((len(self), len(readouts))), np.zeros(len(self))
+        z,p = np.zeros((len(self), len(readouts)), dtype=int), np.zeros(len(self), dtype=int)
         for n1,n2 in it.combinations(networks,2):
             r,c = np.where(n1.predictions(self,readouts) != n2.predictions(self,readouts))
             z[r,c] += 1
             p[r] += 1
         
-        return pd.concat([pd.DataFrame(z, columns=readouts), pd.Series(p, name='pairs')], axis=1).astype(int)
+        return pd.concat([pd.DataFrame(z, columns=readouts), pd.Series(p, name='pairs')], axis=1)
     
 
 class Clamping(frozenset):
