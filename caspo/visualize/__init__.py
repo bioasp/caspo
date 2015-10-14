@@ -16,20 +16,4 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-from interfaces import *
-from utilities import *
-from adapters import *
-from impl import *
-
-from caspo import core
-
-from zope import component
-
-gsm = component.getGlobalSiteManager()
-
-gsm.registerAdapter(Graph2MultiDiGraph)
-gsm.registerAdapter(LogicalNetwork2MultiDiGraph)
-gsm.registerAdapter(LogicalNetworkSet2MultiDiGraph)
-gsm.registerAdapter(MultiDiGraphSetup2DotWriter)
-gsm.registerAdapter(StrategySet2DiGraph)
-gsm.registerAdapter(DiGraph2DotWriter)
+from multidigraph import *

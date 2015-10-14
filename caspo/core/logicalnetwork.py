@@ -205,6 +205,29 @@ class LogicalNetworkList(object):
         pos = ~np.isnan(readouts)
 
         return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(eq))[pos])
+        
+    def __plot__(self):
+        graph = nx.MultiDiGraph()
+        n_gates = 1
+        
+        for clause,target in self.hg.mappings[np.unique(np.where(self.matrix==1)[1])]:
+            graph.add_node(target)
+            if len(clause) > 1:
+                gate = 'gate-%s' % n_gates
+                n_gates += 1
+                graph.add_node(gate, gate=True)
+                graph.add_edge(gate, target, sign=1, weight=self.frequency((clause, target)))
+                
+                for var,sign in clause:
+                    graph.add_node(var)
+                    graph.add_edge(var, gate, sign=sign, weight=self.frequency((clause, target)))
+                    
+            else:
+                for var,sign in clause:
+                    graph.add_node(var)
+                    graph.add_edge(var, target, sign=sign, weight=self.frequency((clause, target)))
+                    
+        return graph
     
         
 class LogicalNetwork(nx.DiGraph):
@@ -289,3 +312,26 @@ class LogicalNetwork(nx.DiGraph):
                 arr[i] = 1
                 
         return arr
+        
+    def __plot__(self):
+        graph = nx.MultiDiGraph()
+        n_gates = 1
+        for target, formula in self.formulas_iter():
+            graph.add_node(target)
+            for clause in formula:
+                if len(clause) > 1:
+                    gate = 'gate-%s' % n_gates
+                    n_gates += 1
+                    graph.add_node(gate, gate=True)
+                    graph.add_edge(gate, target, sign=1)
+                    
+                    for var,sign in clause:
+                        graph.add_node(var)
+                        graph.add_edge(var, gate, sign=sign)
+                else:
+                    for var,sign in clause:
+                        graph.add_node(var)
+                        graph.add_edge(var, target, sign=sign)
+                    
+        return graph
+        

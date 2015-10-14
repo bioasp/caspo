@@ -96,3 +96,6 @@ class Graph(nx.MultiDiGraph):
                 
         self.node[node]['compressed'] = zipped.node[node]['compressed'] = True
         zipped.add_edges_from(edges)
+        
+    def __plot__(self):
+        return self

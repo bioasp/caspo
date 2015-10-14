@@ -80,7 +80,7 @@ def run():
     
     visualize = subparsers.add_parser("visualize")
     visualize.add_argument("--pkn", dest="pkn", help="prior knowledge network in SIF format", metavar="P")
-    visualize.add_argument("--midas", dest="midas", help="experimental dataset in MIDAS file", metavar="M")
+    visualize.add_argument("--setup", help="experimental setup in JSON format", metavar="S")
     visualize.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
     visualize.add_argument("--sample", dest="sample", type=int, default=0, help="visualize a sample of R logical networks (Default to all)", metavar="R")
     visualize.add_argument("--union", dest="union", action='store_true', help="visualize the union of logical networks (Default to False)")

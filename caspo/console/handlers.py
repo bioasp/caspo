@@ -16,9 +16,9 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging, csv, ntpath
+import os, logging, csv, ntpath, random
 import functools as ft
-from caspo import core, learn, design, control, analyze
+from caspo import core, learn, design, control, analyze, visualize
 
 def configure_mt(args, proxy):
     proxy.solve.parallel_mode = args.threads
@@ -157,58 +157,39 @@ def analyze_handler(args):
     return 0
     
 def visualize_handler(args):
-    import os
-    from zope import component
-    from caspo import core, visualize, control, learn
-    import random
+    logger = logging.getLogger("caspo")
 
-    reader = component.getUtility(core.ICsvReader)
-    printer = component.getUtility(core.IPrinter)
-    if args.midas:
-        reader.read(args.midas)
-        dataset = core.IDataset(reader)
+    if args.setup:
+        setup = core.Setup.from_json(args.setup)
         
         if args.pkn:
-            sif = component.getUtility(core.IFileReader)
-            sif.read(args.pkn)
-            graph = core.IGraph(sif)
+            graph = core.Graph.read_sif(args.pkn)
+            graph_colored = visualize.ColoredMultiDiGraph(graph, setup)
+            graph_colored.to_dot(os.path.join(args.out,'pkn.dot'))
             
-            zipgraph = component.getMultiAdapter((graph, dataset.setup), core.IGraph)
-        
-            if zipgraph.nodes != graph.nodes:
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
-                writer.write('pkn-orig.dot', args.outdir)
-            
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(zipgraph), dataset.setup), visualize.IDotWriter)
-                writer.write('pkn-zip.dot', args.outdir)
-            else:
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(graph), dataset.setup), visualize.IDotWriter)
-                writer.write('pkn.dot', args.outdir)
-    
+            zipped = graph.compress(setup)
+            if zipped.nodes != graph.nodes:          
+                zipped_colored = visualize.ColoredMultiDiGraph(zipped, setup)
+                zipped_colored.to_dot(os.path.join(args.out,'pkn-zip.dot'))
+                
         if args.networks:
-            reader.read(args.networks)
-            networks = core.IBooleLogicNetworkSet(reader)
+            networks = core.LogicalNetworkList.from_csv(args.networks)
             if args.sample:
                 try:
                     sample = random.sample(networks, args.sample)
                 except ValueError as e:
-                    printer.pprint("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
+                    logger.warning("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
                     sample = networks
             else:
                 sample = networks
             
-            printer = component.getUtility(core.IPrinter)
             for i, network in enumerate(sample):
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(network), dataset.setup), visualize.IDotWriter)
-                printer.quiet = True
-                writer.write('network-%s.dot' % (i+1), args.outdir)
-                printer.quiet = False
-                printer.iprint("Wrote %s to %s" % (os.path.join(args.outdir, 'network-1.dot'), os.path.join(args.outdir, 'network-%s.dot' % (i+1))))
+                nc = visualize.ColoredMultiDiGraph(network,setup)
+                nc.to_dot(os.path.join(args.out,'network-%s.dot' % i))
             
-            printer.pprint("")                
             if args.union:
-                writer = component.getMultiAdapter((visualize.IMultiDiGraph(networks), dataset.setup), visualize.IDotWriter)
-                writer.write('networks-union.dot', args.outdir)
+                nc = visualize.ColoredMultiDiGraph(networks,setup)
+                nc.to_dot(os.path.join(args.out,'networks-union.dot'))
                     
     if args.strategies:
         reader.read(args.strategies)
