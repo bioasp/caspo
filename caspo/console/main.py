@@ -101,11 +101,7 @@ def run():
     
     logger = logging.getLogger("caspo")
     logger.setLevel(logging.INFO)
-    
-    #fh = logging.FileHandler('workflow-%s.log' % self.db.name, 'w')
-    #fh.setLevel(logging.INFO)
-    #self.logger.addHandler(fh)
-    
+        
     ch = logging.StreamHandler()
     if args.quiet:
         ch.setLevel(logging.CRITICAL)

@@ -46,12 +46,12 @@ class Learner(object):
         
         root = os.path.dirname(__file__)
         self.encodings = {
-            'guess':    os.path.join(root, 'encodings/gringo4/guess.lp'),
-            'fixpoint': os.path.join(root, 'encodings/gringo4/fixpoint.lp'),
-            'rss':      os.path.join(root, 'encodings/gringo4/residual.lp'),
-            'opt':      os.path.join(root, 'encodings/gringo4/optimization.lp'),
-            'enum':     os.path.join(root, 'encodings/gringo4/enumeration.lp'),
-            'random':   os.path.join(root, 'encodings/gringo4/random.lp')
+            'guess':    os.path.join(root, 'encodings/guess.lp'),
+            'fixpoint': os.path.join(root, 'encodings/fixpoint.lp'),
+            'rss':      os.path.join(root, 'encodings/residual.lp'),
+            'opt':      os.path.join(root, 'encodings/optimization.lp'),
+            'enum':     os.path.join(root, 'encodings/enumeration.lp'),
+            'random':   os.path.join(root, 'encodings/random.lp')
         }
         
         self.logger = logging.getLogger("caspo")

@@ -27,7 +27,7 @@ from caspo import core
 
 def __learn_io__(networks, setup, configure):
     root = os.path.dirname(__file__)
-    encoding = os.path.join(root, 'encodings/gringo4/io.lp')
+    encoding = os.path.join(root, 'encodings/io.lp')
     setup_fs = setup.to_funset()
     
     behaviors = core.LogicalNetworkList.from_hypergraph(networks.hg)
@@ -75,7 +75,7 @@ def learn_behaviors(networks, setup, processes=1, configure=None):
     
 def core_clampings(networks, setup, configure=None):
     root = os.path.dirname(__file__)
-    encoding = os.path.join(root, 'encodings/gringo4/io.lp')
+    encoding = os.path.join(root, 'encodings/io.lp')
     
     fs = setup.to_funset().union(networks.to_funset())
     instance = ". ".join(map(str, fs)) + ". :- diff. #show clamped/2."

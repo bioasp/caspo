@@ -39,7 +39,7 @@ class Controller(object):
         
         root = os.path.dirname(__file__)
         self.encodings = {
-            'control':    os.path.join(root, 'encodings/gringo4/encoding.lp')
+            'control':    os.path.join(root, 'encodings/encoding.lp')
         }
         
         self.logger = logging.getLogger("caspo")
