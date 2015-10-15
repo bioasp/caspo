@@ -83,7 +83,7 @@ class ClampingList(pd.Series):
     @classmethod
     def from_csv(klass, filename, inhibitors=[]):
         df = pd.read_csv(filename)
-        return klass.from_dataframe(df)
+        return klass.from_dataframe(df, inhibitors)
         
     def frequencies_iter(self):
         df = self.to_dataframe()
@@ -138,18 +138,21 @@ class ClampingList(pd.Series):
     def __plot__(self, source="", target=""):
         graph = nx.DiGraph()
         
-        graph.add_node('source', label=source)
-        graph.add_node('target', label=target)
+        if source:
+            graph.add_node('source', label=source)
+        if target:
+            graph.add_node('target', label=target)
     
-        return self.__create_graph__(graph, 'source', self, 'target')
+        return self.__create_graph__(graph, 'source' if source else '', self, 'target' if target else '')
     
     def __create_graph__(self, graph, parent, clampings, target):
         if not clampings.empty:
             popular, _ = sorted(clampings.frequencies_iter(), key=lambda (l,f): f)[-1]
             
             name = "%s-%s" % (parent, popular)
-            graph.add_node(name, label=popular.variable, sign=popular.signature)      
-            graph.add_edge(parent, name)
+            graph.add_node(name, label=popular.variable, sign=popular.signature)
+            if parent:
+                graph.add_edge(parent, name)
             
             df = clampings.to_dataframe()
             
@@ -161,7 +164,8 @@ class ClampingList(pd.Series):
                 self.__create_graph__(graph, parent, ClampingList.from_dataframe(popular_out), target)
         
         else:
-            graph.add_edge(parent, target)
+            if target:
+                graph.add_edge(parent, target)
             
         return graph
 

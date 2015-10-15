@@ -18,6 +18,7 @@
 
 import os, logging, csv, ntpath, random
 import functools as ft
+import pandas as pd
 from caspo import core, learn, design, control, analyze, visualize
 
 def configure_mt(args, proxy):
@@ -50,11 +51,14 @@ def design_handler(args):
     configure = ft.partial(configure_mt,args) if args.threads else None
     designer.design(args.stimuli, args.inhibitors, args.experiments, args.relax, configure)
     
-    if designer.designs:
-        for i,d in enumerate(designer.designs):
-            d.to_csv(os.path.join(args.out, 'opt-design-%s.csv' % i), setup.stimuli, setup.inhibitors)
-    else:
-       logger.info("There is no solutions matching your experimental design criteria.")
+    df = None
+    for i,od in enumerate(designer.designs):
+        df_od = od.to_dataframe(setup.stimuli, setup.inhibitors)
+        df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
+        
+        df = pd.concat([df,df_od], ignore_index=True)
+        
+    df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
         
     return 0
 
@@ -138,20 +142,22 @@ def analyze_handler(args):
 
         logger.info("done.")
         
-    if args.design and args.behaviors and args.setup:
+    if args.designs and args.behaviors and args.setup:
         behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
+        
+        logger.info("\nAnalyzing experimental designs with respect to %s I/O logical behaviors..." % len(behaviors))
+        
         setup = core.Setup.from_json(args.setup)
-        clampings = core.ClampingList.from_csv(args.design, setup.inhibitors)
+
+        df = None
+        for i,od in pd.read_csv(args.designs).groupby("ID"):
+            clampings = core.ClampingList.from_dataframe(od.drop("ID", axis=1), setup.inhibitors)
+
+            df_od = clampings.differences(behaviors, setup.readouts)
+            df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
+            df = pd.concat([df,df_od], ignore_index=True)
         
-        logger.info("\nAnalyzing experimental design with respect to %s I/O logical behaviors..." % len(behaviors))
-        
-        df = clampings.differences(behaviors, setup.readouts)    
-        
-        head, tail = ntpath.split(args.design)
-        fname = tail or ntpath.basename(head)
-        
-        df.to_csv('stats-' + fname, index=False)
-        
+        df.to_csv('stats-designs.csv', index=False)
         logger.info("done.")
         
     return 0
@@ -190,6 +196,14 @@ def visualize_handler(args):
             if args.union:
                 nc = visualize.ColoredNetwork(networks,setup)
                 nc.to_dot(os.path.join(args.out,'networks-union.dot'))
+                
+        if args.designs:
+            df = None
+            for i,od in pd.read_csv(args.designs).groupby("ID"):
+                clampings = core.ClampingList.from_dataframe(od.drop("ID", axis=1), setup.inhibitors)
+            
+                dc = visualize.ColoredClamping(clampings)
+                dc.to_dot(os.path.join(args.out, "design-%s.dot" % i))
                     
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)

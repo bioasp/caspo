@@ -74,7 +74,7 @@ def run():
     analyze.add_argument("--strategies", help="intervention strategies in CSV format", metavar="S")
     analyze.add_argument("--networks-stats", dest="netstats", action='store_true', help="compute mutually inclusive/exclusive modules and MSE for each logical network (Default to False)")
     analyze.add_argument("--behaviors", dest="behaviors", help="logical behaviors in CSV format", metavar="B")
-    analyze.add_argument("--design", help="experimental design in CSV format", metavar="D")
+    analyze.add_argument("--designs", help="experimental designs in CSV format", metavar="D")
     analyze.add_argument("--setup", help="experimental setup in JSON format", metavar="S")
     analyze.set_defaults(handler=analyze_handler)
     
@@ -85,6 +85,7 @@ def run():
     visualize.add_argument("--sample", dest="sample", type=int, default=0, help="visualize a sample of R logical networks (Default to all)", metavar="R")
     visualize.add_argument("--union", dest="union", action='store_true', help="visualize the union of logical networks (Default to False)")
     visualize.add_argument("--strategies", help="intervention strategies in CSV format", metavar="S")
+    visualize.add_argument("--designs", help="experimental designs in CSV format", metavar="D")
     visualize.set_defaults(handler=visualize_handler)
     
     test = subparsers.add_parser("test", parents=[clingo_parser])
