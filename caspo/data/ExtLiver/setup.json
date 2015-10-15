@@ -1,0 +1,1 @@
+{"stimuli": ["IFNg", "IGF1", "IL1a", "IL6", "LPS", "TGFa", "TNFa"], "readouts": ["AKT", "GSK3", "Ikb", "JNK12", "p38", "p70S6", "p90RSK", "STAT3", "cJUN", "CREB", "HistH3", "HSP27", "IRS1s", "MEK12", "p53"], "inhibitors": ["GSK3", "IKK", "JNK12", "MEK12", "PI3K", "mTOR", "p38"]}

@@ -80,7 +80,7 @@ def analyze_handler(args):
     
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
-        logger.info("\nAnalyzing %s logical networks..." % len(networks))
+        logger.info("Analyzing %s logical networks..." % len(networks))
         
         if args.netstats:
             with open(os.path.join(args.out,'stats-networks.csv'),'wb') as fd:
@@ -124,7 +124,7 @@ def analyze_handler(args):
     
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)
-        logger.info("\nAnalyzing %s intervention strategies..." % len(strategies))
+        logger.info("Analyzing %s intervention strategies..." % len(strategies))
         
         with open(os.path.join(args.out,'stats-strategies.csv'),'wb') as fd:
             w = csv.DictWriter(fd,["literal","frequency","exclusive","inclusive"])
@@ -145,7 +145,7 @@ def analyze_handler(args):
     if args.designs and args.behaviors and args.setup:
         behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
         
-        logger.info("\nAnalyzing experimental designs with respect to %s I/O logical behaviors..." % len(behaviors))
+        logger.info("Analyzing experimental designs with respect to %s I/O logical behaviors..." % len(behaviors))
         
         setup = core.Setup.from_json(args.setup)
 
@@ -157,7 +157,7 @@ def analyze_handler(args):
             df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
             df = pd.concat([df,df_od], ignore_index=True)
         
-        df.to_csv('stats-designs.csv', index=False)
+        df.to_csv(os.path.join(args.out,'stats-designs.csv'), index=False)
         logger.info("done.")
         
     return 0

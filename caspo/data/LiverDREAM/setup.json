@@ -1,0 +1,1 @@
+{"stimuli": ["igf1", "il1a", "tgfa", "tnfa"], "readouts": ["akt", "erk12", "ikb", "jnk12", "p38", "hsp27", "mek12"], "inhibitors": ["ikk", "mek12", "pi3k", "p38"]}

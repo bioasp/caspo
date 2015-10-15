@@ -16,9 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, sys, shutil, argparse, pkg_resources
+import os, sys, shutil, argparse, pkg_resources, logging
+
+import caspo
 from handlers import *
-import logging
+
 
 VERSION = pkg_resources.get_distribution("caspo").version
 LICENSE = """
@@ -138,6 +140,7 @@ def run():
         
         shutil.copy(os.path.join(path, 'data', args.testcase, 'pkn.sif'), out)
         shutil.copy(os.path.join(path, 'data', args.testcase, 'dataset.csv'), out)
+        shutil.copy(os.path.join(path, 'data', args.testcase, 'setup.json'), out)
         shutil.copy(os.path.join(path, 'data', args.testcase, 'scenarios.csv'), out)
         
         testcases = {
@@ -149,6 +152,7 @@ def run():
         
         params = testcases[testcase]
         
+        ###### LEARN ######
         if threads:
             args = parser.parse_args(['--out', out, 'learn',
                                       os.path.join(out, 'pkn.sif'), 
@@ -175,8 +179,8 @@ def run():
             logger.info(e)
             logger.info("Testing on caspo %s has failed." % args.cmd)
             
-        logger.info("")
-        
+        ###### CONTROL ######
+                    
         if threads:
             args = parser.parse_args(['--out', out, 'control',
                                       os.path.join(out, 'networks.csv'), 
@@ -187,7 +191,7 @@ def run():
                                       os.path.join(out, 'networks.csv'), 
                                       os.path.join(out, 'scenarios.csv')])
 
-        cmdline = "$ caspo --out {out} control {networks} {scenarios}"        
+        cmdline = "\n$ caspo --out {out} control {networks} {scenarios}"        
         if threads:
             cmdline += " --threads {threads}"
             
@@ -200,8 +204,8 @@ def run():
             logger.info(e)
             logger.info("Testing on caspo %s has failed." % args.cmd)
             
-        logger.info("")
-        
+        ###### ANALYZE ######
+                    
         if threads:
             args = parser.parse_args(['--out', out, 'analyze',
                                       '--networks', os.path.join(out, 'networks.csv'), 
@@ -215,7 +219,7 @@ def run():
                                       params[0], '--strategies', os.path.join(out, 'strategies.csv'),
                                       '--networks-stats'])
                                   
-        cmdline = "$ caspo --out {out} analyze --networks {networks} --midas {midas} {time} --strategies {strategies}"
+        cmdline = "\n$ caspo --out {out} analyze --networks {networks} --midas {midas} {time} --strategies {strategies}"
         if threads:
             cmdline += " --threads {threads}"
             
@@ -229,25 +233,25 @@ def run():
             logger.info(e)
             logger.info("Testing on caspo %s has failed." % args.cmd)
             
-        logger.info("")
-                
+        ###### DESIGN ######
+                            
         if threads:
             args = parser.parse_args(['--out', out, 'design',
                                       os.path.join(out, 'behaviors.csv'), 
-                                      os.path.join(out, 'dataset.csv'),
+                                      os.path.join(out, 'setup.json'),
                                       '--threads', str(threads), '--conf', conf])
         else:
             args = parser.parse_args(['--out', out, 'design',
                                       os.path.join(out, 'behaviors.csv'), 
-                                      os.path.join(out, 'dataset.csv')])
+                                      os.path.join(out, 'setup.json')])
 
-        cmdline = "$ caspo --out {out} design {behaviors} {midas}"
+        cmdline = "\n$ caspo --out {out} design {behaviors} {setup}"
         if threads:
             cmdline += " --threads {threads}"
             
         cmdline += "\n"        
         logger.info(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), 
-                                      midas=os.path.join(out, 'dataset.csv'), threads=threads))
+                                      setup=os.path.join(out, 'setup.json'), threads=threads))
         
         try:
             args.handler(args)
@@ -255,23 +259,51 @@ def run():
             logger.info(e)
             logger.info("Testing on caspo %s has failed." % args.cmd)
             
-        logger.info("")
-                
-        args = parser.parse_args(['--out', out, 'visualize', 
-                                  '--pkn', os.path.join(out, 'pkn.sif'),
-                                  '--networks', os.path.join(out, 'networks.csv'), 
-                                  '--midas', os.path.join(out, 'dataset.csv'),
-                                  '--strategies', os.path.join(out, 'strategies.csv'),
-                                  '--union'])
-
-        cmdline = "$ caspo --out {out} visualize --pkn {pkn} --networks {networks} --midas {midas} --strategies {strategies} --union\n"
-        logger.info(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), networks=os.path.join(out, 'networks.csv'), 
-                                      midas=os.path.join(out, 'dataset.csv'), strategies=os.path.join(out, 'strategies.csv')))
+            
+        ###### ANALYZE (DESIGNS) ######
+        
+        if threads:
+            args = parser.parse_args(['--out', out, 'analyze',
+                                      '--behaviors', os.path.join(out, 'behaviors.csv'), 
+                                      '--setup', os.path.join(out, 'setup.json'), 
+                                      '--designs', os.path.join(out, 'designs.csv'), 
+                                      '--threads', str(threads)])
+        else:
+            args = parser.parse_args(['--out', out, 'analyze',
+                                      '--behaviors', os.path.join(out, 'behaviors.csv'), 
+                                      '--setup', os.path.join(out, 'setup.json'),
+                                      '--designs', os.path.join(out, 'designs.csv')])
+                                  
+        cmdline = "\n$ caspo --out {out} analyze --behaviors {behaviors} --setup {setup} --designs {designs}"
+        if threads:
+            cmdline += " --threads {threads}"
+            
+        cmdline += "\n"        
+        logger.info(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), setup=os.path.join(out, 'setup.json'), 
+                                   designs=os.path.join(out, 'designs.csv'), threads=threads))
+        
         try:
             args.handler(args)
         except Exception as e:
             logger.info(e)
             logger.info("Testing on caspo %s has failed." % args.cmd)
-    
-        logger.info("")
+        
+        ###### VISUALIZE ######
+                            
+        args = parser.parse_args(['--out', out, 'visualize', 
+                                  '--pkn', os.path.join(out, 'pkn.sif'),
+                                  '--networks', os.path.join(out, 'networks.csv'), 
+                                  '--setup', os.path.join(out, 'setup.json'),
+                                  '--strategies', os.path.join(out, 'strategies.csv'),
+                                  '--designs', os.path.join(out, 'designs.csv'),
+                                  '--union'])
 
+        cmdline = "\n$ caspo --out {out} visualize --pkn {pkn} --networks {networks} --setup {setup} --strategies {strategies} --designs {designs} --union\n"
+        logger.info(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), networks=os.path.join(out, 'networks.csv'), 
+                                   setup=os.path.join(out, 'setup.json'), strategies=os.path.join(out, 'strategies.csv'),
+                                   designs=os.path.join(out, 'designs.csv')))
+        try:
+            args.handler(args)
+        except Exception as e:
+            logger.info(e)
+            logger.info("Testing on caspo %s has failed." % args.cmd)

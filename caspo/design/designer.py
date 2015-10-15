@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os
+import os, logging
 import itertools as it
 
 import gringo
@@ -44,6 +44,8 @@ class Designer(object):
             'design': os.path.join(root, 'encodings/gringo4/idesign.lp')
         }
         self.__optimum__ = None
+        
+        self.logger = logging.getLogger("caspo")
         
     def __save__(self, model):
         if self.__optimum__ == model.optimization():
@@ -89,3 +91,5 @@ class Designer(object):
                 clingo.ground(parts)
                 clingo.assign_external(gringo.Fun("query", [step]), True)
                 ret, step = clingo.solve(on_model=self.__save__), step + 1
+                
+        self.logger.info("%s optimal experimental designs in %.4fs" % (len(self.designs), clingo.stats['time_total']))
