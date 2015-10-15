@@ -53,9 +53,10 @@ setup(name='caspo',
       zip_safe=False,
       install_requires=[
           "numpy",
-          "pandas",
+          "pandas==0.16.2",
           "sklearn",
           "networkx",
+          "pyparsing>=1.5.7,<2.0.0", #latest pyparsing version for Python 2.x
           "pydot"
       ],
       entry_points={
