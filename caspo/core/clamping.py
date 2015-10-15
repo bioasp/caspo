@@ -19,6 +19,7 @@
 from collections import defaultdict
 import itertools as it
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 
@@ -61,8 +62,7 @@ class ClampingList(pd.Series):
         self.to_dataframe(stimuli, inhibitors).to_csv(filename, index=False)
         
     @classmethod
-    def from_csv(klass, filename, inhibitors=[]):
-        df = pd.read_csv(filename)
+    def from_dataframe(klass, df, inhibitors=[]):
         clampings = []
         ni = len(inhibitors)
         for i,row in df.iterrows():
@@ -79,6 +79,11 @@ class ClampingList(pd.Series):
                 clampings.append(Clamping(map(lambda (v,s): Literal(v,s), row[row!=0].iteritems())))
             
         return klass(clampings)
+        
+    @classmethod
+    def from_csv(klass, filename, inhibitors=[]):
+        df = pd.read_csv(filename)
+        return klass.from_dataframe(df)
         
     def frequencies_iter(self):
         df = self.to_dataframe()
@@ -120,7 +125,45 @@ class ClampingList(pd.Series):
             p[r] += 1
         
         return pd.concat([pd.DataFrame(z, columns=readouts), pd.Series(p, name='pairs')], axis=1)
+        
+    def drop_literals(self, literals):
+        clampings = []
+        for clamping in self:
+            c = clamping.drop_literals(literals)
+            if len(c) > 0:
+                clampings.append(c)
+        
+        return ClampingList(clampings)
+        
+    def __plot__(self, source="", target=""):
+        graph = nx.DiGraph()
+        
+        graph.add_node('source', label=source)
+        graph.add_node('target', label=target)
     
+        return self.__create_graph__(graph, 'source', self, 'target')
+    
+    def __create_graph__(self, graph, parent, clampings, target):
+        if not clampings.empty:
+            popular, _ = sorted(clampings.frequencies_iter(), key=lambda (l,f): f)[-1]
+            
+            name = "%s-%s" % (parent, popular)
+            graph.add_node(name, label=popular.variable, sign=popular.signature)      
+            graph.add_edge(parent, name)
+            
+            df = clampings.to_dataframe()
+            
+            popular_in = df[df[popular.variable]==popular.signature]
+            self.__create_graph__(graph, name, ClampingList.from_dataframe(popular_in).drop_literals([popular]), target)
+
+            popular_out = df[df[popular.variable]!=popular.signature]
+            if not popular_out.empty:
+                self.__create_graph__(graph, parent, ClampingList.from_dataframe(popular_out), target)
+        
+        else:
+            graph.add_edge(parent, target)
+            
+        return graph
 
 class Clamping(frozenset):
     
@@ -149,4 +192,7 @@ class Clamping(frozenset):
             arr[i] = dc.get(var, arr[i])
             
         return arr
+        
+    def drop_literals(self, literals):
+        return self.difference(literals)
                 

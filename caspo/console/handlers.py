@@ -164,12 +164,12 @@ def visualize_handler(args):
         
         if args.pkn:
             graph = core.Graph.read_sif(args.pkn)
-            graph_colored = visualize.ColoredMultiDiGraph(graph, setup)
+            graph_colored = visualize.ColoredNetwork(graph, setup)
             graph_colored.to_dot(os.path.join(args.out,'pkn.dot'))
             
             zipped = graph.compress(setup)
             if zipped.nodes != graph.nodes:          
-                zipped_colored = visualize.ColoredMultiDiGraph(zipped, setup)
+                zipped_colored = visualize.ColoredNetwork(zipped, setup)
                 zipped_colored.to_dot(os.path.join(args.out,'pkn-zip.dot'))
                 
         if args.networks:
@@ -184,17 +184,17 @@ def visualize_handler(args):
                 sample = networks
             
             for i, network in enumerate(sample):
-                nc = visualize.ColoredMultiDiGraph(network,setup)
+                nc = visualize.ColoredNetwork(network,setup)
                 nc.to_dot(os.path.join(args.out,'network-%s.dot' % i))
             
             if args.union:
-                nc = visualize.ColoredMultiDiGraph(networks,setup)
+                nc = visualize.ColoredNetwork(networks,setup)
                 nc.to_dot(os.path.join(args.out,'networks-union.dot'))
                     
     if args.strategies:
-        reader.read(args.strategies)
-        strategies = control.IStrategySet(reader)
-        writer = visualize.IDotWriter(visualize.IDiGraph(strategies))
-        writer.write('strategies.dot', args.outdir)
+        strategies = core.ClampingList.from_csv(args.strategies)
+        
+        sc = visualize.ColoredClamping(strategies, "CONSTRAINTS", "GOALS")
+        sc.to_dot(os.path.join(args.out,'strategies.dot'))
         
     return 0
