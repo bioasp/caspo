@@ -52,15 +52,21 @@ class Controller(object):
         self.strategies = []
         
         clingo = gringo.Control(['-c maxsize=%s' % size])
-        
+
         clingo.conf.solve.models = '0'
-        clingo.conf.solve.enum_mode = 'domRec'
-        clingo.conf.solver.heuristic = 'domain'
-        clingo.conf.solver.dom_mod = '5,16'
-        
         if configure:
-            configure(clingo.conf)
-            
+            def overwrite(args, proxy):
+                for i in xrange(args.threads):
+                    proxy.solver[i].heuristic = 'domain'
+                    proxy.solver[i].dom_mod = '5,16'
+                    
+            configure(clingo.conf, overwrite)
+        else:
+            clingo.conf.solver.heuristic = 'domain'
+            clingo.conf.solver.dom_mod = '5,16'
+
+        clingo.conf.solve.enum_mode = 'domRec'
+                
         clingo.add("base", [], self.instance)
         clingo.load(self.encodings['control'])
         
@@ -68,7 +74,7 @@ class Controller(object):
         clingo.solve(on_model=self.__save__)
         
         n,t = len(self.strategies), clingo.stats['time_total']
-        self.logger.info("%s optimal control strategies found in %.4fs" % (n,t))
+        self.logger.info("%s optimal intervention strategies found in %.4fs" % (n,t))
         
         self.strategies = core.ClampingList(self.strategies)
 

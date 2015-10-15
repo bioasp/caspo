@@ -21,9 +21,11 @@ import functools as ft
 import pandas as pd
 from caspo import core, learn, design, control, analyze, visualize
 
-def configure_mt(args, proxy):
+def configure_mt(args, proxy, overwrite=None):
     proxy.solve.parallel_mode = args.threads
     proxy.configuration = args.conf
+    if overwrite:
+        overwrite(args, proxy)
 
 def learn_handler(args):
     graph = core.Graph.read_sif(args.pkn)

@@ -135,6 +135,7 @@ def run():
         logger.info("Copying files for running tests:")
         logger.info("\tPrior knowledge network: pkn.sif")
         logger.info("\tPhospho-proteomics dataset: dataset.csv")
+        logger.info("\tExperimental setup: setup.json")
         logger.info("\tIntervention scenarios: scenarios.csv")
         logger.info("")
         
@@ -210,22 +211,20 @@ def run():
             args = parser.parse_args(['--out', out, 'analyze',
                                       '--networks', os.path.join(out, 'networks.csv'), 
                                       '--midas', os.path.join(out, 'dataset.csv'), 
-                                      params[0], '--strategies', os.path.join(out, 'strategies.csv'),
-                                      '--networks-stats', '--threads', str(threads)])
+                                      params[0], '--networks-stats', '--threads', str(threads)])
         else:
             args = parser.parse_args(['--out', out, 'analyze',
                                       '--networks', os.path.join(out, 'networks.csv'), 
                                       '--midas', os.path.join(out, 'dataset.csv'), 
-                                      params[0], '--strategies', os.path.join(out, 'strategies.csv'),
-                                      '--networks-stats'])
+                                      params[0], '--networks-stats'])
                                   
-        cmdline = "\n$ caspo --out {out} analyze --networks {networks} --midas {midas} {time} --strategies {strategies}"
+        cmdline = "\n$ caspo --out {out} analyze --networks {networks} --midas {midas} {time}"
         if threads:
             cmdline += " --threads {threads}"
             
         cmdline += "\n"        
         logger.info(cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'), midas=os.path.join(out, 'dataset.csv'), 
-                                      time=params[0], strategies=os.path.join(out, 'strategies.csv'), threads=threads))
+                                      time=params[0], threads=threads))
         
         try:
             args.handler(args)
@@ -260,27 +259,29 @@ def run():
             logger.info("Testing on caspo %s has failed." % args.cmd)
             
             
-        ###### ANALYZE (DESIGNS) ######
+        ###### ANALYZE ######
         
         if threads:
             args = parser.parse_args(['--out', out, 'analyze',
                                       '--behaviors', os.path.join(out, 'behaviors.csv'), 
                                       '--setup', os.path.join(out, 'setup.json'), 
+                                      '--strategies', os.path.join(out, 'strategies.csv'),
                                       '--designs', os.path.join(out, 'designs.csv'), 
                                       '--threads', str(threads)])
         else:
             args = parser.parse_args(['--out', out, 'analyze',
                                       '--behaviors', os.path.join(out, 'behaviors.csv'), 
                                       '--setup', os.path.join(out, 'setup.json'),
+                                      '--strategies', os.path.join(out, 'strategies.csv'),
                                       '--designs', os.path.join(out, 'designs.csv')])
                                   
-        cmdline = "\n$ caspo --out {out} analyze --behaviors {behaviors} --setup {setup} --designs {designs}"
+        cmdline = "\n$ caspo --out {out} analyze --behaviors {behaviors} --setup {setup} --strategies {strategies} --designs {designs}"
         if threads:
             cmdline += " --threads {threads}"
             
         cmdline += "\n"        
         logger.info(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), setup=os.path.join(out, 'setup.json'), 
-                                   designs=os.path.join(out, 'designs.csv'), threads=threads))
+                                   strategies=os.path.join(out, 'strategies.csv'), designs=os.path.join(out, 'designs.csv'), threads=threads))
         
         try:
             args.handler(args)
