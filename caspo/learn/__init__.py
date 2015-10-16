@@ -18,3 +18,4 @@
 
 from dataset import *
 from learner import *
+from behaviors import *

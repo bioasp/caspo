@@ -57,7 +57,7 @@ def __learn_io__(networks, setup, configure):
         
     return behaviors
 
-def learn_behaviors(networks, setup, processes=1, configure=None):
+def io(networks, setup, processes=1, configure=None):
     n = len(networks)
     if processes > 1 and n > processes:
         pool = mp.Pool(processes)

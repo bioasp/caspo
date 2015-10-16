@@ -19,7 +19,7 @@
 import os, logging, csv, ntpath, random
 import functools as ft
 import pandas as pd
-from caspo import core, learn, design, control, analyze, visualize
+from caspo import core, learn, design, control, visualize
 
 def configure_mt(args, proxy, overwrite=None):
     proxy.solve.parallel_mode = args.threads
@@ -107,14 +107,14 @@ def analyze_handler(args):
             
             configure = ft.partial(configure_mt, args) if args.threads else None
             
-            behaviors = analyze.learn_behaviors(networks, dataset.setup, args.threads if args.threads else 1, configure)
+            behaviors = learn.io(networks, dataset.setup, args.threads if args.threads else 1, configure)
 
             setup = dataset.setup.filter(behaviors)
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
             behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'))
             
-            cc = analyze.core_clampings(behaviors, setup, configure)
+            cc = learn.core_clampings(behaviors, setup, configure)
             cc.to_csv(os.path.join(args.out,'core.csv'), setup.stimuli, setup.inhibitors)
             
             logger.info("\tI/O logical behaviors: %s" % len(behaviors))
