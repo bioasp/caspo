@@ -98,4 +98,4 @@ class Graph(nx.MultiDiGraph):
         zipped.add_edges_from(edges)
         
     def __plot__(self):
-        return self
+        return self.copy()

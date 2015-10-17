@@ -172,13 +172,13 @@ def visualize_handler(args):
         
         if args.pkn:
             graph = core.Graph.read_sif(args.pkn)
-            graph_colored = visualize.ColoredNetwork(graph, setup)
-            graph_colored.to_dot(os.path.join(args.out,'pkn.dot'))
+            gc = visualize.ColoredNetwork(graph, setup)
+            gc.to_dot(os.path.join(args.out,'pkn.dot'))
             
             zipped = graph.compress(setup)
             if zipped.nodes != graph.nodes:          
-                zipped_colored = visualize.ColoredNetwork(zipped, setup)
-                zipped_colored.to_dot(os.path.join(args.out,'pkn-zip.dot'))
+                zc = visualize.ColoredNetwork(zipped, setup)
+                zc.to_dot(os.path.join(args.out,'pkn-zip.dot'))
                 
         if args.networks:
             networks = core.LogicalNetworkList.from_csv(args.networks)
