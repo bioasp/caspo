@@ -36,7 +36,7 @@ def __learn_io__(networks, setup, configure):
         nl = core.LogicalNetworkList.from_hypergraph(networks.hg, [network])
         for i,behavior in enumerate(behaviors):
             bl = core.LogicalNetworkList.from_hypergraph(networks.hg, [behavior])
-            fs = setup_fs.union(nl.union(bl).to_funset())
+            fs = setup_fs.union(nl.concat(bl).to_funset())
             instance = ". ".join(map(str, fs)) + ". :- not diff."
 
             clingo = gringo.Control()
@@ -69,7 +69,7 @@ def io(networks, setup, processes=1, configure=None):
         
         networks = core.LogicalNetworkList.from_hypergraph(networks.hg)
         for l in output:
-            networks = networks.union(l)
+            networks = networks.concat(l)
     
     return __learn_io__(networks, setup, configure)
     

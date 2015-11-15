@@ -27,6 +27,24 @@ from clamping import Clamping
 class Setup(object):
     """
     Experimental setup describing stimuli, inhibitors and readouts species names
+    
+    Parameters
+    ----------
+    stimuli : list[str]
+        List of stimuli species
+        
+    inhibitors : list[str]
+        List of inhibitors species
+        
+    readouts : list[str]
+        List of readouts species
+        
+    Attributes
+    ----------
+        stimuli : list[str]
+        inhibitors : list[str]
+        readouts : list[str]
+        
     """
     def __init__(self, stimuli, inhibitors, readouts):
         self.stimuli = list(stimuli)
@@ -36,20 +54,24 @@ class Setup(object):
     @property
     def nodes(self):
         """
-        Returns unique species names in the experimental setup
-        
-        :return: species names
-        :rtype: :class:`frozenset`
+        frozenset: unique species names in the experimental setup
         """
         return frozenset(self.stimuli + self.inhibitors + self.readouts)
         
     def clampings_iter(self, cues=None):
         """
-        Iterator over clampings
+        Iterates over all possible clampings
         
-        :param cues: optionally restrict clampings over a given iterable of species names
-        :return: iterator over all possible clampings
-        :rtype: iterator
+        Parameters
+        ----------
+        cues : Optional[iterable]
+            If given, restricts clampings over given species names
+        
+        
+        Yields
+        ------
+        caspo.core.Clamping
+            The next clamping with respect to the experimental setup
         """
         s = cues or list(self.stimuli + self.inhibitors)
         clampings = it.chain.from_iterable(it.combinations(s,r) for r in xrange(len(s) + 1))
@@ -70,10 +92,12 @@ class Setup(object):
 
     def to_funset(self):
         """
-        Converts the experimental setup to a set of :class:`gringo.Fun` instances
+        Converts the experimental setup to a set of :class:`gringo.Fun` object instances
         
-        :return: the set of gringo.Fun instances
-        :rtype: :class:`set`
+        Returns
+        -------
+        set
+            The set of :class:`gringo.Fun` object instances
         """
         fs = set((gringo.Fun('stimulus',[str(var)]) for var in self.stimuli))
         fs = fs.union((gringo.Fun('inhibitor',[str(var)]) for var in self.inhibitors))
@@ -84,16 +108,17 @@ class Setup(object):
     @classmethod
     def from_json(klass, filename):
         """
-        Creates a Setup instance from a JSON file like:
-    
-        >>> {"stimuli": ["egf", "tnfa", ...], 
-        ...  "inhibitors": ["pi3k", "raf1", ...], 
-        ...  "readouts": ["raf1", "erk", "ap1", ...]}
+        Creates an experimental setup from a JSON file
+            
+        Parameters
+        ----------
+        filename : str
+            Absolute path to JSON file
         
-        :param klass: :class:`caspo.core.Setup`
-        :param filename: absolute path to JSON file
-        :return: created object instance
-        :rtype: :class:`caspo.core.Setup`
+        Returns
+        -------
+        caspo.core.Setup
+            Created object instance
         """
         with open(filename) as fp:
             raw = json.load(fp)
@@ -104,7 +129,10 @@ class Setup(object):
         """
         Writes the experimental setup to a JSON file
         
-        :param filename: absolute path where to write the JSON file
+        Parameters
+        ----------
+        filename : str
+            Absolute path where to write the JSON file
         """
         with open(filename, 'w') as fp:
             json.dump(dict(stimuli=self.stimuli, inhibitors=self.inhibitors, readouts=self.readouts), fp)
@@ -113,9 +141,15 @@ class Setup(object):
         """
         Returns a new experimental setup restricted to species active in the given networks
         
-        :param networks: list of networks :class:`caspo.core.LogicalNetworkList`
-        :return: restricted setup
-        :rtype: :class:`caspo.core.Setup`
+        Parameters
+        ----------
+        networks : caspo.core.LogicalNetworkList
+            List of logical networks
+            
+        Returns
+        -------
+        caspo.core.Setup
+            Restricted experimental setup
         """
         cues = self.stimuli + self.inhibitors
         active_cues = set()
@@ -132,9 +166,15 @@ class Setup(object):
         """
         Returns stimuli and inhibitors species
         
-        :param rename_inhibitors: whether to end inhibitors with 'i' or not. Default to False
-        :return: list of species names in order. Stimuli followed by inhibitors
-        :rtype: list
+        Parameters
+        ----------
+        rename_inhibitors : boolean
+            If True, rename inhibitors with an ending 'i' as in MIDAS files.
+            
+        Returns
+        -------
+        list
+            List of species names in order: first stimuli followed by inhibitors
         """
         if rename_inhibitors:
             return self.stimuli + [i+'i' for i in self.inhibitors]
@@ -142,5 +182,13 @@ class Setup(object):
             return self.stimuli + self.inhibitors
             
     def __len__(self):
+        """
+        Returns the sum of stimuli, inhibitors, and readouts
+        
+        Returns
+        -------
+        int
+            Sum of stimuli, inhibitors, and readouts
+        """
         return len(self.stimuli + self.inhibitors + self.readouts)
         

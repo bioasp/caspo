@@ -18,16 +18,43 @@
 
 from literal import Literal
 
-class Clause(frozenset):    
+class Clause(frozenset):
+    """
+    A conjunction clause is a frozenset of :class:`caspo.core.Literal` object instances
+    """
 
     @classmethod
     def from_str(klass, string):
+        """
+        Creates a clause from a given string of the form `a+!b` which translates to `a AND NOT b`.
+        
+        Returns
+        -------
+        caspo.core.Clause
+            Created object instance
+        """
         return klass(map(lambda lit: Literal.from_str(lit), string.split('+')))
         
     def __str__(self):
+        """
+        Returns the string representation of the clause
+        """
         return "+".join(map(str, sorted(self)))
 
     def bool(self, state):
+        """
+        Returns the Boolean evaluation of the clause with respect to a given state
+        
+        Parameters
+        ----------
+        state : dict
+            Key-value mapping describing a Boolean state
+        
+        Returns
+        -------
+        boolean
+            The evaluation of the clause with respect to the given state
+        """
         and_value = 1
         for source, sign in self:
             and_value = and_value and (state[source] if sign == 1 else not state[source])

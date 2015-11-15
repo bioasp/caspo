@@ -98,7 +98,7 @@ def analyze_handler(args):
                         row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[k]))
                         
                     w.writerow(row)
-        
+
         if args.midas:
             dataset = learn.Dataset(args.midas[0], int(args.midas[1]))
             
@@ -106,10 +106,11 @@ def analyze_handler(args):
                 networks.to_csv(os.path.join(args.out,'networks-mse-len.csv'), size=True, dataset=dataset)
             
             configure = ft.partial(configure_mt, args) if args.threads else None
-            
+
             behaviors = learn.io(networks, dataset.setup, args.threads if args.threads else 1, configure)
 
             setup = dataset.setup.filter(behaviors)
+
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
             behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'))

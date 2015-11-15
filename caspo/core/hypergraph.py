@@ -28,6 +28,35 @@ from literal import Literal
 from clause import Clause
 
 class HyperGraph(object):
+    """
+    Hypergraph representation providing the link between logical networks and 
+    the corresponding expanded prior knowledge network.
+    
+    Parameters
+    ----------
+    nodes : pandas.DataFrame
+        Nodes as a DataFrame with an integer index (node id) and a column `name`
+    
+    hyper : pandas.DataFrame
+        Hyperedges for each node id as a DataFrame with an integer index (hyperedge id) and a column `node_idx` (target node)
+    
+    edges : pandas.DataFrame
+        Hyperedges details as a DataFrame with columns `hyper_idx`, `name` (source node), `sign`
+    
+    Attributes
+    ----------
+    nodes : pandas.DataFrame
+    hyper : pandas.DataFrame
+    edges : pandas.DataFrame
+    clauses : dict
+        Mapping from hyperedge id (`hyper_idx`) to :class:`caspo.core.Clause` object instance
+
+    clauses_idx : dict
+        The reverse of :attr:`clauses`
+    
+    mappings : pandas.Series
+        Series of tuples of the form (clause, variable)
+    """
     
     def __init__(self, nodes, hyper, edges):
         self.nodes = nodes
@@ -51,10 +80,39 @@ class HyperGraph(object):
         self.mappings = pd.Series(mappings)
                 
     def variable(self, index):
+        """
+        Returns the variable name for a given variable id
+        
+        Parameters
+        ----------
+        index : int
+            Variable id
+            
+        Returns
+        -------
+        str
+            Variable name
+        """
         return self.nodes.iloc[index]['name']
                         
     @classmethod
     def from_graph(klass, graph, length=0):
+        """
+        Creates a hypergraph (expanded graph) from a :class:`caspo.core.Graph` object instance
+        
+        Parameters
+        ----------
+        graph : caspo.core.Graph
+            The base interaction graph to be expanded
+        
+        length : int
+            Maximum length for hyperedges source sets. If 0, use maximum possible in each case.
+        
+        Returns
+        -------
+        caspo.core.HyperGraph
+            Created object instance
+        """
         nodes = []
         hyper = []
         edges = defaultdict(list)
@@ -89,6 +147,14 @@ class HyperGraph(object):
         return klass(nodes, hyper, edges)
         
     def to_funset(self):
+        """
+        Converts the hypergraph to a set of :class:`gringo.Fun` instances
+        
+        Returns
+        -------
+        set
+            Representation of the hypergraph as a set of :class:`gringo.Fun` instances
+        """
         fs = set()        
         for i,n in self.nodes.itertuples():
             fs.add(gringo.Fun('node', [n,i]))

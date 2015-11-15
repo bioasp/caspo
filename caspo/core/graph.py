@@ -21,18 +21,63 @@ import pandas as pd
 import networkx as nx
 
 class Graph(nx.MultiDiGraph):
+    """
+    Interaction Graph (a.k.a. Prior Knowledge Network) extending :class:`networkx.MultiDiGraph`
+    """
     
     @classmethod
     def from_tuples(klass, tuples):
+        """
+        Creates a graph from an iterable of tuples describing edges like (source, target, sign)
+        
+        Parameters
+        ----------
+        tuples : iterable[tuple]
+            Tuples describing signed and directed edges
+        
+        Returns
+        -------
+        caspo.core.Graph
+            Created object instance
+        """
         return klass(it.imap(lambda (source,target,sign): (source,target,{'sign': sign}), tuples))
         
     @classmethod
     def read_sif(klass, path):
+        """
+        Creates a graph from a Cytoscape SIF file
+        
+        Parameters
+        ----------
+        path : str
+            Absolute path to a SIF file
+        
+        Returns
+        -------
+        caspo.core.Graph
+            Created object instace
+        """
         df = pd.read_csv(path, delim_whitespace=True, names=['source','sign','target'])
         edges = map(lambda (i,source,sign,target): (source,target,{'sign': sign}), df.itertuples())
         return klass(data=edges)
 
     def predecessors(self, node, exclude_compressed=True):
+        """
+        Returns the list of predecessors of a given node
+        
+        Parameters
+        ----------
+        node : str
+            The target node
+        
+        exclude_compressed : boolean
+            If true, compressed nodes are excluded from the predecessors list
+        
+        Returns
+        -------
+        list
+            List of predecessors nodes
+        """
         preds = super(Graph, self).predecessors(node)
         if exclude_compressed:
             return filter(lambda n: not self.node[n].get('compressed', False), preds)
@@ -40,6 +85,22 @@ class Graph(nx.MultiDiGraph):
             return preds
             
     def successors(self, node, exclude_compressed=True):
+        """
+        Returns the list of successors of a given node
+        
+        Parameters
+        ----------
+        node : str
+            The target node
+        
+        exclude_compressed : boolean
+            If true, compressed nodes are excluded from the successors list
+        
+        Returns
+        -------
+        list
+            List of successors nodes
+        """
         succs = super(Graph, self).successors(node)
         if exclude_compressed:
             return filter(lambda n: not self.node[n].get('compressed', False), succs)
@@ -47,6 +108,19 @@ class Graph(nx.MultiDiGraph):
             return succs
         
     def compress(self, setup):
+        """
+        Returns the compressed graph according to the given experimental setup
+        
+        Parameters
+        ----------
+        setup : core.caspo.Setup
+            Experimental setup used to compress the graph
+        
+        Returns
+        -------
+        caspo.core.Graph
+            Compressed graph
+        """
         done = False
         designated = setup.nodes
         zipped = self.copy()
@@ -98,4 +172,12 @@ class Graph(nx.MultiDiGraph):
         zipped.add_edges_from(edges)
         
     def __plot__(self):
+        """
+        Returns a copy of this graph ready for plotting
+        
+        Returns
+        -------
+        caspo.core.Graph
+            A copy of the object instance
+        """
         return self.copy()

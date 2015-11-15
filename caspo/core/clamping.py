@@ -28,8 +28,19 @@ import gringo
 from literal import Literal
 
 class ClampingList(pd.Series):
+    """
+    List of :class:`caspo.core.Clamping` object instances as a :class:`pandas.Series`
+    """
     
     def to_funset(self, lname="clamping", cname="clamped"):
+        """
+        Converts the list of clampings to a set of :class:`gringo.Fun` instances
+        
+        Returns
+        -------
+        set
+            Representation of all clampings as a set of :class:`gringo.Fun` instances
+        """
         fs = set()
         for i, clamping in self.iteritems():
             fs.add(gringo.Fun(lname, [i]))
@@ -38,6 +49,22 @@ class ClampingList(pd.Series):
         return fs
         
     def to_dataframe(self, stimuli=[], inhibitors=[]):
+        """
+        Converts the list of clampigns to a :class:`pandas.DataFrame` object instance
+        
+        Parameters
+        ----------
+        stimuli : Optional[list[str]]
+            List of stimuli names. If given, stimuli are converted to {0,1} instead of {-1,1}.
+        
+        inhibitors : Optional[list[str]]
+            List of inhibitors names. If given, inhibitors are renamed and converted to {0,1} instead of {-1,1}.
+        
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame representation of the list of clampings
+        """
         cues = stimuli + inhibitors
         nc = len(cues)
         ns = len(stimuli)
@@ -59,17 +86,48 @@ class ClampingList(pd.Series):
         return pd.DataFrame(matrix, columns=stimuli + [i+'i' for i in inhibitors] if nc > 0 else variables)
         
     def to_csv(self, filename, stimuli=[], inhibitors=[]):
+        """
+        Writes the list of clampings to a CSV file
+        
+        Parameters
+        ----------
+        filename : str
+            Absolute path where to write the CSV file
+        
+        stimuli : Optional[list[str]]
+            List of stimuli names. If given, stimuli are converted to {0,1} instead of {-1,1}.
+        
+        inhibitors : Optional[list[str]]
+            List of inhibitors names. If given, inhibitors are renamed and converted to {0,1} instead of {-1,1}.
+        """
         self.to_dataframe(stimuli, inhibitors).to_csv(filename, index=False)
         
     @classmethod
     def from_dataframe(klass, df, inhibitors=[]):
+        """
+        Creates a list of clampings from a :class:`pandas.DataFrame` object instance
+        
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Columns and rows correspond to species names and individual clampings, respectively
+            
+        inhibitors : Optional[list[str]]
+            If given, species names ending with `i` and found in the list will be interpreted as inhibitors
+
+
+        Returns
+        -------
+        caspo.core.ClampingList
+            Created object instance
+        """
         clampings = []
         ni = len(inhibitors)
         for i,row in df.iterrows():
             if ni > 0:
                 literals = []
                 for v,s in row.iteritems():
-                    if v[:-1] in inhibitors:
+                    if v.endswith('i') and v[:-1] in inhibitors:
                         if s == 1:
                             literals.append(Literal(v[:-1], -1))
                     else:
@@ -82,10 +140,35 @@ class ClampingList(pd.Series):
         
     @classmethod
     def from_csv(klass, filename, inhibitors=[]):
+        """
+        Creates a list of clampings from a CSV file
+        
+        Parameters
+        ----------
+        filename : str
+            Absolute path to a CSV file to be loaded with :func:`pandas.read_csv`. The resulting DataFrame is passed to :func:`from_dataframe`.
+        
+        inhibitors : Optional[list[str]]
+            If given, species names ending with `i` and found in the list will be interpreted as inhibitors
+            
+            
+        Returns
+        -------
+        caspo.core.ClampingList
+            Created object instance
+        """
         df = pd.read_csv(filename)
         return klass.from_dataframe(df, inhibitors)
         
     def frequencies_iter(self):
+        """
+        Iterates over clamped variables' frequencies
+        
+        Yields
+        ------
+        tuple[caspo.core.Literal, float]
+            The next tuple of the form (literal, frequency)
+        """
         df = self.to_dataframe()
         n = float(len(self))
         for var,sign in it.product(df.columns, [-1,1]):
@@ -94,6 +177,24 @@ class ClampingList(pd.Series):
                 yield Literal(var, sign), f
             
     def frequency(self, literal):
+        """
+        Returns the frequency of a clamped variable
+        
+        Parameters
+        ----------
+        literal : caspo.core.Literal
+            The clamped variable
+        
+        Returns
+        -------
+        float
+            The frequency of the given literal
+        
+        Raises
+        ------
+        ValueError
+            If the variable is not present in any of the individual clampings
+        """
         df = self.to_dataframe()
         if literal.variable in df.columns:
             return len(df[df[literal.variable]==literal.signature]) / float(len(self))
@@ -101,6 +202,16 @@ class ClampingList(pd.Series):
             raise ValueError("Variable not found: %s" % literal.variable)
             
     def combinatorics(self):
+        """
+        Returns mutually exclusive/inclusive clampings
+        
+        Returns
+        -------
+        (dict,dict)
+            A tuple of 2 dictionaries.
+            For each literal key, the first dict has as value the set of mutually exclusive clampings while
+            the second dict has as value the set of mutually inclusive clampings.
+        """
         df = self.to_dataframe()
         literals = set((l for l in it.chain.from_iterable(self)))
         exclusive, inclusive = defaultdict(set), defaultdict(set)
@@ -118,6 +229,23 @@ class ClampingList(pd.Series):
         return exclusive, inclusive
 
     def differences(self, networks, readouts):
+        """
+        Returns the total number of pairwise differences over the given readouts for the given networks
+        
+        Parameters
+        ----------
+        networks : iterable[caspo.core.LogicalNetwork]
+            Iterable of logical networks to compute pairwise differences
+        
+        readouts : list[str]
+            List of readouts species names
+        
+        Returns
+        -------
+        pandas.DataFrame
+            Total number of pairwise differences for each clamping over each readout
+            
+        """
         z,p = np.zeros((len(self), len(readouts)), dtype=int), np.zeros(len(self), dtype=int)
         for n1,n2 in it.combinations(networks,2):
             r,c = np.where(n1.predictions(self,readouts) != n2.predictions(self,readouts))
@@ -127,6 +255,20 @@ class ClampingList(pd.Series):
         return pd.concat([pd.DataFrame(z, columns=readouts), pd.Series(p, name='pairs')], axis=1)
         
     def drop_literals(self, literals):
+        """
+        Returns a new list of clampings without the given literals
+        
+        Parameters
+        ----------
+        literals : iterable[caspo.core.Literal]
+            Iterable of literals to be removed from each clamping
+        
+        
+        Returns
+        -------
+        caspo.core.ClampingList
+            The new list of clampings
+        """
         clampings = []
         for clamping in self:
             c = clamping.drop_literals(literals)
@@ -136,6 +278,14 @@ class ClampingList(pd.Series):
         return ClampingList(clampings)
         
     def __plot__(self, source="", target=""):
+        """
+        Returns a :class:`networkx.DiGraph` ready for plotting.
+        
+        Returns
+        -------
+        networkx.DiGraph
+            Network object instance ready for plotting
+        """
         graph = nx.DiGraph()
         
         if source:
@@ -170,25 +320,92 @@ class ClampingList(pd.Series):
         return graph
 
 class Clamping(frozenset):
+    """
+    A clamping is a frozenset of :class:`caspo.core.Literal` object instances where each literal describes a clamped variable
+    """
     
     @classmethod
     def from_tuples(klass, tuples):
+        """
+        Creates a clamping from tuples of the form (variable, sign)
+        
+        Parameters
+        ----------
+        tuples : iterable[(str,int)]
+            An iterable of tuples describing clamped variables
+        
+        Returns
+        -------
+        caspo.core.Clamping
+            Created object instance
+        """
         return klass(it.imap(lambda (v,s): Literal(v,s), tuples))
     
     def to_funset(self, index, name="clamped"):
+        """
+        Converts the clamping to a set of :class:`gringo.Fun` object instances
+        
+        Returns
+        -------
+        set
+            The set of :class:`gringo.Fun` object instances
+        """
         fs = set()
         for var, sign in self:
             fs.add(gringo.Fun(name, [index,var,sign]))
             
         return fs
-                
+
     def bool(self, variable):
+        """
+        Returns whether the given variable is positively clamped
+        
+        Parameters
+        ----------
+        variable : str
+            The variable name
+        
+
+        Returns
+        -------
+        boolean
+            True if the given variable is positively clamped, False otherwise
+        """
         return dict(self)[variable] == 1
         
     def has_variable(self, variable):
+        """
+        Returns whether the given variable is present in the clamping
+        
+        Parameters
+        ----------
+        variable : str
+            The variable name
+        
+
+        Returns
+        -------
+        boolean
+            True if the given variable is present in the clamping, False otherwise
+        """
         return dict(self).has_key(variable)
         
     def to_array(self, variables):
+        """
+        Converts the clamping to an 1-D array with respect to the given variables
+        
+        Parameters
+        ----------
+        variables : list[str]
+            List of variables names
+            
+    
+        Returns
+        -------
+        numpy.ndarray
+            1-D array where position `i` correspond to the sign of the clamped variable at 
+            position `i` in the given list of variables
+        """
         arr = np.zeros(len(variables), np.int8)
         dc = dict(self)
         
@@ -198,5 +415,17 @@ class Clamping(frozenset):
         return arr
         
     def drop_literals(self, literals):
+        """
+        Returns a new clamping without the given literals
+        
+        Parameters
+        ----------
+        literals : iterable[caspo.core.Literal]
+            Iterable of literals to be removed
+            
+        Returns
+        -------
+        caspo.core.Clamping
+            A new clamping without the given literals
+        """
         return self.difference(literals)
-                
