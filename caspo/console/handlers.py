@@ -31,80 +31,80 @@ def learn_handler(args):
     graph = core.Graph.read_sif(args.pkn)
     dataset = learn.Dataset(args.midas, args.time)
     zipped = graph.compress(dataset.setup)
-    
+
     learner = learn.Learner(zipped, dataset, args.length, args.discretization, args.factor)
-    
+
     configure = ft.partial(configure_mt,args) if args.threads else None
     learner.learn(args.fit, args.size, configure)
-    
+
     learner.networks.to_csv(os.path.join(args.out, 'networks.csv'))
-    
+
     return 0
 
 def design_handler(args):
     logger = logging.getLogger("caspo")
-    
+
     networks = core.LogicalNetworkList.from_csv(args.networks)
     setup = core.Setup.from_json(args.setup)
     listing = core.ClampingList.from_csv(args.list) if args.list else None
-    
+
     designer = design.Designer(networks, setup, listing)
-    
+
     configure = ft.partial(configure_mt,args) if args.threads else None
     designer.design(args.stimuli, args.inhibitors, args.experiments, args.relax, configure)
-    
+
     df = None
     for i,od in enumerate(designer.designs):
         df_od = od.to_dataframe(setup.stimuli, setup.inhibitors)
         df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
-        
+
         df = pd.concat([df,df_od], ignore_index=True)
-        
+
     df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
-        
+
     return 0
 
 def control_handler(args):
     networks = core.LogicalNetworkList.from_csv(args.networks)
     scenarios = control.ScenarioList(args.scenarios, args.iconstraints, args.igoals)
-    
+
     controller = control.Controller(networks, scenarios)
-    
+
     configure = ft.partial(configure_mt,args) if args.threads else None
     controller.control(args.size, configure)
-    
+
     controller.strategies.to_csv(os.path.join(args.out, 'strategies.csv'))
-    
+
     return 0
-    
+
 def analyze_handler(args):
     logger = logging.getLogger("caspo")
-    
+
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
         logger.info("Analyzing %s logical networks..." % len(networks))
-        
+
         if args.netstats:
             with open(os.path.join(args.out,'stats-networks.csv'),'wb') as fd:
                 w = csv.DictWriter(fd,["mapping","frequency","exclusive","inclusive"])
                 w.writeheader()
-                exclusive, inclusive = networks.combinatorics()        
+                exclusive, inclusive = networks.combinatorics()
                 for k,f in networks.frequencies_iter():
                     row = dict(mapping="%s=%s" % k, frequency="%.4f" % f)
                     if k in exclusive:
                         row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[k]))
-                
+
                     if k in inclusive:
                         row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[k]))
-                        
+
                     w.writerow(row)
 
         if args.midas:
             dataset = learn.Dataset(args.midas[0], int(args.midas[1]))
-            
+
             if args.netstats:
                 networks.to_csv(os.path.join(args.out,'networks-mse-len.csv'), size=True, dataset=dataset)
-            
+
             configure = ft.partial(configure_mt, args) if args.threads else None
 
             behaviors = learn.io(networks, dataset.setup, args.threads if args.threads else 1, configure)
@@ -114,42 +114,42 @@ def analyze_handler(args):
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
             behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'))
-            
+
             cc = learn.core_clampings(behaviors, setup, configure)
             cc.to_csv(os.path.join(args.out,'core.csv'), setup.stimuli, setup.inhibitors)
-            
+
             logger.info("\tI/O logical behaviors: %s" % len(behaviors))
             logger.info("\tWeighted MSE: %.4f" % behaviors.weighted_mse(dataset))
             logger.info("\tCore predictions: %.2f%%" % ((100. * len(cc)) / 2**(len(setup.cues()))))
-                        
+
         logger.info("done.")
-            
-    
+
+
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)
         logger.info("Analyzing %s intervention strategies..." % len(strategies))
-        
+
         with open(os.path.join(args.out,'stats-strategies.csv'),'wb') as fd:
             w = csv.DictWriter(fd,["literal","frequency","exclusive","inclusive"])
             w.writeheader()
-            exclusive, inclusive = strategies.combinatorics()        
+            exclusive, inclusive = strategies.combinatorics()
             for l,f in strategies.frequencies_iter():
                 row = dict(literal="%s=%s" % l, frequency="%.4f" % f)
                 if l in exclusive:
                     row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
-            
+
                 if l in inclusive:
                     row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
-                    
+
                 w.writerow(row)
 
         logger.info("done.")
-        
+
     if args.designs and args.behaviors and args.setup:
         behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
-        
+
         logger.info("Analyzing experimental designs with respect to %s I/O logical behaviors..." % len(behaviors))
-        
+
         setup = core.Setup.from_json(args.setup)
 
         df = None
@@ -159,59 +159,61 @@ def analyze_handler(args):
             df_od = clampings.differences(behaviors, setup.readouts)
             df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
             df = pd.concat([df,df_od], ignore_index=True)
-        
+
         df.to_csv(os.path.join(args.out,'stats-designs.csv'), index=False)
         logger.info("done.")
-        
+
     return 0
-    
+
 def visualize_handler(args):
     logger = logging.getLogger("caspo")
 
     if args.setup:
         setup = core.Setup.from_json(args.setup)
-        
-        if args.pkn:
-            graph = core.Graph.read_sif(args.pkn)
-            gc = visualize.ColoredNetwork(graph, setup)
-            gc.to_dot(os.path.join(args.out,'pkn.dot'))
-            
-            zipped = graph.compress(setup)
-            if zipped.nodes != graph.nodes:          
-                zc = visualize.ColoredNetwork(zipped, setup)
-                zc.to_dot(os.path.join(args.out,'pkn-zip.dot'))
-                
-        if args.networks:
-            networks = core.LogicalNetworkList.from_csv(args.networks)
-            if args.sample:
-                try:
-                    sample = random.sample(networks, args.sample)
-                except ValueError as e:
-                    logger.warning("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
-                    sample = networks
-            else:
+    else:
+        setup = core.Setup([],[],[])
+
+    if args.pkn:
+        graph = core.Graph.read_sif(args.pkn)
+        gc = visualize.ColoredNetwork(graph, setup)
+        gc.to_dot(os.path.join(args.out,'pkn.dot'))
+
+        zipped = graph.compress(setup)
+        if zipped.nodes != graph.nodes:
+            zc = visualize.ColoredNetwork(zipped, setup)
+            zc.to_dot(os.path.join(args.out,'pkn-zip.dot'))
+
+    if args.networks:
+        networks = core.LogicalNetworkList.from_csv(args.networks)
+        if args.sample:
+            try:
+                sample = random.sample(networks, args.sample)
+            except ValueError as e:
+                logger.warning("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
                 sample = networks
-            
-            for i, network in enumerate(sample):
-                nc = visualize.ColoredNetwork(network,setup)
-                nc.to_dot(os.path.join(args.out,'network-%s.dot' % i))
-            
-            if args.union:
-                nc = visualize.ColoredNetwork(networks,setup)
-                nc.to_dot(os.path.join(args.out,'networks-union.dot'))
-                
+        else:
+            sample = networks
+
+        for i, network in enumerate(sample):
+            nc = visualize.ColoredNetwork(network,setup)
+            nc.to_dot(os.path.join(args.out,'network-%s.dot' % i))
+
+        if args.union:
+            nc = visualize.ColoredNetwork(networks,setup)
+            nc.to_dot(os.path.join(args.out,'networks-union.dot'))
+
         if args.designs:
             df = None
             for i,od in pd.read_csv(args.designs).groupby("ID"):
                 clampings = core.ClampingList.from_dataframe(od.drop("ID", axis=1), setup.inhibitors)
-            
+
                 dc = visualize.ColoredClamping(clampings)
                 dc.to_dot(os.path.join(args.out, "design-%s.dot" % i))
-                    
+
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)
-        
+
         sc = visualize.ColoredClamping(strategies, "CONSTRAINTS", "GOALS")
         sc.to_dot(os.path.join(args.out,'strategies.dot'))
-        
+
     return 0
