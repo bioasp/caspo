@@ -29,6 +29,39 @@ import gringo
 from caspo import core
 
 class Learner(object):
+    """
+    Learner of logical networks
+    
+    Parameters
+    ----------
+    graph : :class:`caspo.core.Graph` 
+        Prior knowledge network
+        
+    dataset : :class:`caspo.learn.dataset`
+        Experimental dataset
+        
+    length : int
+        Maximum length for conjunction clauses
+        
+    discrete : str
+        Discretization function: `round`, `ceil`, or `floor`
+        
+    factor : int
+        Discretization factor, e.g. 10, 100, 1000
+        
+    Attributes
+    ----------
+        graph : :class:`caspo.core.Graph`
+        dataset : :class:`caspo.learn.dataset`
+        length : int
+        factor : int
+        discrete : str
+        hypergraph : :class:`caspo.core.HyperGraph`
+        instance : str
+        optimum : :class:`caspo.core.LogicalNetwork`
+        encodings : dict
+        logger : Logger
+    """
     def __init__(self, graph, dataset, length, discrete, factor):
         self.graph = graph
         self.dataset = dataset
@@ -57,12 +90,60 @@ class Learner(object):
         self.logger = logging.getLogger("caspo")
         
     def round(self, factor, value):
+        """
+        Discretize a given value using a given factor and the closest integer function
+        
+        Parameters
+        ----------
+        factor : int
+            The factor to be used for the discretization
+        
+        value : float
+            The value to be discretized
+        
+        Returns
+        -------
+        int
+            The discretized value
+        """
         return int(round(factor*value))
         
     def ceil(self, factor, value):
+        """
+        Discretize a given value using a given factor and the ceil integer function
+        
+        Parameters
+        ----------
+        factor : int
+            The factor to be used for the discretization
+        
+        value : float
+            The value to be discretized
+        
+        Returns
+        -------
+        int
+            The discretized value
+        """
         return int(math.ceil(factor*value))
 
     def floor(self, factor, value):
+        """
+        Discretize a given value using a given factor and the floor integer function
+        
+        Parameters
+        ----------
+        factor : int
+            The factor to be used for the discretization
+        
+        value : float
+            The value to be discretized
+        
+        Returns
+        -------
+        int
+            The discretized value
+        """
         return int(math.floor(factor*value))
         
     def __keep_last__(self, model):
