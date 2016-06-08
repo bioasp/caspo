@@ -24,6 +24,9 @@ import gringo
 from caspo import core
 
 class Dataset(object):
+    """
+    A phospho-proteomics dataset
+    """
     
     def __init__(self, midas, time):
         df = pd.read_csv(midas)

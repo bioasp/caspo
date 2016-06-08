@@ -34,10 +34,10 @@ class Learner(object):
     
     Parameters
     ----------
-    graph : :class:`caspo.core.Graph` 
+    graph : :class:`caspo.core.graph.Graph` 
         Prior knowledge network
         
-    dataset : :class:`caspo.learn.dataset`
+    dataset : :class:`.dataset.Dataset`
         Experimental dataset
         
     length : int
@@ -51,14 +51,15 @@ class Learner(object):
         
     Attributes
     ----------
-        graph : :class:`caspo.core.Graph`
-        dataset : :class:`caspo.learn.dataset`
+        graph : :class:`caspo.core.graph.Graph`
+        dataset : :class:`.dataset.Dataset`
         length : int
         factor : int
         discrete : str
-        hypergraph : :class:`caspo.core.HyperGraph`
+        hypergraph : :class:`caspo.core.hypergraph.HyperGraph`
         instance : str
-        optimum : :class:`caspo.core.LogicalNetwork`
+        optimum : :class:`caspo.core.logicalnetwork.LogicalNetwork`
+        networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
         encodings : dict
         logger : Logger
     """
@@ -76,6 +77,7 @@ class Learner(object):
         self.instance = ". ".join(map(str, fs)) + ". #show dnf/2."
         
         self.optimum = None
+        self.networks = core.LogicalNetworkList.from_hypergraph(self.hypergraph)
         
         root = os.path.dirname(__file__)
         self.encodings = {
@@ -164,6 +166,22 @@ class Learner(object):
         return clingo
         
     def learn(self, fit=0, size=0, configure=None):
+        """
+        Learns all (nearly) optimal logical networks with give fitness and size tolerance.
+        The first optimum logical network found is saved in :attr:`optimum` and all enumerated
+        logical networks are saved in the :attr:`networks`.
+        
+        Parameters
+        ----------
+        fit : float
+            Fitness tolerance, e.g., use 0.1 for 10% tolerance with respect to the optimum
+        
+        size : int
+            Size tolerance with respect to the optimum
+        
+        configure : callable
+            Callable object responsible of setting clingo configuration
+        """
         encodings = ['guess', 'fixpoint', 'rss']
         if self.optimum is None:
             clingo = self.__get_clingo__(encodings + ['opt'])
@@ -189,7 +207,7 @@ class Learner(object):
         self.logger.info("Optimum logical networks has MSE %.4f and size %s" % 
                             (mean_squared_error(readouts[pos],predictions[pos]), self.optimum.size))
         
-        self.networks = core.LogicalNetworkList.from_hypergraph(self.hypergraph)
+        self.networks.reset()
 
         args = ['-c maxrss=%s' % int(rss + rss*fit), '-c maxsize=%s' % (self.optimum.size + size)]
 
@@ -204,9 +222,29 @@ class Learner(object):
         self.logger.info("%s (nearly) optimal logical networks learned in %.4fs" % (len(self.networks), clingo.stats['time_total']))
         
     def random(self, n=1, size=(28,30), nand=(2,3), maxin=2):
+        """
+        Generates `n` random logical networks with given size range, number of AND gates and maximum
+        input signals for AND gates. Logical networks are saved in :attr:`networks`.
+        
+        Parameters
+        ----------
+        n : int
+            Number of random logical networks to be generated
+        
+        size : (int,int)
+            Minimum and maximum sizes
+        
+        nand : (int,int)
+            Minimum and maximum AND gates
+        
+        maxin : int
+            Maximum input signals for AND gates
+        """
         args = ['-c minsize=%s' % size[0], '-c maxsize=%s' % size[1], 
                 '-c minnand=%s' % nand[0], '-c maxnand=%s' % nand[1], '-c maxin=%s' % maxin]
         encodings = ['guess', 'random']
+        
+        self.networks.reset()
         
         clingo = self.__get_clingo__(args, encodings)
         clingo.conf.solve.models = str(n)
@@ -214,4 +252,4 @@ class Learner(object):
         clingo.conf.solver.sign_def = '3'
         
         clingo.ground([("base", [])])
-        clingo.solve(on_model=partial(self.__save__, False))
+        clingo.solve(on_model=self.__save__)
