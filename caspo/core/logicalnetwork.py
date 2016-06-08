@@ -67,7 +67,7 @@ class LogicalNetworkList(object):
         if isinstance(known_eq, np.ndarray):
             self.known_eq = known_eq
         else:
-            self.known_eq = np.array(known_eq) if known_eq else  np.zeros(len(self.matrix))
+            self.known_eq = np.array(known_eq) if known_eq else np.zeros(len(self.matrix))
 
 
     @classmethod
@@ -131,6 +131,13 @@ class LogicalNetworkList(object):
                 known_eq.append(network.graph['known_eq'])
 
         return klass(hypergraph, matrix, known_eq)
+        
+    def reset(self):
+        """
+        Drop all networks in the list
+        """
+        self.matrix = np.array([])
+        self.known_eq = np.array([])
 
     def split(self, indices):
         """
