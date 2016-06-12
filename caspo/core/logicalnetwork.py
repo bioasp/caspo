@@ -34,26 +34,29 @@ from hypergraph import HyperGraph
 
 class LogicalNetworkList(object):
     """
-    List of :class:`caspo.core.LogicalNetwork` object instances
+    List of :class:`caspo.core.logicalnetwork.LogicalNetwork` object instances
 
     Parameters
     ----------
-    hg : caspo.core.HyperGraph
+    hg : :class:`caspo.core.hypergraph.HyperGraph`
         Underlying hypergraph of all logical networks.
 
-    matrix : Optional[numpy.ndarray]
+    matrix : Optional[`numpy.ndarray`_]
         2-D binary array representation of all logical networks.
         If None, an empty array is initialised
 
-    known_eq : Optional[numpy.ndarray]
+    known_eq : Optional[`numpy.ndarray`_]
         Number of known equivalences for each logical network in :attr:`matrix`.
         If None, an array of zeros is initialised with the same length as :attr:`matrix`
 
     Attributes
     ----------
-    hg : :class:`caspo.core.HyperGraph`
-    matrix : :class:`numpy.ndarray`
-    known_eq : :class:`numpy.ndarray`
+    hg : :class:`caspo.core.hypergraph.HyperGraph`
+    matrix : `numpy.ndarray`_
+    known_eq : `numpy.ndarray`_
+    
+    
+    .. _numpy.ndarray: http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.ndarray.html#numpy.ndarray
     """
 
     def __init__(self, hg, matrix=None, known_eq=None):
@@ -82,7 +85,7 @@ class LogicalNetworkList(object):
 
         Returns
         -------
-        caspo.core.LogicalNetworkList
+        caspo.core.logicalnetwork.LogicalNetworkList
            Created object instance
         """
         df = pd.read_csv(filename)
@@ -106,19 +109,19 @@ class LogicalNetworkList(object):
     def from_hypergraph(klass, hypergraph, networks=[]):
         """
         Creates a list of logical networks from a given hypergraph and an
-        optional list of :class:`caspo.core.LogicalNetwork` object instances
+        optional list of :class:`caspo.core.logicalnetwork.LogicalNetwork` object instances
 
         Parameters
         ----------
-        hypegraph : caspo.core.HyperGraph
+        hypegraph : :class:`caspo.core.hypergraph.HyperGraph`
             Underlying hypergraph for this logical network list
 
         networks : Optional[list]
-            List of :class:`caspo.core.LogicalNetwork` object instances
+            List of :class:`caspo.core.logicalnetwork.LogicalNetwork` object instances
 
         Returns
         -------
-        caspo.core.LogicalNetworkList
+        caspo.core.logicalnetwork.LogicalNetworkList
            Created object instance
         """
         matrix = None
@@ -151,26 +154,26 @@ class LogicalNetworkList(object):
         Returns
         -------
         list
-            List of :class:`caspo.core.LogicalNetworkList` object instances
+            List of :class:`caspo.core.logicalnetwork.LogicalNetworkList` object instances
 
 
-        .. seealso:: :py:func:`numpy.split`
+        .. seealso:: `numpy.split <http://docs.scipy.org/doc/numpy-1.10.0/reference/generated/numpy.split.html#numpy-split>`_
         """
         return map(lambda part: LogicalNetworkList(self.hg, part), np.split(self.matrix, indices))
 
     def concat(self, other):
         """
-        Returns the concatenation with another :class:`caspo.core.LogicalNetworkList` object instance.
+        Returns the concatenation with another :class:`caspo.core.logicalnetwork.LogicalNetworkList` object instance.
         It is assumed that both have the same underlying hypergraph.
 
         Parameters
         ----------
-        other : caspo.core.LogicalNetworkList
+        other : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
             The list to concatenate
 
         Returns
         -------
-        caspo.core.LogicalNetworkList
+        caspo.core.logicalnetwork.LogicalNetworkList
             If other is empty returns self, if self is empty returns other, otherwise a new
             :class:`caspo.core.LogicalNetworkList` is created by concatenating self and other.
         """
@@ -183,11 +186,11 @@ class LogicalNetworkList(object):
 
     def append(self, network):
         """
-        Append a :class:`caspo.core.LogicalNetwork` to the list
+        Append a :class:`caspo.core.logicalnetwork.LogicalNetwork` to the list
 
         Parameters
         ----------
-        network : caspo.core.LogicalNetwork
+        network : :class:`caspo.core.logicalnetwork.LogicalNetwork`
             The network to append
         """
         arr = network.to_array(self.hg.mappings)
@@ -215,7 +218,7 @@ class LogicalNetworkList(object):
 
         Yields
         ------
-        caspo.core.LogicalNetwork
+        caspo.core.logicalnetwork.LogicalNetwork
             The next logical network in the list
         """
         for i,arr in enumerate(self.matrix):
@@ -223,12 +226,15 @@ class LogicalNetworkList(object):
 
     def to_funset(self):
         """
-        Converts the list of logical networks to a set of :class:`gringo.Fun` instances
+        Converts the list of logical networks to a set of `gringo.Fun`_ instances
 
         Returns
         -------
         set
-            Representation of all networks as a set of :class:`gringo.Fun` instances
+            Representation of all networks as a set of `gringo.Fun`_ instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set((gringo.Fun("variable", [var]) for var in self.hg.nodes['name'].values))
 
@@ -253,14 +259,14 @@ class LogicalNetworkList(object):
 
     def to_dataframe(self, known_eq=False, dataset=None, size=False):
         """
-        Converts the list of logical networks to a :class:`pandas.DataFrame` object instance
+        Converts the list of logical networks to a `pandas.DataFrame`_ object instance
 
         Parameters
         ----------
         known_eq : boolean
             If True, a column with known equivalences is included in the DataFrame
 
-        dataset: Optional[caspo.core.Dataset]
+        dataset: Optional[:class:`caspo.learn.dataset.Dataset`]
             If not None, a column with the MSE with respect to the given dataset is included in the DataFrame
 
         size: boolean
@@ -268,8 +274,11 @@ class LogicalNetworkList(object):
 
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`_
             DataFrame representation of the list of logical networks.
+        
+        
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
         """
         length = len(self)
         df = pd.DataFrame(self.matrix, columns=map(lambda (c,t): "%s=%s" % (c,t), self.hg.mappings))
@@ -302,11 +311,11 @@ class LogicalNetworkList(object):
         known_eq : boolean
             If True, a column with known equivalences is included in the DataFrame
 
-        dataset: Optional[caspo.core.Dataset]
-            If not None, a column with the MSE with respect to the given dataset is included in the DataFrame
+        dataset: Optional[:class:`caspo.learn.dataset.Dataset`]
+            If not None, a column with the MSE with respect to the given dataset is included
 
         size: boolean
-            If True, a column with the size of each logical network is included in the DataFrame
+            If True, a column with the size of each logical network is included
 
         """
         self.to_dataframe(known_eq, dataset, size).to_csv(filename, index=False)
@@ -317,7 +326,7 @@ class LogicalNetworkList(object):
 
         Yields
         ------
-        tuple[tuple[caspo.core.Clause, str], float]
+        tuple[tuple[caspo.core.clause.Clause, str], float]
             The next pair (mapping,frequency)
         """
         f = self.matrix.mean(axis=0)
@@ -327,12 +336,12 @@ class LogicalNetworkList(object):
 
     def frequency(self, mapping):
         """
-        Returns frequency of a given mapping, i.e., a tuple (:class:`caspo.core.Clause`, str)
+        Returns frequency of a given mapping, i.e., a tuple (:class:`caspo.core.clause.Clause`, str)
 
         Parameters
         ----------
         mapping : tuple
-            A mapping (:class:`caspo.core.Clause`, str)
+            A mapping (:class:`caspo.core.clause.Clause`, str)
 
         Returns
         -------
@@ -378,20 +387,22 @@ class LogicalNetworkList(object):
 
     def variances(self, setup):
         """
-        Returns a :class:`pandas.DataFrame` with the weighted variance of readouts predictions for each possible clampings.
+        Returns a `pandas.DataFrame`_ with the weighted variance of readouts predictions for each possible clampings.
         Weights corresponds to the known equivalences for each logical network in :attr:`known_eq`.
 
         Parameters
         ----------
-        setup : caspo.core.Setup
+        setup : :class:`caspo.core.setup.Setup`
             Experimental setup
 
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`_
             DataFrame with the weighted variance of readouts predictions for each possible clamping
 
-
+        
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+        
         .. seealso:: `Wikipedia: Weighted sample variance <https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`_
         """
         stimuli, inhibitors, readouts = setup.stimuli, setup.inhibitors, setup.readouts
@@ -413,12 +424,12 @@ class LogicalNetworkList(object):
 
     def weighted_mse(self, dataset):
         """
-        Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.core.Dataset` object instance.
+        Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.learn.dataset.Dataset` object instance.
         Weights corresponds to the known equivalences for each logical network in :attr:`known_eq`.
 
         Parameters
         ----------
-        dataset: caspo.core.Dataset
+        dataset: :class:`caspo.learn.dataset.Dataset`
             Dataset to compute MSE
 
         Returns
@@ -438,13 +449,15 @@ class LogicalNetworkList(object):
 
     def __plot__(self):
         """
-        Returns a :class:`networkx.MultiDiGraph` ready for plotting.
-        Edges weights correspond to mappings frequencies.
+        Returns a `networkx.MultiDiGraph`_ ready for plotting. Edges weights correspond to mappings frequencies.
 
         Returns
         -------
-        networkx.MultiDiGraph
+        `networkx.MultiDiGraph`_
             Network object instance ready for plotting
+        
+        
+        .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
         """
         graph = nx.MultiDiGraph()
         n_gates = 1
@@ -471,23 +484,27 @@ class LogicalNetworkList(object):
 
 class LogicalNetwork(nx.DiGraph):
     """
-    Logical network class extends :class:`networkx.DiGraph` with nodes being,
-    either :class:`caspo.core.Clause` object instances or species names (str).
+    Logical network class extends `networkx.DiGraph`_ with nodes being,
+    either :class:`caspo.core.clause.Clause` object instances or species names (str).
 
     Attributes
     ----------
     known_eq : int
-        Number of known equivalences
+        Number of known equivalences (through the `graph` attribute)
+    
+    
+    .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
     """
 
     @classmethod
     def from_hypertuples(klass, hg, tuples):
         """
-        Creates a logical network from an iterable of integer tuples matching mappings in the given :class:`caspo.core.HypeGraph`
+        Creates a logical network from an iterable of integer tuples matching mappings in the given 
+        :class:`caspo.core.hypergraph.HypeGraph`
 
         Parameters
         ----------
-        hg : caspo.core.HyperGraph
+        hg : :class:`caspo.core.hypergraph.HyperGraph`
             Underlying hypergraph
 
         tuples : (int,int)
@@ -495,7 +512,7 @@ class LogicalNetwork(nx.DiGraph):
 
         Returns
         -------
-        caspo.core.LogicalNetwork
+        caspo.core.logicalnetwork.LogicalNetwork
             Created object instance
         """
         return klass(map(lambda (i,j): (hg.clauses[j], hg.variable(i)), tuples), known_eq=0)
@@ -506,7 +523,7 @@ class LogicalNetwork(nx.DiGraph):
 
         Returns
         -------
-        caspo.core.Graph
+        caspo.core.graph.Graph
             The underlying interaction graph
         """
         edges = set()
@@ -532,7 +549,7 @@ class LogicalNetwork(nx.DiGraph):
         state : dict
             The key-value mapping describing the current state of the logical network
 
-        clamping : caspo.core.Clamping
+        clamping : caspo.core.clamping.Clamping
             A clamping over variables in the logical network
 
         Returns
@@ -556,11 +573,11 @@ class LogicalNetwork(nx.DiGraph):
 
     def fixpoint(self, clamping, steps=0):
         """
-        Computes the fixpoint with respect to a given :class:`caspo.core.Clamping`
+        Computes the fixpoint with respect to a given :class:`caspo.core.clamping.Clamping`
 
         Parameters
         ----------
-        clamping : caspo.core.Clamping
+        clamping : :class:`caspo.core.clamping.Clamping`
             The clamping with respect to the fixpoint is computed
         steps : int
             If greater than zero, a maximum of steps is performed
@@ -604,9 +621,12 @@ class LogicalNetwork(nx.DiGraph):
 
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`_
             DataFrame with network predictions for each clamping. If stimuli and inhibitors are given,
             columns are included describing each clamping. Otherwise, columns correspond to readouts only.
+        
+        
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
         """
         cues = stimuli + inhibitors
         nc = len(cues)
@@ -649,7 +669,7 @@ class LogicalNetwork(nx.DiGraph):
 
         Yields
         ------
-        tuple[str,frozenset[caspo.core.Clause]]
+        tuple[str,frozenset[caspo.core.clause.Clause]]
             The next tuple of the form (variable, set of clauses) in the logical network.
         """
         for var in it.ifilter(lambda v: self.has_node(v), self.variables()):
@@ -658,7 +678,7 @@ class LogicalNetwork(nx.DiGraph):
     def to_array(self, mappings):
         """
         Converts the logical network to a binary array with respect to the given mappings from a
-        :class:`caspo.core.HyperGraph` object instance.
+        :class:`caspo.core.hypergraph.HyperGraph` object instance.
 
         Parameters
         ----------
@@ -667,9 +687,11 @@ class LogicalNetwork(nx.DiGraph):
 
         Returns
         -------
-        numpy.ndarray
+        `numpy.ndarray`_
             Binary array with respect to the given mappings describing the logical network
 
+
+        .. _numpy.ndarray: http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.ndarray.html#numpy.ndarray
         """
         arr = np.zeros(len(mappings), np.int8)
         for i, (clause, target) in mappings.iteritems():
@@ -680,12 +702,15 @@ class LogicalNetwork(nx.DiGraph):
 
     def __plot__(self):
         """
-        Returns a :class:`networkx.MultiDiGraph` ready for plotting.
+        Returns a `networkx.MultiDiGraph`_ ready for plotting.
 
         Returns
         -------
-        networkx.MultiDiGraph
+        `networkx.MultiDiGraph`_
             Network object instance ready for plotting
+        
+        
+        .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
         """
         graph = nx.MultiDiGraph()
         n_gates = 1

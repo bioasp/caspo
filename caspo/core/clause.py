@@ -20,7 +20,7 @@ from literal import Literal
 
 class Clause(frozenset):
     """
-    A conjunction clause is a frozenset of :class:`caspo.core.Literal` object instances
+    A conjunction clause is a frozenset of :class:`caspo.core.literal.Literal` object instances
     """
 
     @classmethod
@@ -30,7 +30,7 @@ class Clause(frozenset):
         
         Returns
         -------
-        caspo.core.Clause
+        caspo.core.clause.Clause
             Created object instance
         """
         return klass(map(lambda lit: Literal.from_str(lit), string.split('+')))

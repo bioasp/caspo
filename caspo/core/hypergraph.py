@@ -34,28 +34,32 @@ class HyperGraph(object):
     
     Parameters
     ----------
-    nodes : pandas.DataFrame
+    nodes : `pandas.DataFrame`_
         Nodes as a DataFrame with an integer index (node id) and a column `name`
     
-    hyper : pandas.DataFrame
+    hyper : `pandas.DataFrame`_
         Hyperedges for each node id as a DataFrame with an integer index (hyperedge id) and a column `node_idx` (target node)
     
-    edges : pandas.DataFrame
+    edges : `pandas.DataFrame`_
         Hyperedges details as a DataFrame with columns `hyper_idx`, `name` (source node), `sign`
     
     Attributes
     ----------
-    nodes : pandas.DataFrame
-    hyper : pandas.DataFrame
-    edges : pandas.DataFrame
+    nodes : `pandas.DataFrame`_
+    hyper : `pandas.DataFrame`_
+    edges : `pandas.DataFrame`_
     clauses : dict
-        Mapping from hyperedge id (`hyper_idx`) to :class:`caspo.core.Clause` object instance
+        Mapping from hyperedge id (`hyper_idx`) to :class:`caspo.core.clause.Clause` object instance
 
     clauses_idx : dict
         The reverse of :attr:`clauses`
     
-    mappings : pandas.Series
+    mappings : `pandas.Series`_
         Series of tuples of the form (clause, variable)
+    
+    
+    .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+    .. _pandas.Series: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.Series.html#pandas.Series
     """
     
     def __init__(self, nodes, hyper, edges):
@@ -98,11 +102,11 @@ class HyperGraph(object):
     @classmethod
     def from_graph(klass, graph, length=0):
         """
-        Creates a hypergraph (expanded graph) from a :class:`caspo.core.Graph` object instance
+        Creates a hypergraph (expanded graph) from a :class:`caspo.core.graph.Graph` object instance
         
         Parameters
         ----------
-        graph : caspo.core.Graph
+        graph : :class:`caspo.core.graph.Graph`
             The base interaction graph to be expanded
         
         length : int
@@ -110,7 +114,7 @@ class HyperGraph(object):
         
         Returns
         -------
-        caspo.core.HyperGraph
+        caspo.core.hypergraph.HyperGraph
             Created object instance
         """
         nodes = []
@@ -148,12 +152,15 @@ class HyperGraph(object):
         
     def to_funset(self):
         """
-        Converts the hypergraph to a set of :class:`gringo.Fun` instances
+        Converts the hypergraph to a set of `gringo.Fun`_ instances
         
         Returns
         -------
         set
-            Representation of the hypergraph as a set of :class:`gringo.Fun` instances
+            Representation of the hypergraph as a set of `gringo.Fun`_ instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set()        
         for i,n in self.nodes.itertuples():
@@ -166,3 +173,4 @@ class HyperGraph(object):
             fs.add(gringo.Fun('edge', [j,v,s]))
         
         return fs
+        

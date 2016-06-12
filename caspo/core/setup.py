@@ -70,7 +70,7 @@ class Setup(object):
         
         Yields
         ------
-        caspo.core.Clamping
+        caspo.core.clamping.Clamping
             The next clamping with respect to the experimental setup
         """
         s = cues or list(self.stimuli + self.inhibitors)
@@ -92,12 +92,15 @@ class Setup(object):
 
     def to_funset(self):
         """
-        Converts the experimental setup to a set of :class:`gringo.Fun` object instances
+        Converts the experimental setup to a set of `gringo.Fun`_ object instances
         
         Returns
         -------
         set
-            The set of :class:`gringo.Fun` object instances
+            The set of `gringo.Fun`_ object instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set((gringo.Fun('stimulus',[str(var)]) for var in self.stimuli))
         fs = fs.union((gringo.Fun('inhibitor',[str(var)]) for var in self.inhibitors))

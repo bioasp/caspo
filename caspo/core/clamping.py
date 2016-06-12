@@ -29,17 +29,22 @@ from literal import Literal
 
 class ClampingList(pd.Series):
     """
-    List of :class:`caspo.core.Clamping` object instances as a :class:`pandas.Series`
+    List of :class:`caspo.core.clamping.Clamping` object instances as a `pandas.Series`_
+    
+    .. _pandas.Series: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.Series.html#pandas.Series
     """
     
     def to_funset(self, lname="clamping", cname="clamped"):
         """
-        Converts the list of clampings to a set of :class:`gringo.Fun` instances
+        Converts the list of clampings to a set of `gringo.Fun`_ instances
         
         Returns
         -------
         set
-            Representation of all clampings as a set of :class:`gringo.Fun` instances
+            Representation of all clampings as a set of `gringo.Fun`_ instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set()
         for i, clamping in self.iteritems():
@@ -50,7 +55,7 @@ class ClampingList(pd.Series):
         
     def to_dataframe(self, stimuli=[], inhibitors=[]):
         """
-        Converts the list of clampigns to a :class:`pandas.DataFrame` object instance
+        Converts the list of clampigns to a `pandas.DataFrame`_ object instance
         
         Parameters
         ----------
@@ -62,8 +67,11 @@ class ClampingList(pd.Series):
         
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`_
             DataFrame representation of the list of clampings
+        
+        
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
         """
         cues = stimuli + inhibitors
         nc = len(cues)
@@ -105,11 +113,11 @@ class ClampingList(pd.Series):
     @classmethod
     def from_dataframe(klass, df, inhibitors=[]):
         """
-        Creates a list of clampings from a :class:`pandas.DataFrame` object instance
+        Creates a list of clampings from a `pandas.DataFrame`_ object instance
         
         Parameters
         ----------
-        df : pandas.DataFrame
+        df : `pandas.DataFrame`_
             Columns and rows correspond to species names and individual clampings, respectively
             
         inhibitors : Optional[list[str]]
@@ -120,6 +128,9 @@ class ClampingList(pd.Series):
         -------
         caspo.core.ClampingList
             Created object instance
+        
+        
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
         """
         clampings = []
         ni = len(inhibitors)
@@ -146,7 +157,7 @@ class ClampingList(pd.Series):
         Parameters
         ----------
         filename : str
-            Absolute path to a CSV file to be loaded with :func:`pandas.read_csv`. The resulting DataFrame is passed to :func:`from_dataframe`.
+            Absolute path to a CSV file to be loaded with `pandas.read_csv`_. The resulting DataFrame is passed to :func:`from_dataframe`.
         
         inhibitors : Optional[list[str]]
             If given, species names ending with `i` and found in the list will be interpreted as inhibitors
@@ -154,8 +165,11 @@ class ClampingList(pd.Series):
             
         Returns
         -------
-        caspo.core.ClampingList
+        caspo.core.clamping.ClampingList
             Created object instance
+        
+        
+        .. _pandas.read_csv: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.read_csv.html#pandas.read_csv
         """
         df = pd.read_csv(filename)
         return klass.from_dataframe(df, inhibitors)
@@ -166,7 +180,7 @@ class ClampingList(pd.Series):
         
         Yields
         ------
-        tuple[caspo.core.Literal, float]
+        tuple[ caspo.core.literal.Literal, float ]
             The next tuple of the form (literal, frequency)
         """
         df = self.to_dataframe()
@@ -182,7 +196,7 @@ class ClampingList(pd.Series):
         
         Parameters
         ----------
-        literal : caspo.core.Literal
+        literal : :class:`caspo.core.literal.Literal`
             The clamped variable
         
         Returns
@@ -234,7 +248,7 @@ class ClampingList(pd.Series):
         
         Parameters
         ----------
-        networks : iterable[caspo.core.LogicalNetwork]
+        networks : iterable[:class:`caspo.core.logicalnetwork.LogicalNetwork`]
             Iterable of logical networks to compute pairwise differences
         
         readouts : list[str]
@@ -260,13 +274,13 @@ class ClampingList(pd.Series):
         
         Parameters
         ----------
-        literals : iterable[caspo.core.Literal]
+        literals : iterable[:class:`caspo.core.literal.Literal`]
             Iterable of literals to be removed from each clamping
         
         
         Returns
         -------
-        caspo.core.ClampingList
+        caspo.core.clamping.ClampingList
             The new list of clampings
         """
         clampings = []
@@ -279,12 +293,15 @@ class ClampingList(pd.Series):
         
     def __plot__(self, source="", target=""):
         """
-        Returns a :class:`networkx.DiGraph` ready for plotting.
+        Returns a `networkx.DiGraph`_ ready for plotting.
         
         Returns
         -------
-        networkx.DiGraph
+        `networkx.DiGraph`_
             Network object instance ready for plotting
+        
+        
+        .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
         """
         graph = nx.DiGraph()
         
@@ -321,7 +338,8 @@ class ClampingList(pd.Series):
 
 class Clamping(frozenset):
     """
-    A clamping is a frozenset of :class:`caspo.core.Literal` object instances where each literal describes a clamped variable
+    A clamping is a frozenset of :class:`caspo.core.literal.Literal` object instances where each 
+    literal describes a clamped variable
     """
     
     @classmethod
@@ -336,19 +354,22 @@ class Clamping(frozenset):
         
         Returns
         -------
-        caspo.core.Clamping
+        caspo.core.clamping.Clamping
             Created object instance
         """
         return klass(it.imap(lambda (v,s): Literal(v,s), tuples))
     
     def to_funset(self, index, name="clamped"):
         """
-        Converts the clamping to a set of :class:`gringo.Fun` object instances
+        Converts the clamping to a set of `gringo.Fun`_ object instances
         
         Returns
         -------
         set
-            The set of :class:`gringo.Fun` object instances
+            The set of `gringo.Fun`_ object instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set()
         for var, sign in self:
@@ -402,9 +423,12 @@ class Clamping(frozenset):
     
         Returns
         -------
-        numpy.ndarray
+        `numpy.ndarray`_
             1-D array where position `i` correspond to the sign of the clamped variable at 
             position `i` in the given list of variables
+        
+        
+        .. _numpy.ndarray: http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.ndarray.html#numpy.ndarray
         """
         arr = np.zeros(len(variables), np.int8)
         dc = dict(self)
@@ -420,12 +444,12 @@ class Clamping(frozenset):
         
         Parameters
         ----------
-        literals : iterable[caspo.core.Literal]
+        literals : iterable[:class:`caspo.core.literal.Literal`]
             Iterable of literals to be removed
             
         Returns
         -------
-        caspo.core.Clamping
+        caspo.core.clamping.Clamping
             A new clamping without the given literals
         """
         return self.difference(literals)

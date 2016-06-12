@@ -22,7 +22,9 @@ import networkx as nx
 
 class Graph(nx.MultiDiGraph):
     """
-    Interaction Graph (a.k.a. Prior Knowledge Network) extending :class:`networkx.MultiDiGraph`
+    Interaction Graph (a.k.a. Prior Knowledge Network) extending `networkx.MultiDiGraph`_
+    
+    .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
     """
     
     @classmethod
@@ -37,7 +39,7 @@ class Graph(nx.MultiDiGraph):
         
         Returns
         -------
-        caspo.core.Graph
+        caspo.core.graph.Graph
             Created object instance
         """
         return klass(it.imap(lambda (source,target,sign): (source,target,{'sign': sign}), tuples))
@@ -45,7 +47,7 @@ class Graph(nx.MultiDiGraph):
     @classmethod
     def read_sif(klass, path):
         """
-        Creates a graph from a Cytoscape SIF file
+        Creates a graph from a cytoscape SIF file
         
         Parameters
         ----------
@@ -54,8 +56,8 @@ class Graph(nx.MultiDiGraph):
         
         Returns
         -------
-        caspo.core.Graph
-            Created object instace
+        caspo.core.graph.Graph
+            Created object instance
         """
         df = pd.read_csv(path, delim_whitespace=True, names=['source','sign','target'])
         edges = map(lambda (i,source,sign,target): (source,target,{'sign': sign}), df.itertuples())
@@ -113,12 +115,12 @@ class Graph(nx.MultiDiGraph):
         
         Parameters
         ----------
-        setup : core.caspo.Setup
+        setup : :class:`caspo.core.setup.Setup`
             Experimental setup used to compress the graph
         
         Returns
         -------
-        caspo.core.Graph
+        caspo.core.graph.Graph
             Compressed graph
         """
         done = False
@@ -177,7 +179,7 @@ class Graph(nx.MultiDiGraph):
         
         Returns
         -------
-        caspo.core.Graph
+        caspo.core.graph.Graph
             A copy of the object instance
         """
         return self.copy()
