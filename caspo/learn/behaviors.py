@@ -58,6 +58,29 @@ def __learn_io__(networks, setup, configure):
     return behaviors
 
 def io(networks, setup, processes=1, configure=None):
+    """
+    Returns input-output behaviors for a given list of logical networks
+    
+    Parameters
+    ----------
+    networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
+        The list of networks
+    
+    setup : :class:`caspo.core.setup.Setup`
+        The experimental setup with respect to the input-output behaviors must be computed
+    
+    processes : int
+        Number of processes to run in parallel
+    
+    configure : callable
+        Callable object responsible of setting clingo configuration
+    
+    
+    Returns
+    -------
+    caspo.core.logicalnetwork.LogicalNetworkList
+        The list of networks with one representative for each behavior
+    """
     n = len(networks)
     if processes > 1 and n > processes:
         pool = mp.Pool(processes)
@@ -74,6 +97,28 @@ def io(networks, setup, processes=1, configure=None):
     return __learn_io__(networks, setup, configure)
     
 def core_clampings(networks, setup, configure=None):
+    """
+    Returns the core clampings for a given list of logical networks, i.e., all experimental
+    perturbations (over stimuli and/or inhibitors) such that all networks produce the same output (over readouts)
+    
+    Parameters
+    ----------
+    networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
+        The list of logical networks
+    
+    setup : :class:`caspo.core.setup.Setup`
+        The experimental setup specifying stimuli, inhibitors, and readouts
+    
+    configure : callable
+        Callable object responsible of setting clingo configuration
+    
+    
+    Returns
+    -------
+    caspo.core.clamping.ClampingList
+        The list of core clampings
+    
+    """
     root = os.path.dirname(__file__)
     encoding = os.path.join(root, 'encodings/io.lp')
     

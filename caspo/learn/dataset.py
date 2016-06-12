@@ -25,7 +25,24 @@ from caspo import core
 
 class Dataset(object):
     """
-    A phospho-proteomics dataset
+    An experimental phospho-proteomics dataset
+    
+    Parameters
+    ----------
+    midas : Absolute PATH to a MIDAS file
+    
+    time : Data acquisition time-point for the early response
+    
+    Attributes
+    ----------
+        setup : :class:`caspo.core.setup.Setup`
+    
+        clampings : :class:`caspo.core.clamping.ClampingList`
+    
+        readouts : `pandas.DataFrame`_
+    
+    
+    .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
     """
     
     def __init__(self, midas, time):
@@ -70,26 +87,73 @@ class Dataset(object):
         return self.df.filter(regex='^DV').rename(columns=lambda c: c[3:]).astype(float)
     
     def is_stimulus(self, name):
+        """
+        Returns if the given species name is a stimulus or not
+        
+        Parameters
+        ----------
+        name : str
+        
+        Returns
+        -------
+        boolean
+            True if the given name is a stimulus, False otherwise.
+        """
         return name.startswith('TR') and not name.endswith('i')
         
     def is_inhibitor(self, name):
+        """
+        Returns if the given species name is a inhibitor or not
+        
+        Parameters
+        ----------
+        name : str
+        
+        Returns
+        -------
+        boolean
+            True if the given name is a inhibitor, False otherwise.
+        """
         return name.startswith('TR') and name.endswith('i')
         
     def is_readout(self, name):
+        """
+        Returns if the given species name is a readout or not
+        
+        Parameters
+        ----------
+        name : str
+        
+        Returns
+        -------
+        boolean
+            True if the given name is a readout, False otherwise.
+        """
         return name.startswith('DV')
         
     def to_funset(self, discrete):
+        """
+        Converts the dataset to a set of `gringo.Fun`_ instances
+        
+        Parameters
+        ----------
+        discrete : callable
+            A discretization function
+        
+        Returns
+        -------
+        set
+            Representation of the dataset as a set of `gringo.Fun`_ instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        """
         fs = self.clampings.to_funset("exp")
         fs = fs.union(self.setup.to_funset())
         
         for i,row in self.readouts.iterrows():
             for var,val in row.iteritems():
-                try:
-                    if not np.isnan(val):
-                        fs.add(gringo.Fun('obs',[i,var,discrete(val)]))
-                except Exception, e:
-                    print val
-                    import pdb;pdb.set_trace()
-                    raise e
-        
+                if not np.isnan(val):
+                    fs.add(gringo.Fun('obs',[i,var,discrete(val)]))
+                            
         return fs
