@@ -42,7 +42,7 @@ class Dataset(object):
         readouts : `pandas.DataFrame`_
     
     
-    .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+    .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
     """
     
     def __init__(self, midas, time):

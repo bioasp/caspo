@@ -58,8 +58,8 @@ class HyperGraph(object):
         Series of tuples of the form (clause, variable)
     
     
-    .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
-    .. _pandas.Series: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.Series.html#pandas.Series
+    .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
+    .. _pandas.Series: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series
     """
     
     def __init__(self, nodes, hyper, edges):

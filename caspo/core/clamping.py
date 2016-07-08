@@ -31,7 +31,7 @@ class ClampingList(pd.Series):
     """
     List of :class:`caspo.core.clamping.Clamping` object instances as a `pandas.Series`_
     
-    .. _pandas.Series: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.Series.html#pandas.Series
+    .. _pandas.Series: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series
     """
     
     def to_funset(self, lname="clamping", cname="clamped"):
@@ -71,7 +71,7 @@ class ClampingList(pd.Series):
             DataFrame representation of the list of clampings
         
         
-        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         cues = stimuli + inhibitors
         nc = len(cues)
@@ -130,7 +130,7 @@ class ClampingList(pd.Series):
             Created object instance
         
         
-        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         clampings = []
         ni = len(inhibitors)
@@ -169,7 +169,7 @@ class ClampingList(pd.Series):
             Created object instance
         
         
-        .. _pandas.read_csv: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.read_csv.html#pandas.read_csv
+        .. _pandas.read_csv: http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html#pandas.read_csv
         """
         df = pd.read_csv(filename)
         return klass.from_dataframe(df, inhibitors)
@@ -428,7 +428,7 @@ class Clamping(frozenset):
             position `i` in the given list of variables
         
         
-        .. _numpy.ndarray: http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.ndarray.html#numpy.ndarray
+        .. _numpy.ndarray: http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray
         """
         arr = np.zeros(len(variables), np.int8)
         dc = dict(self)

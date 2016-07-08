@@ -56,7 +56,7 @@ class LogicalNetworkList(object):
     known_eq : `numpy.ndarray`_
     
     
-    .. _numpy.ndarray: http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.ndarray.html#numpy.ndarray
+    .. _numpy.ndarray: http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray
     """
 
     def __init__(self, hg, matrix=None, known_eq=None):
@@ -157,7 +157,7 @@ class LogicalNetworkList(object):
             List of :class:`caspo.core.logicalnetwork.LogicalNetworkList` object instances
 
 
-        .. seealso:: `numpy.split <http://docs.scipy.org/doc/numpy-1.10.0/reference/generated/numpy.split.html#numpy-split>`_
+        .. seealso:: `numpy.split <http://docs.scipy.org/doc/numpy/reference/generated/numpy.split.html#numpy-split>`_
         """
         return map(lambda part: LogicalNetworkList(self.hg, part), np.split(self.matrix, indices))
 
@@ -278,7 +278,7 @@ class LogicalNetworkList(object):
             DataFrame representation of the list of logical networks.
         
         
-        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         length = len(self)
         df = pd.DataFrame(self.matrix, columns=map(lambda (c,t): "%s=%s" % (c,t), self.hg.mappings))
@@ -401,7 +401,7 @@ class LogicalNetworkList(object):
             DataFrame with the weighted variance of readouts predictions for each possible clamping
 
         
-        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         
         .. seealso:: `Wikipedia: Weighted sample variance <https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`_
         """
@@ -626,7 +626,7 @@ class LogicalNetwork(nx.DiGraph):
             columns are included describing each clamping. Otherwise, columns correspond to readouts only.
         
         
-        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/version/0.18.1/generated/pandas.DataFrame.html#pandas.DataFrame
+        .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         cues = stimuli + inhibitors
         nc = len(cues)
@@ -691,7 +691,7 @@ class LogicalNetwork(nx.DiGraph):
             Binary array with respect to the given mappings describing the logical network
 
 
-        .. _numpy.ndarray: http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.ndarray.html#numpy.ndarray
+        .. _numpy.ndarray: http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray
         """
         arr = np.zeros(len(mappings), np.int8)
         for i, (clause, target) in mappings.iteritems():
