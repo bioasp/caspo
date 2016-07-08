@@ -24,6 +24,25 @@ import gringo
 from caspo import core
 
 class ScenarioList(object):
+    """
+    List of intervention scenarios
+
+    Parameters
+    ----------
+    filename : str
+        Absolute PATH to a CSV file specifying intervention scenarios
+
+    allow_constraints : boolean
+        Either to allow intervention over constraints or not
+
+    allow_goals : boolean
+        Either to allow intervention over goals or not
+
+    Attributes
+    ----------
+        constraints : :class:`caspo.core.clamping.ClampingList`
+        goals : :class:`caspo.core.clamping.ClampingList`
+    """
     
     def __init__(self, filename, allow_constraints=False, allow_goals=False):
         df = pd.read_csv(filename)
@@ -61,5 +80,15 @@ class ScenarioList(object):
         return core.ClampingList(self.df_goals["Clamping"])
         
     def to_funset(self):
-        return self.constraints.to_funset("scenario","constrained").union(self.goals.to_funset("scenario","goal"))
+        """
+        Converts the intervention scenarios to a set of `gringo.Fun`_ instances
         
+        Returns
+        -------
+        set
+            Representation of the intervention scenarios as a set of `gringo.Fun`_ instances
+        
+        
+        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        """
+        return self.constraints.to_funset("scenario","constrained").union(self.goals.to_funset("scenario","goal"))
