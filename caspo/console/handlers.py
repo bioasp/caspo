@@ -42,8 +42,6 @@ def learn_handler(args):
     return 0
 
 def design_handler(args):
-    logger = logging.getLogger("caspo")
-
     networks = core.LogicalNetworkList.from_csv(args.networks)
     setup = core.Setup.from_json(args.setup)
     listing = core.ClampingList.from_csv(args.list) if args.list else None
