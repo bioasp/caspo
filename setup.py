@@ -54,7 +54,7 @@ setup(name='caspo',
       install_requires=[
           "numpy",
           "pandas",
-          "sklearn",
+          "scikit-learn",
           "networkx",
           "pyparsing",
           "pydotplus"
