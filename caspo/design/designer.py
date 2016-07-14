@@ -24,7 +24,29 @@ import gringo
 from caspo import core
 
 class Designer(object):
+    """
+    Experimental designer to discriminate among logical networks
     
+    Parameters
+    ----------
+    networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
+        List of logical networks
+    
+    setup : :class:`caspo.core.setup.Setup`
+        Experimental setup
+    
+    candidates : :class:`caspo.core.clamping.ClampingList`
+        Optional list of candidate experiments given as a list of clampings
+    
+    Attributes
+    ----------
+        networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
+        setup : :class:`caspo.core.setup.Setup`
+        candidates : 
+        instance : str
+        encodings : dict
+        logger : Logger
+    """    
     def __init__(self, networks, setup, candidates=None):
         self.networks = networks
         self.setup = setup
@@ -59,6 +81,28 @@ class Designer(object):
             self.__optimum__ = model.optimization()
         
     def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=10, relax=False, configure=None):
+        """
+        Finds all optimal experimental designs using up to :attr:`max_experiments` experiments, such that each experiment has
+        up to :attr:`max_stimuli` stimuli and :attr:`max_inhibitors` inhibitors.
+        
+        Parameters
+        ----------
+        max_stimuli : int
+            Maximum number of stimuli per experiment
+        
+        max_inhibitors : int
+            Maximum number of inhibitors per experiment
+        
+        max_experiments : int
+            Maximum number of experiments per design
+        
+        relax : boolean
+            Whether to relax the full-pairwise networks discrimination (True) or not (False).
+            If relax equals True, the number of experiments per design is fixed to :attr:`max_experiments`
+        
+        configure : callable
+            Callable object responsible of setting clingo configuration            
+        """
         self.designs = []
         
         args = ['-c maxstimuli=%s' % max_stimuli, '-c maxinhibitors=%s' % max_inhibitors, '-Wno-atom-undefined']

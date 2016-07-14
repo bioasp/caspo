@@ -34,7 +34,7 @@ class Controller(object):
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
         List of logical networks
     
-    scenarios : :class:`caspo.core.scenario.ScenarioList`
+    scenarios : :class:`caspo.control.scenario.ScenarioList`
         List of intervention scenarios
     
     Attributes

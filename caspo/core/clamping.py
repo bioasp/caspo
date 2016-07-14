@@ -38,6 +38,14 @@ class ClampingList(pd.Series):
         """
         Converts the list of clampings to a set of `gringo.Fun`_ instances
         
+        Parameters
+        ----------
+        lname : str
+            Predicate name for the clamping id
+            
+        cname : str
+            Predicate name for the clamped variable
+        
         Returns
         -------
         set
