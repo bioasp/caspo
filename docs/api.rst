@@ -7,3 +7,4 @@ caspo's API
    core
    learn
    control
+   design

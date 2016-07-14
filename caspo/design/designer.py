@@ -25,7 +25,7 @@ from caspo import core
 
 class Designer(object):
     """
-    Experimental designer to discriminate among logical networks
+    Experimental designer to discriminate among a set of logical networks
     
     Parameters
     ----------
@@ -42,7 +42,8 @@ class Designer(object):
     ----------
         networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
         setup : :class:`caspo.core.setup.Setup`
-        candidates : 
+        candidates : :class:`caspo.core.clamping.ClampingList`
+        designs : list[:class:`caspo.core.clamping.ClampingList`]
         instance : str
         encodings : dict
         logger : Logger
@@ -51,6 +52,7 @@ class Designer(object):
         self.networks = networks
         self.setup = setup
         self.candidates = candidates
+        self.designs = []
         
         fs = networks.to_funset().union(setup.to_funset())
         if candidates:
@@ -83,7 +85,8 @@ class Designer(object):
     def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=10, relax=False, configure=None):
         """
         Finds all optimal experimental designs using up to :attr:`max_experiments` experiments, such that each experiment has
-        up to :attr:`max_stimuli` stimuli and :attr:`max_inhibitors` inhibitors.
+        up to :attr:`max_stimuli` stimuli and :attr:`max_inhibitors` inhibitors. Each optimal experimental design is saved in the
+        list attribute :attr:`designs` as an instance of :class:`caspo.core.clamping.ClampingList`.
         
         Parameters
         ----------

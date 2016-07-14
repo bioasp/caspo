@@ -1,5 +1,5 @@
-caspo.learn
------------
+Learn
+-----
 
 caspo.learn.learner
 ^^^^^^^^^^^^^^^^^^^

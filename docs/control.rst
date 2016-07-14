@@ -1,5 +1,5 @@
-caspo.control
--------------
+Control
+-------
 
 caspo.control.controller
 ^^^^^^^^^^^^^^^^^^^^^^^^

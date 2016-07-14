@@ -1,5 +1,5 @@
-caspo.core
-----------
+Core
+----
 
 caspo.core.setup
 ^^^^^^^^^^^^^^^^
