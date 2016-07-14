@@ -1,6 +1,6 @@
-import networkx as nx
+from networkx.drawing.nx_pydot import write_dot
 
 class DotWriter(object):
     
     def to_dot(self, filename):
-        nx.write_dot(self.graph, filename)
+        write_dot(self.graph, filename)
