@@ -34,19 +34,20 @@ class HyperGraph(object):
     
     Parameters
     ----------
-    nodes : `pandas.DataFrame`_
-        Nodes as a DataFrame with an integer index (node id) and a column `name`
+    nodes : `pandas.Series`_
+        Values in the Series correspond to variables names
     
-    hyper : `pandas.DataFrame`_
-        Hyperedges for each node id as a DataFrame with an integer index (hyperedge id) and a column `node_idx` (target node)
+    hyper : `pandas.Series`_
+        Values in the Series correspond to the index in :attr:`nodes` (target node)
     
     edges : `pandas.DataFrame`_
-        Hyperedges details as a DataFrame with columns `hyper_idx`, `name` (source node), `sign`
+        Hyperedges details as a DataFrame with columns `hyper_idx` (corresponds to the index in :attr:`hyper`), 
+        `name` (source node), and `sign` (1 or -1)
     
     Attributes
     ----------
-    nodes : `pandas.DataFrame`_
-    hyper : `pandas.DataFrame`_
+    nodes : `pandas.Series`_
+    hyper : `pandas.Series`_
     edges : `pandas.DataFrame`_
     clauses : dict
         Mapping from hyperedge id (`hyper_idx`) to :class:`caspo.core.clause.Clause` object instance
@@ -77,8 +78,8 @@ class HyperGraph(object):
             self.clauses_idx[clause] = i
             
         mappings = []
-        for node_idx, variable in self.nodes.itertuples():
-            for hyper_idx,_ in self.hyper[self.hyper['node_idx']==node_idx].itertuples():
+        for node_idx, variable in self.nodes.iteritems():
+            for hyper_idx,_ in self.hyper[self.hyper==node_idx].iteritems():
                 mappings.append((self.clauses[hyper_idx], variable))
                 
         self.mappings = pd.Series(mappings)
@@ -97,7 +98,7 @@ class HyperGraph(object):
         str
             Variable name
         """
-        return self.nodes.iloc[index]['name']
+        return self.nodes.iloc[index]
                         
     @classmethod
     def from_graph(klass, graph, length=0):
@@ -144,8 +145,8 @@ class HyperGraph(object):
             
                     j += 1
                 
-        nodes = pd.DataFrame(nodes, columns=['name'])
-        hyper = pd.DataFrame(hyper, columns=['node_idx'])
+        nodes = pd.Series(nodes, name='name')
+        hyper = pd.Series(hyper, name='node_idx')
         edges = pd.DataFrame(edges)
 
         return klass(nodes, hyper, edges)
@@ -163,10 +164,10 @@ class HyperGraph(object):
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set()        
-        for i,n in self.nodes.itertuples():
+        for i,n in self.nodes.iteritems():
             fs.add(gringo.Fun('node', [n,i]))
         
-        for j,i in self.hyper.itertuples():
+        for j,i in self.hyper.iteritems():
             fs.add(gringo.Fun('hyper', [i,j,len(self.edges[self.edges.hyper_idx==j])]))
         
         for j,v,s in self.edges.itertuples(index=False):

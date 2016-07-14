@@ -236,7 +236,7 @@ class LogicalNetworkList(object):
         
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
-        fs = set((gringo.Fun("variable", [var]) for var in self.hg.nodes['name'].values))
+        fs = set((gringo.Fun("variable", [var]) for var in self.hg.nodes))
 
         formulas = set()
         for network in self:
