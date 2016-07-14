@@ -500,7 +500,7 @@ class LogicalNetwork(nx.DiGraph):
     def from_hypertuples(klass, hg, tuples):
         """
         Creates a logical network from an iterable of integer tuples matching mappings in the given 
-        :class:`caspo.core.hypergraph.HypeGraph`
+        :class:`caspo.core.hypergraph.HyperGraph`
 
         Parameters
         ----------
