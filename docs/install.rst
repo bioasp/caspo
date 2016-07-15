@@ -3,3 +3,229 @@
 
 Install
 =======
+
+Using Anaconda
+--------------
+
+Follow the instructions to install Anaconda at http://www.anaconda.org.
+Once you have installed Anaconda, you need to create a python environment having some standard scientific packages::
+
+    $ conda create -n caspo-env pip ipython pandas scipy scikit-learn networkx
+    $ source activate caspo-env
+    
+Next, you need to compile clingo (the answer set programming solver) which can be found at http://potassco.sourceforge.org.
+After unpacking the sources, you will find detailed instructions in the INSTALL file.
+Note that you need to build the python module and make sure that it's linked with the anaconda environment.
+You may want to verify this by running::
+
+    $ ipython
+    Python 2.7.10 |Continuum Analytics, Inc.| (default, Oct 19 2015, 18:31:17)
+    Type "copyright", "credits" or "license" for more information.
+
+    IPython 4.0.0 -- An enhanced Interactive Python.
+    ?         -> Introduction and overview of IPython's features.
+    %quickref -> Quick reference.
+    help      -> Python's own help system.
+    object?   -> Details about 'object', use 'object??' for extra details.
+
+    In [1]: import gringo
+    In [2]: gringo.__version__
+    Out[2]: '4.5.3'
+
+Finally, install **caspo** using pip by running::
+    
+    $ pip install caspo
+    
+Now, you should be able to run **caspo**::
+
+    $ caspo --help
+    usage: caspo [-h] [--quiet] [--out O] [--version]
+                 {learn,design,control,analyze,visualize,test} ...
+
+    Reasoning on the response of logical signaling networks with ASP
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --quiet               do not print anything to standard output
+      --out O               output directory path (Default to './out')
+      --version             show program's version number and exit
+
+    caspo subcommands:
+      for specific help on each subcommand use: caspo {cmd} --help
+
+      {learn,design,control,analyze,visualize,test}
+
+Ask for help on any subcommand with::
+    
+    $ caspo learn --help
+    usage: caspo learn [-h] [--threads T] [--conf C] [--fit F] [--size S]
+                       [--factor D] [--discretization T] [--length L]
+                       pkn midas time
+
+    positional arguments:
+      pkn                 prior knowledge network in SIF format
+      midas               experimental dataset in MIDAS file
+      time                time-point to be used in MIDAS
+
+    optional arguments:
+      -h, --help          show this help message and exit
+      --threads T         run parallel search with given number of threads
+      --conf C            threads configurations (Default to many)
+      --fit F             tolerance over fitness (Default to 0)
+      --size S            tolerance over size (Default to 0)
+      --factor D          discretization over [0,D] (Default to 100)
+      --discretization T  discretization function: round, floor, ceil (Default to
+                          round)
+      --length L          max length for conjunctions (hyperedges) (Default to 0;
+                          unbounded)
+    
+
+Finally, run **caspo test** to make sure everything is working as expected::
+
+    $ caspo test
+    Testing caspo subcommands using test case Toy.
+
+    Copying files for running tests:
+    	Prior knowledge network: pkn.sif
+    	Phospho-proteomics dataset: dataset.csv
+    	Experimental setup: setup.json
+    	Intervention scenarios: scenarios.csv
+
+    $ caspo --out out learn out/pkn.sif out/dataset.csv 10 --fit 0.1 --size 5
+
+    Optimum logical network learned in 0.0104s
+    Optimum logical networks has MSE 0.1100 and size 7
+    5 (nearly) optimal logical networks learned in 0.0056s
+
+    $ caspo --out out control out/networks.csv out/scenarios.csv
+
+    3 optimal intervention strategies found in 0.0031s
+
+    $ caspo --out out analyze --networks out/networks.csv --midas out/dataset.csv 10
+
+    Analyzing 5 logical networks...
+    	I/O logical behaviors: 3
+    	Weighted MSE: 0.1100
+    	Core predictions: 87.50%
+    done.
+
+    $ caspo --out out design out/behaviors.csv out/setup.json
+
+    1 optimal experimental designs in 0.0028s
+
+    $ caspo --out out analyze --behaviors out/behaviors.csv --setup out/setup.json \
+            --strategies out/strategies.csv --designs out/designs.csv
+
+    Analyzing 3 intervention strategies...
+    done.
+    Analyzing experimental designs with respect to 3 I/O logical behaviors...
+    done.
+
+    $ caspo --out out visualize --pkn out/pkn.sif --networks out/networks.csv \
+            --setup out/setup.json --strategies out/strategies.csv \
+            --designs out/designs.csv --union
+
+
+Using Docker
+------------
+
+Follow the instructions to install Docker at (http://www.docker.org). 
+Once you have installed Docker on your computer, you can use the **caspo** docker image as follows.
+First you need to pull the image with::
+
+    $ docker pull svidela/caspo
+    
+Now, you should be able to run **caspo** with docker. By default, if no arguments are given, the help message will be shown::
+
+    $ docker run svidela/caspo
+    usage: caspo [-h] [--quiet] [--out O] [--version]
+                 {learn,design,control,analyze,visualize,test} ...
+
+    Reasoning on the response of logical signaling networks with ASP
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --quiet               do not print anything to standard output
+      --out O               output directory path (Default to './out')
+      --version             show program's version number and exit
+
+    caspo subcommands:
+      for specific help on each subcommand use: caspo {cmd} --help
+
+      {learn,design,control,analyze,visualize,test}
+      
+Notably, you can ask for help on any subcommand by running::
+
+      $ docker run svidela/caspo learn --help
+      usage: caspo learn [-h] [--threads T] [--conf C] [--fit F] [--size S]
+                         [--factor D] [--discretization T] [--length L]
+                         pkn midas time
+
+      positional arguments:
+        pkn                 prior knowledge network in SIF format
+        midas               experimental dataset in MIDAS file
+        time                time-point to be used in MIDAS
+
+      optional arguments:
+        -h, --help          show this help message and exit
+        --threads T         run parallel search with given number of threads
+        --conf C            threads configurations (Default to many)
+        --fit F             tolerance over fitness (Default to 0)
+        --size S            tolerance over size (Default to 0)
+        --factor D          discretization over [0,D] (Default to 100)
+        --discretization T  discretization function: round, floor, ceil (Default to
+                            round)
+        --length L          max length for conjunctions (hyperedges) (Default to 0;
+                            unbounded)
+
+Usually, **caspo** will need to read and writes files to do their work. A possible way to this using docker is as follows. For safety, we recommend to use an empty directory::
+
+    $ mkdir caspo-wd && cd caspo-wd
+
+Next, we will run docker, mount the current directory into the container, and use it as the working directory for running **caspo test**::
+
+    $ docker run --rm -v $PWD:/caspo-wd -w /caspo-wd svidela/caspo test
+    Testing caspo subcommands using test case Toy.
+
+    Copying files for running tests:
+    	Prior knowledge network: pkn.sif
+    	Phospho-proteomics dataset: dataset.csv
+    	Experimental setup: setup.json
+    	Intervention scenarios: scenarios.csv
+
+    $ caspo --out out learn out/pkn.sif out/dataset.csv 10 --fit 0.1 --size 5
+
+    Optimum logical network learned in 0.0104s
+    Optimum logical networks has MSE 0.1100 and size 7
+    5 (nearly) optimal logical networks learned in 0.0056s
+
+    $ caspo --out out control out/networks.csv out/scenarios.csv
+
+    3 optimal intervention strategies found in 0.0031s
+
+    $ caspo --out out analyze --networks out/networks.csv --midas out/dataset.csv 10
+
+    Analyzing 5 logical networks...
+    	I/O logical behaviors: 3
+    	Weighted MSE: 0.1100
+    	Core predictions: 87.50%
+    done.
+
+    $ caspo --out out design out/behaviors.csv out/setup.json
+
+    1 optimal experimental designs in 0.0028s
+
+    $ caspo --out out analyze --behaviors out/behaviors.csv --setup out/setup.json \
+            --strategies out/strategies.csv --designs out/designs.csv
+
+    Analyzing 3 intervention strategies...
+    done.
+    Analyzing experimental designs with respect to 3 I/O logical behaviors...
+    done.
+
+    $ caspo --out out visualize --pkn out/pkn.sif --networks out/networks.csv \
+            --setup out/setup.json --strategies out/strategies.csv \
+            --designs out/designs.csv --union
+
+If everything works as expected, you should find a directory named *out* in the current directory having all the output files generated by **caspo**. Finally, if you don't want to write the full docker command every time you run **caspo**, you may want
+to create a shell script or alias as a shortcut.
