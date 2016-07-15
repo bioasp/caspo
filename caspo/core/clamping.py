@@ -299,7 +299,7 @@ class ClampingList(pd.Series):
         
         return ClampingList(clampings)
         
-    def __plot__(self, source="", target=""):
+    def __plot__(self, **kwargs):
         """
         Returns a `networkx.DiGraph`_ ready for plotting.
         
@@ -313,12 +313,12 @@ class ClampingList(pd.Series):
         """
         graph = nx.DiGraph()
         
-        if source:
-            graph.add_node('source', label=source)
-        if target:
-            graph.add_node('target', label=target)
+        if 'source' in kwargs:
+            graph.add_node('source', label=kwargs['source'])
+        if 'target' in kwargs:
+            graph.add_node('target', label=kwargs['target'])
     
-        return self.__create_graph__(graph, 'source' if source else '', self, 'target' if target else '')
+        return self.__create_graph__(graph, 'source' if 'source' in kwargs else '', self, 'target' if 'target' in kwargs else '')
     
     def __create_graph__(self, graph, parent, clampings, target):
         if not clampings.empty:

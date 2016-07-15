@@ -17,10 +17,26 @@
 # -*- coding: utf-8 -*-
 import settings
 
-class ColoredNetwork(object):
+class ColouredNetwork(object):
+    """
+    A coloured (hyper-)graph to be written as a dot file
+    
+    Parameters
+    ----------
+    network : object
+        An object implementing a `__plot__` which must return the `networkx.MultiDiGraph`_ instance to be coloured
+    
+    Attributes
+    ----------
+    graph : `networkx.MultiDiGraph`_
+    
+    
+    .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
+    """
+    
         
-    def __init__(self, digraph, setup):
-        self.graph = digraph.__plot__()
+    def __init__(self, network, setup):
+        self.graph = network.__plot__()
 
         for node in self.graph.nodes():
             _type = 'DEFAULT'

@@ -17,10 +17,31 @@
 # -*- coding: utf-8 -*-
 import settings
 
-class ColoredClamping(object):
+class ColouredClamping(object):
+    """
+    A coloured variables clamping to be written as a dot file
+    
+    Parameters
+    ----------
+    clamping : :class:`caspo.core.clamping.ClampingList`
+        List of clampings to be coloured
+    
+    source : str
+        Optional node name to be used as source
+    
+    target : str
+        Optional node name to be used as target
+    
+    Attributes
+    ----------
+    graph : `networkx.DiGraph`_
+    
+    
+    .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
+    """
 
-    def __init__(self, graph, source="", target=""):
-        self.graph = graph.__plot__(source, target)
+    def __init__(self, clamping, source="", target=""):
+        self.graph = clamping.__plot__(source=source, target=target)
         
         for node in self.graph.nodes():
             _type = 'DEFAULT'

@@ -8,3 +8,4 @@ caspo's API
    learn
    control
    design
+   visualize

@@ -175,12 +175,12 @@ def visualize_handler(args):
 
     if args.pkn:
         graph = core.Graph.read_sif(args.pkn)
-        gc = visualize.ColoredNetwork(graph, setup)
+        gc = visualize.ColouredNetwork(graph, setup)
         write_dot(gc.graph, os.path.join(args.out,'pkn.dot'))
 
         zipped = graph.compress(setup)
         if zipped.nodes != graph.nodes:
-            zc = visualize.ColoredNetwork(zipped, setup)
+            zc = visualize.ColouredNetwork(zipped, setup)
             write_dot(zc.graph, os.path.join(args.out,'pkn-zip.dot'))
 
     if args.networks:
@@ -195,11 +195,11 @@ def visualize_handler(args):
             sample = networks
 
         for i, network in enumerate(sample):
-            nc = visualize.ColoredNetwork(network, setup)
+            nc = visualize.ColouredNetwork(network, setup)
             write_dot(nc.graph, os.path.join(args.out,'network-%s.dot' % i))
 
         if args.union:
-            nc = visualize.ColoredNetwork(networks, setup)
+            nc = visualize.ColouredNetwork(networks, setup)
             write_dot(nc.graph, os.path.join(args.out,'networks-union.dot'))
 
         if args.designs:
@@ -207,13 +207,13 @@ def visualize_handler(args):
             for i,od in pd.read_csv(args.designs).groupby("ID"):
                 clampings = core.ClampingList.from_dataframe(od.drop("ID", axis=1), setup.inhibitors)
 
-                dc = visualize.ColoredClamping(clampings)
+                dc = visualize.ColouredClamping(clampings)
                 write_dot(dc.graph, os.path.join(args.out, "design-%s.dot" % i))
 
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)
 
-        sc = visualize.ColoredClamping(strategies, "CONSTRAINTS", "GOALS")
+        sc = visualize.ColouredClamping(strategies, "CONSTRAINTS", "GOALS")
         write_dot(sc.graph, os.path.join(args.out,'strategies.dot'))
 
     return 0
