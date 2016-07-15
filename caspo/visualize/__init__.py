@@ -16,5 +16,4 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-from colourednetwork import *
-from colouredclamping import *
+from coloured import *

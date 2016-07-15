@@ -68,4 +68,45 @@ class ColouredNetwork(object):
                 
                 if 'weight' in self.graph.edge[source][target][k]:
                     self.graph.edge[source][target][k]['penwidth'] = 5 * self.graph.edge[source][target][k]['weight']
+                    
+class ColouredClamping(object):
+    """
+    A coloured variables clamping list to be written as a dot file
+    
+    Parameters
+    ----------
+    clamping : :class:`caspo.core.clamping.ClampingList`
+        List of clampings to be coloured
+    
+    source : str
+        Optional node name to be used as source
+    
+    target : str
+        Optional node name to be used as target
+    
+    Attributes
+    ----------
+    graph : `networkx.DiGraph`_
+    
+    
+    .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
+    """
 
+    def __init__(self, clamping, source="", target=""):
+        self.graph = clamping.__plot__(source=source, target=target)
+        
+        for node in self.graph.nodes():
+            _type = 'DEFAULT'
+            for attr, value in settings.NODES_ATTR[_type].items():
+                self.graph.node[node][attr] = value
+            
+            if 'sign' in self.graph.node[node]:
+                if self.graph.node[node]['sign'] == 1:
+                    _type = 'STIMULI'
+                elif self.graph.node[node]['sign'] == -1:
+                    _type = 'INHIBITOR'
+                    
+                if _type != 'DEFAULT':
+                    for attr, value in settings.NODES_ATTR[_type].items():
+                        self.graph.node[node][attr] = value
+                        self.graph.node[node]['shape'] = 'box'
