@@ -1,15 +1,8 @@
 Visualize
 ---------
 
-caspo.visualize.colouredclamping
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    
-.. automodule:: caspo.visualize.colouredclamping
-    :members:
+caspo.visualize.coloured
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-caspo.visualize.colourednetwork
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: caspo.visualize.colourednetwork
+.. automodule:: caspo.visualize.coloured
     :members:

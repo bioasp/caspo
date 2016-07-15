@@ -24,7 +24,12 @@ class ColouredNetwork(object):
     Parameters
     ----------
     network : object
-        An object implementing a `__plot__` which must return the `networkx.MultiDiGraph`_ instance to be coloured
+        An object implementing a method `__plot__` which must return the `networkx.MultiDiGraph`_ instance to be coloured.
+        Typically, it will be an instance of either :class:`caspo.core.graph.Graph`, :class:`caspo.core.logicalnetwork.LogicalNetwork`
+        or :class:`caspo.core.logicalnetwork.LogicalNetworkList`
+    
+    setup : :class:`caspo.core.setup.Setup`
+        Experimental setup to be coloured
     
     Attributes
     ----------
@@ -33,7 +38,6 @@ class ColouredNetwork(object):
     
     .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
     """
-    
         
     def __init__(self, network, setup):
         self.graph = network.__plot__()
