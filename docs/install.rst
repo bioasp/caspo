@@ -15,7 +15,7 @@ Once you have installed Anaconda, you need to create a python environment having
     
 Next, you need to compile clingo (the answer set programming solver) which can be found at http://potassco.sourceforge.org.
 After unpacking the sources, you will find detailed instructions in the INSTALL file.
-Note that you need to build the python module and make sure that it's linked with the anaconda environment.
+Note that you need to build the python module and make sure it's linked with the caspo-env python environment.
 You may want to verify this by running::
 
     $ ipython
