@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Santiago Videla
+# Copyright (c) 2014-2016, Santiago Videla
 #
 # This file is part of caspo.
 #
