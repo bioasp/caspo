@@ -129,7 +129,7 @@ Finally, run **caspo test** to make sure everything is working as expected::
 Using Docker
 ------------
 
-Follow the instructions to install Docker at (http://www.docker.org). 
+Follow the instructions to install Docker at http://www.docker.org. 
 Once you have installed Docker on your computer, you can use the **caspo** docker image as follows.
 First you need to pull the image with::
 
