@@ -19,6 +19,8 @@
 import os, logging, csv, ntpath, random
 import functools as ft
 import pandas as pd
+from networkx.drawing.nx_pydot import write_dot
+
 from caspo import core, learn, design, control, visualize
 
 def configure_mt(args, proxy, overwrite=None):
@@ -174,12 +176,12 @@ def visualize_handler(args):
     if args.pkn:
         graph = core.Graph.read_sif(args.pkn)
         gc = visualize.ColoredNetwork(graph, setup)
-        gc.to_dot(os.path.join(args.out,'pkn.dot'))
+        write_dot(gc.graph, os.path.join(args.out,'pkn.dot'))
 
         zipped = graph.compress(setup)
         if zipped.nodes != graph.nodes:
             zc = visualize.ColoredNetwork(zipped, setup)
-            zc.to_dot(os.path.join(args.out,'pkn-zip.dot'))
+            write_dot(zc.graph, os.path.join(args.out,'pkn-zip.dot'))
 
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
@@ -193,12 +195,12 @@ def visualize_handler(args):
             sample = networks
 
         for i, network in enumerate(sample):
-            nc = visualize.ColoredNetwork(network,setup)
-            nc.to_dot(os.path.join(args.out,'network-%s.dot' % i))
+            nc = visualize.ColoredNetwork(network, setup)
+            write_dot(nc.graph, os.path.join(args.out,'network-%s.dot' % i))
 
         if args.union:
-            nc = visualize.ColoredNetwork(networks,setup)
-            nc.to_dot(os.path.join(args.out,'networks-union.dot'))
+            nc = visualize.ColoredNetwork(networks, setup)
+            write_dot(nc.graph, os.path.join(args.out,'networks-union.dot'))
 
         if args.designs:
             df = None
@@ -206,12 +208,12 @@ def visualize_handler(args):
                 clampings = core.ClampingList.from_dataframe(od.drop("ID", axis=1), setup.inhibitors)
 
                 dc = visualize.ColoredClamping(clampings)
-                dc.to_dot(os.path.join(args.out, "design-%s.dot" % i))
+                write_dot(dc.graph, os.path.join(args.out, "design-%s.dot" % i))
 
     if args.strategies:
         strategies = core.ClampingList.from_csv(args.strategies)
 
         sc = visualize.ColoredClamping(strategies, "CONSTRAINTS", "GOALS")
-        sc.to_dot(os.path.join(args.out,'strategies.dot'))
+        write_dot(sc.graph, os.path.join(args.out,'strategies.dot'))
 
     return 0

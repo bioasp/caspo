@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
-
 import settings
-from writer import DotWriter
 
-class ColoredClamping(DotWriter):
+class ColoredClamping(object):
 
     def __init__(self, graph, source="", target=""):
         self.graph = graph.__plot__(source, target)

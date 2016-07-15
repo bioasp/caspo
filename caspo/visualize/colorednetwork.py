@@ -16,9 +16,8 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import settings
-from writer import DotWriter
 
-class ColoredNetwork(DotWriter):
+class ColoredNetwork(object):
         
     def __init__(self, digraph, setup):
         self.graph = digraph.__plot__()
