@@ -4,6 +4,10 @@
 Install
 =======
 
+We recommend any of the following options to install **caspo**.
+Nonetheless, other settings may be possible depending on your platform.
+Essentially, you will need to have python 2.7.x and some of the standard scientific python packages installed, namely, pandas, scipy, scikit-learn, and networkx. Also, unless you decide to use the Docker image, you will need to compile the answer set programming solver clingo in order to build its python module and installed it in your python environment.
+
 Using Anaconda
 --------------
 
@@ -13,7 +17,7 @@ Once you have installed Anaconda, you need to create a python environment having
     $ conda create -n caspo-env pip ipython pandas scipy scikit-learn networkx
     $ source activate caspo-env
     
-Next, you need to compile clingo (the answer set programming solver) which can be found at http://potassco.sourceforge.org.
+Next, you need to compile clingo which can be found at http://potassco.sourceforge.org.
 After unpacking the sources, you will find detailed instructions in the INSTALL file.
 Note that you need to build the python module and make sure it's linked with the caspo-env python environment.
 You may want to verify this by running::
