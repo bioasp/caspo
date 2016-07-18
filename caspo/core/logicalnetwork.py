@@ -419,8 +419,12 @@ class LogicalNetworkList(object):
         avg = np.average(predictions[:,:,nc:], axis=0, weights=weights)
         var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=weights)
 
-        cols = np.concatenate([setup.cues(True), readouts])
-        return pd.DataFrame(np.concatenate([predictions[0,:,:nc],var], axis=1), columns=cols)
+        rcues = setup.cues(True)
+        cols = np.concatenate([rcues, readouts])
+        df = pd.DataFrame(np.concatenate([predictions[0,:,:nc],var], axis=1), columns=cols)
+        df[rcues] = df[rcues].astype(int)
+        
+        return df
 
     def weighted_mse(self, dataset):
         """

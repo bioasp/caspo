@@ -113,7 +113,7 @@ def analyze_handler(args):
 
             behaviors.to_csv(os.path.join(args.out,'behaviors.csv'))
             behaviors.to_csv(os.path.join(args.out,'behaviors-mse-len.csv'), known_eq=True, dataset=dataset)
-            behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'))
+            behaviors.variances(setup).to_csv(os.path.join(args.out,'variances.csv'), index=False)
 
             cc = learn.core_clampings(behaviors, setup, configure)
             cc.to_csv(os.path.join(args.out,'core.csv'), setup.stimuli, setup.inhibitors)
