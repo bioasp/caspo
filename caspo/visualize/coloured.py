@@ -97,7 +97,13 @@ class ColouredClamping(object):
     """
 
     def __init__(self, clamping, source="", target=""):
-        self.graph = clamping.__plot__(source=source, target=target)
+        kw = {}
+        if source:
+            kw['source'] = source
+        if target:
+            kw['target'] = target
+            
+        self.graph = clamping.__plot__(**kw)
         
         for node in self.graph.nodes():
             _type = 'DEFAULT'
@@ -114,3 +120,7 @@ class ColouredClamping(object):
                     for attr, value in settings.NODES_ATTR[_type].items():
                         self.graph.node[node][attr] = value
                         self.graph.node[node]['shape'] = 'box'
+
+
+        for source, target in self.graph.edges():
+            self.graph.edge[source][target]['dir'] = 'none'
