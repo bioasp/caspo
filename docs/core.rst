@@ -38,6 +38,12 @@ caspo.core.hypergraph
 .. automodule:: caspo.core.hypergraph
     :members:
 
+caspo.core.mapping
+^^^^^^^^^^^^^^^^^^
+
+.. automodule:: caspo.core.mapping
+    :members:
+
 caspo.core.clause
 ^^^^^^^^^^^^^^^^^
 

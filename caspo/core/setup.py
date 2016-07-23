@@ -157,7 +157,7 @@ class Setup(object):
         cues = self.stimuli + self.inhibitors
         active_cues = set()
         active_readouts = set()
-        mappings = np.unique(networks.hg.mappings.values[np.where(networks.matrix==1)[1]])
+        mappings = networks.hg.mappings[np.unique(np.where(networks.matrix==1)[1])]
         for clause,var in mappings:
             active_cues = active_cues.union((l for (l,s) in clause if l in cues))
             if var in self.readouts:

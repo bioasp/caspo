@@ -102,10 +102,10 @@ class LogicalNetworkList(object):
         edges = set()
         mappings = []
         cols = []
-        for mapping in df.columns:
-            if '=' in mapping:
-                cols.append(mapping)
-                clause_str, target = mapping.split('=')
+        for m in df.columns:
+            if '=' in m:
+                cols.append(m)
+                clause_str, target = m.split('=')
                 clause = Clause.from_str(clause_str)
                 mappings.append((clause, target))
                 for source, sign in clause:
@@ -113,7 +113,7 @@ class LogicalNetworkList(object):
 
         graph = Graph.from_tuples(edges)
         hypergraph = HyperGraph.from_graph(graph)
-        hypergraph.mappings = pd.Series(mappings)
+        hypergraph.mappings = mappings
         
         if 'known_eq' in df.columns:
             known_eq = df['known_eq'].values
@@ -239,7 +239,7 @@ class LogicalNetworkList(object):
             The next logical network in the list
         """
         for i,arr in enumerate(self.matrix):
-            yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings.values[np.where(arr==1)]), known_eq=self.known_eq[i])
+            yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(arr==1)[0]]), known_eq=self.known_eq[i])
 
     def to_funset(self):
         """
@@ -371,11 +371,7 @@ class LogicalNetworkList(object):
         ValueError
             If the given mapping is not found in the mappings of :attr:`hg`
         """
-        m = self.hg.mappings[self.hg.mappings==mapping]
-        if not m.empty:
-            return self.matrix[:,m.index[0]].mean()
-        else:
-            raise ValueError("Mapping not found: %s" % mapping)
+        return self.matrix[:,self.hg.mappings[mapping]].mean()
 
     def combinatorics(self):
         """
@@ -722,7 +718,7 @@ class LogicalNetwork(nx.DiGraph):
 
         Parameters
         ----------
-        mappings : pandas.Series
+        mappings : :class:`caspo.core.mapping.MappingList`
             Mappings to create the binary array
 
         Returns
