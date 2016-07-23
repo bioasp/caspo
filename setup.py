@@ -57,7 +57,8 @@ setup(name='caspo',
           "scikit-learn",
           "networkx",
           "pyparsing",
-          "pydotplus"
+          "pydotplus",
+          "joblib"
       ],
       entry_points={
           'console_scripts': [

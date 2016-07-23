@@ -23,6 +23,8 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 
+from joblib import Parallel, delayed
+
 from sklearn.metrics import mean_squared_error
 
 import gringo
@@ -32,6 +34,13 @@ from clause import Clause
 from graph import Graph
 from hypergraph import HyperGraph
 
+
+def __parallel_predictions__(network, clampings, readouts, stimuli=[], inhibitors=[]):
+    return network.predictions(clampings, readouts, stimuli, inhibitors).values
+
+def __parallel_mse__(network, clampings, readouts, observations, pos):
+    return network._mse(clampings, readouts, observations, pos)
+    
 class LogicalNetworkList(object):
     """
     List of :class:`caspo.core.logicalnetwork.LogicalNetwork` object instances
@@ -92,18 +101,26 @@ class LogicalNetworkList(object):
 
         edges = set()
         mappings = []
+        cols = []
         for mapping in df.columns:
-            clause_str, target = mapping.split('=')
-            clause = Clause.from_str(clause_str)
-            mappings.append((clause, target))
-            for source, sign in clause:
-                edges.add((source,target,sign))
+            if '=' in mapping:
+                cols.append(mapping)
+                clause_str, target = mapping.split('=')
+                clause = Clause.from_str(clause_str)
+                mappings.append((clause, target))
+                for source, sign in clause:
+                    edges.add((source,target,sign))
 
         graph = Graph.from_tuples(edges)
         hypergraph = HyperGraph.from_graph(graph)
         hypergraph.mappings = pd.Series(mappings)
+        
+        if 'known_eq' in df.columns:
+            known_eq = df['known_eq'].values
+        else:
+            known_eq = None
 
-        return klass(hypergraph, df.values)
+        return klass(hypergraph, matrix=df[cols].values, known_eq=known_eq)
 
     @classmethod
     def from_hypergraph(klass, hypergraph, networks=[]):
@@ -257,7 +274,7 @@ class LogicalNetworkList(object):
 
         return fs
 
-    def to_dataframe(self, known_eq=False, dataset=None, size=False):
+    def to_dataframe(self, known_eq=False, dataset=None, size=False, n_jobs=-1):
         """
         Converts the list of logical networks to a `pandas.DataFrame`_ object instance
 
@@ -266,7 +283,7 @@ class LogicalNetworkList(object):
         known_eq : boolean
             If True, a column with known equivalences is included in the DataFrame
 
-        dataset: Optional[:class:`caspo.learn.dataset.Dataset`]
+        dataset: Optional[:class:`caspo.core.dataset.Dataset`]
             If not None, a column with the MSE with respect to the given dataset is included in the DataFrame
 
         size: boolean
@@ -286,13 +303,14 @@ class LogicalNetworkList(object):
         if known_eq:
             df = pd.concat([df,pd.DataFrame({'known_eq': self.known_eq})], axis=1)
 
-        if dataset:
+        if dataset is not None:
             clampings = dataset.clampings
-            columns = dataset.readouts.columns
-            readouts = dataset.readouts.values
-            pos = ~np.isnan(readouts)
-            mse_iter = (mean_squared_error(readouts[pos], (n.predictions(clampings, columns).values)[pos]) for n in self)
-            df = pd.concat([df,pd.DataFrame({'mse': np.fromiter(mse_iter, float, length)})], axis=1)
+            readouts = dataset.readouts.columns
+            observations = dataset.readouts.values
+            pos = ~np.isnan(observations)
+            
+            mse = Parallel(n_jobs=n_jobs)(delayed(__parallel_mse__)(n, clampings, readouts, observations[pos], pos) for n in self)
+            df = pd.concat([df,pd.DataFrame({'mse': mse})], axis=1)
 
         if size:
             df = pd.concat([df,pd.DataFrame({'size': np.fromiter((n.size for n in self), int, length)})], axis=1)
@@ -311,7 +329,7 @@ class LogicalNetworkList(object):
         known_eq : boolean
             If True, a column with known equivalences is included in the DataFrame
 
-        dataset: Optional[:class:`caspo.learn.dataset.Dataset`]
+        dataset: Optional[:class:`caspo.core.dataset.Dataset`]
             If not None, a column with the MSE with respect to the given dataset is included
 
         size: boolean
@@ -385,15 +403,18 @@ class LogicalNetworkList(object):
 
         return exclusive, inclusive
 
-    def variances(self, setup):
+    def predictions(self, setup, n_jobs=-1):
         """
-        Returns a `pandas.DataFrame`_ with the weighted variance of readouts predictions for each possible clampings.
+        Returns a `pandas.DataFrame`_ with the weighted average predictions and variance of all readouts for each possible clampings.
         Weights corresponds to the known equivalences for each logical network in :attr:`known_eq`.
 
         Parameters
         ----------
         setup : :class:`caspo.core.setup.Setup`
             Experimental setup
+        
+        n_jobs : int
+            Number of jobs to run in parallel. Default to -1 (all cores available)
 
         Returns
         -------
@@ -412,44 +433,49 @@ class LogicalNetworkList(object):
         predictions = np.zeros((len(self), nclampings, len(setup)))
 
         clampings = list(setup.clampings_iter(cues))
-        for i,network in enumerate(self):
-            predictions[i,:,:] = network.predictions(clampings, readouts, stimuli, inhibitors).values
+        predictions[:,:,:] = Parallel(n_jobs=n_jobs)(delayed(__parallel_predictions__)(n, clampings, readouts, stimuli, inhibitors) for n in self)
 
         weights = self.known_eq + 1
         avg = np.average(predictions[:,:,nc:], axis=0, weights=weights)
         var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=weights)
 
         rcues = setup.cues(True)
-        cols = np.concatenate([rcues, readouts])
-        df = pd.DataFrame(np.concatenate([predictions[0,:,:nc],var], axis=1), columns=cols)
+        cols = np.concatenate([rcues, map(lambda r: "AVG:%s" % r, readouts), map(lambda r: "VAR:%s" % r, readouts)])
+        
+        #use the first network predictions to extract all clampings
+        df = pd.DataFrame(np.concatenate([predictions[0,:,:nc],avg,var], axis=1), columns=cols)
         df[rcues] = df[rcues].astype(int)
         
         return df
 
-    def weighted_mse(self, dataset):
+    def weighted_mse(self, dataset, n_jobs=-1):
         """
         Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.learn.dataset.Dataset` object instance.
         Weights corresponds to the known equivalences for each logical network in :attr:`known_eq`.
 
         Parameters
         ----------
-        dataset: :class:`caspo.learn.dataset.Dataset`
+        dataset: :class:`caspo.core.dataset.Dataset`
             Dataset to compute MSE
+        
+        n_jobs : int
+            Number of jobs to run in parallel. Default to -1 (all cores available)
 
         Returns
         -------
         float
             Weighted MSE
         """
-        eq = self.known_eq + 1
+        weights = self.known_eq + 1
         predictions = np.zeros((len(self), len(dataset.clampings), len(dataset.setup.readouts)))
+        predictions[:,:,:] = Parallel(n_jobs=n_jobs)(delayed(__parallel_predictions__)(n, dataset.clampings, dataset.setup.readouts) for n in self)
         for i,network in enumerate(self):
-            predictions[i,:,:] = network.predictions(dataset.clampings, dataset.setup.readouts).values * eq[i]
+            predictions[i,:,:] *= weights[i]
 
         readouts = dataset.readouts.values
         pos = ~np.isnan(readouts)
 
-        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(eq))[pos])
+        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(weights))[pos])
 
     def __plot__(self):
         """
@@ -484,8 +510,7 @@ class LogicalNetworkList(object):
                     graph.add_edge(var, target, sign=sign, weight=self.frequency((clause, target)))
 
         return graph
-
-
+    
 class LogicalNetwork(nx.DiGraph):
     """
     Logical network class extends `networkx.DiGraph`_ with nodes being,
@@ -499,7 +524,7 @@ class LogicalNetwork(nx.DiGraph):
     
     .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
     """
-
+    
     @classmethod
     def from_hypertuples(klass, hg, tuples):
         """
@@ -648,6 +673,17 @@ class LogicalNetwork(nx.DiGraph):
                 predictions[i,nc+j] = fixpoint.get(readout,0)
 
         return pd.DataFrame(predictions, columns=np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts]))
+    
+    def mse(self, dataset):
+        clampings = dataset.clampings
+        readouts = dataset.readouts.columns
+        observations = dataset.readouts.values
+        pos = ~np.isnan(observations)
+        
+        return self._mse(clampings, readouts, observations[pos], pos)
+    
+    def _mse(self, clampings, readouts, observations, pos):
+        return mean_squared_error(observations, (self.predictions(clampings, readouts).values)[pos])
 
     def variables(self):
         """
