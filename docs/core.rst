@@ -20,10 +20,10 @@ caspo.core.clamping
     :members:
 
 
-caspo.learn.dataset
-^^^^^^^^^^^^^^^^^^^
+caspo.core.dataset
+^^^^^^^^^^^^^^^^^^
 
-.. automodule:: caspo.learn.dataset
+.. automodule:: caspo.core.dataset
     :members:
 
 caspo.core.graph

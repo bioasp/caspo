@@ -37,7 +37,7 @@ class Learner(object):
     graph : :class:`caspo.core.graph.Graph` 
         Prior knowledge network
         
-    dataset : :class:`.dataset.Dataset`
+    dataset : :class:`caspo.core.dataset.Dataset`
         Experimental dataset
         
     length : int

@@ -12,3 +12,5 @@ eval(M,V, 1) :- free(M,V,I); eval(M,W,T) : clause(J,W,T); dnf(I,J).
 eval(M,V,-1) :- not eval(M,V,1); model(M); variable(V).
 
 diff :- eval(M1,V,S); eval(M2,V,-S); M1 < M2; readout(V); model(M1;M2).
+
+:- not diff.

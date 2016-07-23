@@ -19,6 +19,8 @@
 import os
 
 import multiprocessing as mp
+from joblib import Parallel, delayed
+
 import numpy as np
 
 import gringo
@@ -37,7 +39,7 @@ def __learn_io__(networks, setup, configure):
         for i,behavior in enumerate(behaviors):
             bl = core.LogicalNetworkList.from_hypergraph(networks.hg, [behavior])
             fs = setup_fs.union(nl.concat(bl).to_funset())
-            instance = ". ".join(map(str, fs)) + ". :- not diff."
+            instance = ". ".join(map(str, fs)) + "."
 
             clingo = gringo.Control()
             if configure is not None:
@@ -57,85 +59,57 @@ def __learn_io__(networks, setup, configure):
         
     return behaviors
 
-def io(networks, setup, processes=1, configure=None):
+class Classifier(object):
     """
-    Returns input-output behaviors for a given list of logical networks
+    Classifier of given list of logical networks with respect to a given experimental setup
     
     Parameters
     ----------
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
         The list of networks
-    
+
     setup : :class:`caspo.core.setup.Setup`
         The experimental setup with respect to the input-output behaviors must be computed
     
-    processes : int
-        Number of processes to run in parallel
     
-    configure : callable
-        Callable object responsible of setting clingo configuration
-    
-    
-    Returns
-    -------
-    caspo.core.logicalnetwork.LogicalNetworkList
-        The list of networks with one representative for each behavior
-    """
-    n = len(networks)
-    if processes > 1 and n > processes:
-        pool = mp.Pool(processes)
-        lp = int(np.ceil(n / float(processes)))
-        
-        results = [pool.apply_async(__learn_io__, args=(part,setup,configure)) for part in networks.split(np.arange(lp,n,lp))]
-        output = [p.get() for p in results]
-        pool.close()
-        
-        networks = core.LogicalNetworkList.from_hypergraph(networks.hg)
-        for l in output:
-            networks = networks.concat(l)
-    
-    return __learn_io__(networks, setup, configure)
-    
-def core_clampings(networks, setup, configure=None):
-    """
-    Returns the core clampings for a given list of logical networks, i.e., all experimental
-    perturbations (over stimuli and/or inhibitors) such that all networks produce the same output (over readouts)
-    
-    Parameters
+    Attributes
     ----------
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
-        The list of logical networks
-    
     setup : :class:`caspo.core.setup.Setup`
-        The experimental setup specifying stimuli, inhibitors, and readouts
-    
-    configure : callable
-        Callable object responsible of setting clingo configuration
-    
-    
-    Returns
-    -------
-    caspo.core.clamping.ClampingList
-        The list of core clampings
-    
     """
-    root = os.path.dirname(__file__)
-    encoding = os.path.join(root, 'encodings/io.lp')
     
-    fs = setup.to_funset().union(networks.to_funset())
-    instance = ". ".join(map(str, fs)) + ". :- diff. #show clamped/2."
+    def __init__(self, networks, setup):
+        self.networks = networks
+        self.setup = setup
+    
+    def classify(self, n_jobs=-1, configure=None):
+        """
+        Returns input-output behaviors for the list of logical networks :attr:`networks`
 
-    clingo = gringo.Control()
-    clingo.conf.solve.models = '0'
-    if configure is not None:
-        configure(clingo.conf)
-                
-    clingo.add("base", [], instance)
-    clingo.load(encoding)
+        n_jobs : int
+            Number of jobs to run in parallel. Default to -1 (all cores available)
     
-    clampings = []
+        configure : callable
+            Callable object responsible of setting clingo configuration
     
-    clingo.ground([("base", [])])
-    clingo.solve(on_model=lambda m: clampings.append(core.Clamping.from_tuples((f.args() for f in m.atoms()))))
     
-    return core.ClampingList(clampings)
+        Returns
+        -------
+        caspo.core.logicalnetwork.LogicalNetworkList
+            The list of networks with one representative for each behavior
+        """
+        networks = self.networks
+        
+        n = len(networks)
+        cpu = n_jobs if n_jobs > -1 else mp.cpu_count()
+    
+        if cpu > 1:
+            lp = int(np.ceil(n / float(cpu))) if n > cpu else 1
+            parts = networks.split(np.arange(lp, n, lp))
+        
+            behaviors_parts = Parallel(n_jobs=n_jobs)(delayed(__learn_io__)(part, self.setup, configure) for part in parts)
+            networks = core.LogicalNetworkList.from_hypergraph(networks.hg)
+            for b in behaviors_parts:
+                networks = networks.concat(b)
+    
+        return __learn_io__(networks, self.setup, configure)

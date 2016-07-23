@@ -6,6 +6,7 @@ caspo's API
    
    core
    learn
+   classify
    control
    design
    visualize
