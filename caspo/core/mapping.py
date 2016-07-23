@@ -16,16 +16,17 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 from itertools import izip
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+
 from clause import Clause
 
 class MappingList(object):
     """
-    A list of indexed tuples of the form (:class:`caspo.core.clause.Clause`, str).    
+    A list of indexed :class:`caspo.core.mapping.Mapping` objects.    
     
     Parameters
     ----------
-    mappings : [(:class:`caspo.core.clause.Clause`, str)]
+    mappings : [:class:`caspo.core.mapping.Mapping`]
         The list of logical mappings
     
     indexes : [int]
@@ -64,8 +65,8 @@ class MappingList(object):
         
         Yields
         ------
-        (caspo.core.clause.Clause, str)
-            The next pair (caspo.core.clause.Clause, str)
+        caspo.core.mapping.Mapping
+            The next logical mapping
         """
         return iter(self.mappings)
             
@@ -73,19 +74,18 @@ class MappingList(object):
         """
         A list of mappings can be indexed by:
     
-        1. a tuple (:class:`caspo.core.clause.Clause`, str) to get its corresponding index
-        2. a list of integers to get all the corresponding mappings (tuples)
-        3. a single integer to get its corresponding mapping (tuple)
+        1. a tuple :class:`caspo.core.mapping.Mapping` to get its corresponding index
+        2. a list of integers to get all the corresponding mappings objects
+        3. a single integer to get its corresponding mapping object
         
         Returns
         -------
         object
             An integer, a MappingList or a single mapping
         """
-        if isinstance(index,tuple) and isinstance(index[0], Clause) and isinstance(index[1], str):
-            clause,target = index
+        if isinstance(index, Mapping):
             try:
-                return self.indexes[clause][target]
+                return self.indexes[index.clause][index.target]
             except KeyError:
                 raise KeyError("Mapping not found: %s" % index)
         else:
@@ -95,7 +95,7 @@ class MappingList(object):
                 try:
                     return self.mappings[index]
                 except TypeError:
-                    raise TypeError("Mapping object can be indexed by either a tuple of the form (Clause,str), an iterable of integers or an integer")
+                    raise TypeError("Mapping object can be indexed by either a Mapping, an iterable of integers or an integer")
                 
     def iteritems(self):
         """
@@ -104,8 +104,53 @@ class MappingList(object):
         
         Yields
         ------
-        (int,(caspo.core.clause.Clause, str))
+        (int,Mapping)
             The next pair (index, mapping)
         """
         for clause,target in self.mappings:
             yield self.indexes[clause][target], (clause,target)
+            
+class Mapping(namedtuple('Mapping', ['clause', 'target'])):
+    """
+    A logical mapping as a tuple made of a :class:`caspo.core.clause.Clause` and a target
+    
+    Attributes
+    ----------
+        clause : :class:`caspo.core.clause.Clause`
+    
+        target : str
+    """
+    
+    @classmethod
+    def from_str(klass, string):
+        """
+        Creates a mapping from a string
+        
+        Parameters
+        ----------
+        string : str
+            String of the form `target<=clause`
+            
+        Returns
+        -------
+        caspo.core.mapping.Mapping
+            Created object instance
+        """
+        if "<=" not in string:
+            raise ValueError("Cannot parse the given string to a mapping")
+            
+        target,clause_str = string.split('<=')
+            
+        return klass(Clause.from_str(clause_str), target)
+        
+    def __str__(self):
+        """
+        Returns the string representation of the mapping
+        
+        Returns
+        -------
+        str
+            String representation of the mapping as `target<=clause`
+        """
+        return "%s<=%s" % (self.target, self.clause)
+        

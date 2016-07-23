@@ -31,6 +31,7 @@ import gringo
 
 from literal import Literal
 from clause import Clause
+from mapping import Mapping
 from graph import Graph
 from hypergraph import HyperGraph
 
@@ -103,13 +104,15 @@ class LogicalNetworkList(object):
         mappings = []
         cols = []
         for m in df.columns:
-            if '=' in m:
-                cols.append(m)
-                clause_str, target = m.split('=')
-                clause = Clause.from_str(clause_str)
-                mappings.append((clause, target))
-                for source, sign in clause:
-                    edges.add((source,target,sign))
+            try:
+                ct = Mapping.from_str(m)
+                mappings.append(ct)
+                cols.append(m)                
+                for source, sign in ct.clause:
+                    edges.add((source,ct.target,sign))
+            except:
+                #current column isn't a mapping
+                pass
 
         graph = Graph.from_tuples(edges)
         hypergraph = HyperGraph.from_graph(graph)
@@ -298,7 +301,7 @@ class LogicalNetworkList(object):
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         length = len(self)
-        df = pd.DataFrame(self.matrix, columns=map(lambda (c,t): "%s=%s" % (c,t), self.hg.mappings))
+        df = pd.DataFrame(self.matrix, columns=map(str, self.hg.mappings))
 
         if known_eq:
             df = pd.concat([df,pd.DataFrame({'known_eq': self.known_eq})], axis=1)
@@ -488,22 +491,21 @@ class LogicalNetworkList(object):
         graph = nx.MultiDiGraph()
         n_gates = 1
 
-        for clause,target in self.hg.mappings[np.unique(np.where(self.matrix==1)[1])]:
-            graph.add_node(target)
-            if len(clause) > 1:
+        for mapping in self.hg.mappings[np.unique(np.where(self.matrix==1)[1])]:
+            graph.add_node(mapping.target)
+            if len(mapping.clause) > 1:
                 gate = 'gate-%s' % n_gates
                 n_gates += 1
                 graph.add_node(gate, gate=True)
-                graph.add_edge(gate, target, sign=1, weight=self.frequency((clause, target)))
+                graph.add_edge(gate, mapping.target, sign=1, weight=self.frequency(mapping))
 
-                for var,sign in clause:
+                for var,sign in mapping.clause:
                     graph.add_node(var)
-                    graph.add_edge(var, gate, sign=sign, weight=self.frequency((clause, target)))
-
+                    graph.add_edge(var, gate, sign=sign, weight=self.frequency(mapping))
             else:
-                for var,sign in clause:
+                for var,sign in mapping.clause:
                     graph.add_node(var)
-                    graph.add_edge(var, target, sign=sign, weight=self.frequency((clause, target)))
+                    graph.add_edge(var, mapping.target, sign=sign, weight=self.frequency(mapping))
 
         return graph
     

@@ -26,7 +26,7 @@ import gringo
 
 from literal import Literal
 from clause import Clause
-from mapping import MappingList
+from mapping import MappingList, Mapping
 
 class HyperGraph(object):
     """
@@ -81,7 +81,7 @@ class HyperGraph(object):
         mappings = []
         for node_idx, variable in self.nodes.iteritems():
             for hyper_idx,_ in self.hyper[self.hyper==node_idx].iteritems():
-                mappings.append((self.clauses[hyper_idx], variable))
+                mappings.append(Mapping(self.clauses[hyper_idx], variable))
                 
         self.mappings = mappings
         
