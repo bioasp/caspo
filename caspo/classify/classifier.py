@@ -111,5 +111,5 @@ class Classifier(object):
             networks = core.LogicalNetworkList.from_hypergraph(networks.hg)
             for b in behaviors_parts:
                 networks = networks.concat(b)
-    
+
         return __learn_io__(networks, self.setup, configure)
