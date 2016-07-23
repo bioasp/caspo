@@ -19,11 +19,11 @@ caspo.core.clamping
 .. automodule:: caspo.core.clamping
     :members:
 
-    
-caspo.core.clause
-^^^^^^^^^^^^^^^^^
 
-.. automodule:: caspo.core.clause
+caspo.learn.dataset
+^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: caspo.learn.dataset
     :members:
 
 caspo.core.graph
@@ -37,7 +37,13 @@ caspo.core.hypergraph
 
 .. automodule:: caspo.core.hypergraph
     :members:
-    
+
+caspo.core.clause
+^^^^^^^^^^^^^^^^^
+
+.. automodule:: caspo.core.clause
+    :members:
+
 caspo.core.logicalnetwork
 ^^^^^^^^^^^^^^^^^^^^^^^^^
     

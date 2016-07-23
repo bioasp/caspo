@@ -23,3 +23,4 @@ from graph import *
 from hypergraph import *
 from literal import *
 from logicalnetwork import *
+from dataset import *

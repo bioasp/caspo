@@ -31,7 +31,7 @@ def configure_mt(args, proxy, overwrite=None):
 
 def learn_handler(args):
     graph = core.Graph.read_sif(args.pkn)
-    dataset = learn.Dataset(args.midas, args.time)
+    dataset = core.Dataset(args.midas, args.time)
     zipped = graph.compress(dataset.setup)
 
     learner = learn.Learner(zipped, dataset, args.length, args.discretization, args.factor)
@@ -100,7 +100,7 @@ def analyze_handler(args):
                     w.writerow(row)
 
         if args.midas:
-            dataset = learn.Dataset(args.midas[0], int(args.midas[1]))
+            dataset = core.Dataset(args.midas[0], int(args.midas[1]))
 
             if args.netstats:
                 networks.to_csv(os.path.join(args.out,'networks-mse-len.csv'), size=True, dataset=dataset)
