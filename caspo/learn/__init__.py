@@ -17,4 +17,3 @@
 # -*- coding: utf-8 -*-
 
 from learner import *
-from behaviors import *
