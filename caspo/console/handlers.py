@@ -56,7 +56,7 @@ def design_handler(args):
     df = None
     for i,od in enumerate(designer.designs):
         df_od = od.to_dataframe(setup.stimuli, setup.inhibitors)
-        df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
+        df_od = pd.concat([pd.Series([i]*len(df_od), name='id'), df_od], axis=1)
 
         df = pd.concat([df,df_od], ignore_index=True)
 
@@ -153,11 +153,11 @@ def analyze_handler(args):
         setup = core.Setup.from_json(args.setup)
 
         df = None
-        for i,od in pd.read_csv(args.designs).groupby("ID"):
-            clampings = core.ClampingList.from_dataframe(od.drop("ID", axis=1), setup.inhibitors)
+        for i,od in pd.read_csv(args.designs).groupby("id"):
+            clampings = core.ClampingList.from_dataframe(od.drop("id", axis=1), setup.inhibitors)
 
             df_od = clampings.differences(behaviors, setup.readouts)
-            df_od = pd.concat([pd.Series([i]*len(df_od), name='ID'), df_od], axis=1)
+            df_od = pd.concat([pd.Series([i]*len(df_od), name='id'), df_od], axis=1)
             df = pd.concat([df,df_od], ignore_index=True)
 
         df.to_csv(os.path.join(args.out,'stats-designs.csv'), index=False)
