@@ -107,8 +107,8 @@ class MappingList(object):
         (int,Mapping)
             The next pair (index, mapping)
         """
-        for clause,target in self.mappings:
-            yield self.indexes[clause][target], (clause,target)
+        for m in self.mappings:
+            yield self.indexes[m.clause][m.target], m
             
 class Mapping(namedtuple('Mapping', ['clause', 'target'])):
     """
