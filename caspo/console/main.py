@@ -52,6 +52,17 @@ def run():
     learn.add_argument("--length", dest="length", type=int, default=0, help="max length for conjunctions (hyperedges) (Default to 0; unbounded)", metavar="L")
     learn.set_defaults(handler=learn_handler)
 
+    classify = subparsers.add_parser("classify", parents=[clingo_parser])
+    classify.add_argument("networks", help="logical networks in CSV format")
+    classify.add_argument("setup", help="experimental setup in JSON format")
+    classify.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point to be used")
+    classify.set_defaults(handler=classify_handler)
+    
+    predict = subparsers.add_parser("predict")
+    predict.add_argument("networks", help="logical networks in CSV format.")
+    predict.add_argument("setup", help="experimental setup in JSON format")
+    predict.set_defaults(handler=predict_handler)
+
     design = subparsers.add_parser("design", parents=[clingo_parser])
     design.add_argument("networks", help="logical networks in CSV format")
     design.add_argument("setup", help="experimental setup in JSON format")
@@ -84,8 +95,7 @@ def run():
     visualize.add_argument("--pkn", dest="pkn", help="prior knowledge network in SIF format", metavar="P")
     visualize.add_argument("--setup", help="experimental setup in JSON format", metavar="S")
     visualize.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
-    visualize.add_argument("--sample", dest="sample", type=int, default=0, help="visualize a sample of R logical networks (Default to all)", metavar="R")
-    visualize.add_argument("--union", dest="union", action='store_true', help="visualize the union of logical networks (Default to False)")
+    visualize.add_argument("--sample", dest="sample", type=int, default=-1, help="visualize a sample of R logical networks or 0 for all (Default to -1 (none))", metavar="R")
     visualize.add_argument("--strategies", help="intervention strategies in CSV format", metavar="S")
     visualize.add_argument("--designs", help="experimental designs in CSV format", metavar="D")
     visualize.set_defaults(handler=visualize_handler)
@@ -295,10 +305,9 @@ def run():
                                   '--networks', os.path.join(out, 'networks.csv'),
                                   '--setup', os.path.join(out, 'setup.json'),
                                   '--strategies', os.path.join(out, 'strategies.csv'),
-                                  '--designs', os.path.join(out, 'designs.csv'),
-                                  '--union'])
+                                  '--designs', os.path.join(out, 'designs.csv')])
 
-        cmdline = "\n$ caspo --out {out} visualize --pkn {pkn} --networks {networks} --setup {setup} --strategies {strategies} --designs {designs} --union\n"
+        cmdline = "\n$ caspo --out {out} visualize --pkn {pkn} --networks {networks} --setup {setup} --strategies {strategies} --designs {designs}\n"
         logger.info(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), networks=os.path.join(out, 'networks.csv'),
                                    setup=os.path.join(out, 'setup.json'), strategies=os.path.join(out, 'strategies.csv'),
                                    designs=os.path.join(out, 'designs.csv')))

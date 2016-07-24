@@ -298,51 +298,6 @@ class ClampingList(pd.Series):
                 clampings.append(c)
         
         return ClampingList(clampings)
-        
-    def __plot__(self, **kwargs):
-        """
-        Returns a `networkx.DiGraph`_ ready for plotting.
-        
-        Returns
-        -------
-        `networkx.DiGraph`_
-            Network object instance ready for plotting
-        
-        
-        .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
-        """
-        graph = nx.DiGraph()
-        
-        if 'source' in kwargs:
-            graph.add_node('source', label=kwargs['source'])
-        if 'target' in kwargs:
-            graph.add_node('target', label=kwargs['target'])
-    
-        return self.__create_graph__(graph, 'source' if 'source' in kwargs else '', self, 'target' if 'target' in kwargs else '')
-    
-    def __create_graph__(self, graph, parent, clampings, target):
-        if not clampings.empty:
-            popular, _ = sorted(clampings.frequencies_iter(), key=lambda (l,f): f)[-1]
-            
-            name = "%s-%s" % (parent, popular)
-            graph.add_node(name, label=popular.variable, sign=popular.signature)
-            if parent:
-                graph.add_edge(parent, name)
-            
-            df = clampings.to_dataframe()
-            
-            popular_in = df[df[popular.variable]==popular.signature]
-            self.__create_graph__(graph, name, ClampingList.from_dataframe(popular_in).drop_literals([popular]), target)
-
-            popular_out = df[df[popular.variable]!=popular.signature]
-            if not popular_out.empty:
-                self.__create_graph__(graph, parent, ClampingList.from_dataframe(popular_out), target)
-        
-        else:
-            if target:
-                graph.add_edge(parent, target)
-            
-        return graph
 
 class Clamping(frozenset):
     """
