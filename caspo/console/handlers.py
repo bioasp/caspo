@@ -89,13 +89,13 @@ def analyze_handler(args):
                 w = csv.DictWriter(fd,["mapping","frequency","exclusive","inclusive"])
                 w.writeheader()
                 exclusive, inclusive = networks.combinatorics()
-                for k,f in networks.frequencies_iter():
-                    row = dict(mapping="%s=%s" % k, frequency="%.4f" % f)
-                    if k in exclusive:
-                        row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[k]))
+                for m,f in networks.frequencies_iter():
+                    row = dict(mapping="%s" % str(m), frequency="%.4f" % f)
+                    if m in exclusive:
+                        row["exclusive"] = ";".join(map(str, exclusive[m]))
 
-                    if k in inclusive:
-                        row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[k]))
+                    if m in inclusive:
+                        row["inclusive"] = ";".join(map(str, inclusive[m]))
 
                     w.writerow(row)
 
