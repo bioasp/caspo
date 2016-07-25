@@ -122,7 +122,7 @@ def run():
         try:
             return args.handler(args)
         except:
-            logger.critical("A critical error has occurred. Please file an issue at http://github.com/bioasp/caspo/issues")
+            logger.critical("A critical error has occurred. Please file an issue at http://github.com/bioasp/caspo/issues.")
     else:
         testcase = args.testcase
         out = args.out
