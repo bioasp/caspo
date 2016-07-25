@@ -16,7 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, sys, shutil, argparse, pkg_resources, logging
+import os, sys, shutil, argparse, pkg_resources, logging, warnings
+
+with warnings.catch_warnings():
+    import matplotlib
+    matplotlib.use('agg')
 
 import caspo
 from handlers import *

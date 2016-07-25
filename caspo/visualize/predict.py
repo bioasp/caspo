@@ -16,15 +16,12 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
+import matplotlib
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 def predictions_variance(df, filepath=None):
     df = df.filter(regex="^VAR:")
-    
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-            
-    import seaborn as sns
     
     by_readout = df.mean(axis=0).reset_index(level=0)
     by_readout.columns=['Readout','Prediction variance (mean)']

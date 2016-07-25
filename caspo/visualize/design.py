@@ -16,16 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
+import matplotlib
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 def experimental_designs(df,filepath):
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-        
-        from matplotlib import pyplot as plt
-    
-    import seaborn as sns
-
     axes = []
     bw = matplotlib.colors.ListedColormap(['white','black'])
 
@@ -46,15 +41,7 @@ def experimental_designs(df,filepath):
             
     return axes
 
-def differences_distribution(df, filepath):
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-        
-        from matplotlib import pyplot as plt
-    
-    import seaborn as sns
-    
+def differences_distribution(df, filepath):    
     axes = []
     for i,dd in df.groupby("id"):
         palette = sns.color_palette("Set1", len(dd))

@@ -16,16 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
+import matplotlib
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 def behaviors_distribution(df,filepath):
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-        
-        from matplotlib import pyplot as plt
-    
-    import seaborn as sns
-    
     cols = ["known_eq","index"]
     rcols = ["Logical networks", "Input-Output behaviors"]
     sort_cols = ["known_eq"]

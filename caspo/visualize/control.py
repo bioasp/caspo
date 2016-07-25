@@ -16,16 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
+import matplotlib
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 def intervention_strategies(df,filepath):
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-        
-        from matplotlib import pyplot as plt
-    
-    import seaborn as sns
-
     rwg = matplotlib.colors.ListedColormap(['red','white','green'])
     fig = plt.figure(figsize=(max((len(df.columns)-1) * .5, 4), max(len(df)*0.6,2.5)))
     
@@ -47,14 +42,6 @@ def intervention_strategies(df,filepath):
 def interventions_frequency(df, filepath):
     df = df.sort_values('frequency')
     df['conf'] = df.frequency.map(lambda f: 0 if f<0.2 else 1 if f<0.8 else 2)
-    
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-        
-        from matplotlib import pyplot as plt
-    
-    import seaborn as sns
 
     g = sns.factorplot(x="intervention", y="frequency", data=df, aspect=3, hue='conf', legend=False)
     for tick in g.ax.get_xticklabels():

@@ -16,17 +16,12 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
+import matplotlib
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 def networks_distribution(df, filepath=None):
     df.mse = df.mse.map(lambda f: "%.4f" % f)
-    
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')
-        
-        from matplotlib import pyplot as plt
-    
-    import seaborn as sns
     
     g = sns.JointGrid(x="mse", y="size", data=df)
 
@@ -68,13 +63,7 @@ def networks_distribution(df, filepath=None):
 def mappings_frequency(df, filepath=None):
     df = df.sort_values('frequency')
     df['conf'] = df.frequency.map(lambda f: 0 if f<0.2 else 1 if f<0.8 else 2)
-    
-    if filepath:
-        import matplotlib
-        matplotlib.use('agg')        
-    
-    import seaborn as sns
-    
+        
     g = sns.factorplot(x="mapping", y="frequency", data=df, aspect=3, hue='conf', legend=False)
     for tick in g.ax.get_xticklabels():
         tick.set_rotation(90)
