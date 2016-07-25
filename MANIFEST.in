@@ -1,4 +1,5 @@
 recursive-include caspo/learn/encodings *.lp
+recursive-include caspo/classify/encodings *.lp
 recursive-include caspo/control/encodings *.lp
 recursive-include caspo/analyze/encodings *.lp
 recursive-include caspo/design/encodings *.lp
