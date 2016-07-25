@@ -43,5 +43,30 @@ def intervention_strategies(df,filepath):
         plt.savefig(os.path.join(filepath,'strategies.pdf'))
         
     return ax
+    
+def interventions_frequency(df, filepath):
+    df = df.sort_values('frequency')
+    df['conf'] = df.frequency.map(lambda f: 0 if f<0.2 else 1 if f<0.8 else 2)
+    
+    if filepath:
+        import matplotlib
+        matplotlib.use('agg')
+        
+        from matplotlib import pyplot as plt
+    
+    import seaborn as sns
 
+    g = sns.factorplot(x="intervention", y="frequency", data=df, aspect=3, hue='conf', legend=False)
+    for tick in g.ax.get_xticklabels():
+        tick.set_rotation(90)
+    
+    g.ax.set_ylim([-.05,1.05])
+    
+    g.ax.set_xlabel("Intervention")
+    g.ax.set_ylabel("Frequency")
+    
+    if filepath:
+        g.savefig(os.path.join(filepath,'interventions-frequency.pdf'))
+
+    return g
     
