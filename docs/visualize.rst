@@ -1,8 +1,8 @@
 Visualize
 ---------
 
-caspo.visualize.coloured
-^^^^^^^^^^^^^^^^^^^^^^^^
+caspo.visualize.network
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: caspo.visualize.coloured
+.. automodule:: caspo.visualize.network
     :members:
