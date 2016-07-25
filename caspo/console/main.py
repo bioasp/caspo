@@ -16,12 +16,10 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, sys, shutil, argparse, pkg_resources, logging, warnings
+import os, sys, shutil, argparse, pkg_resources, logging
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore"); 
-    import matplotlib
-    matplotlib.use('agg')
+import matplotlib
+matplotlib.use('agg')
 
 import caspo
 from handlers import *
@@ -120,7 +118,7 @@ def run():
 
 
     if args.cmd != "test":
-        logger.info("Running caspo %s..." % args.cmd)
+        logger.info("\nRunning caspo %s..." % args.cmd)
         if not os.path.exists(args.out):
             os.mkdir(args.out)
         
@@ -134,7 +132,7 @@ def run():
         threads = args.threads
         conf = args.conf
 
-        logger.info("Testing caspo subcommands using test case %s.\n" % testcase)
+        logger.info("\nTesting caspo subcommands using test case %s.\n" % testcase)
         from subprocess import check_call
 
         if os.path.exists(out):
