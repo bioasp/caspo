@@ -32,7 +32,7 @@ def experimental_designs(df,filepath):
     for i,dd in df.groupby("id"):
         fig = plt.figure(figsize=(max((len(dd.columns)-1) * .5, 4), max(len(dd)*0.6,2.5)))
         
-        ax = sns.heatmap(dd.drop("id", axis=1), linewidths=.5, cbar=False, cmap=bw, linecolor='gray')
+        ax = sns.heatmap(dd.drop("id", axis=1).reset_index(drop=True), linewidths=.5, cbar=False, cmap=bw, linecolor='gray')
         [t.set_color('r') if t.get_text().endswith('i') else t.set_color('g') for t in ax.xaxis.get_ticklabels()]
         
         ax.set_xlabel("Stimuli (green) and Inhibitors (red)")
@@ -60,7 +60,7 @@ def differences_distribution(df, filepath):
         palette = sns.color_palette("Set1", len(dd))
         fig = plt.figure()
         
-        readouts = dd.drop(["id","pairs"], axis=1).T
+        readouts = dd.drop(["id","pairs"], axis=1).reset_index(drop=True).T
         ax1 = readouts.plot(kind='bar', stacked=True, color=palette)
 
         ax1.set_xlabel("Readout")
@@ -71,7 +71,7 @@ def differences_distribution(df, filepath):
             plt.savefig(os.path.join(filepath,'design-%s-readouts.pdf' % i))
         
         fig = plt.figure()
-        behaviors = dd[["pairs"]]
+        behaviors = dd[["pairs"]].reset_index(drop=True)
         ax2 = behaviors.plot.bar(color=palette, legend=False)
     
         ax2.set_xlabel("Experimental condition")
