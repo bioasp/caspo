@@ -103,8 +103,8 @@ def predict_handler(args):
     if len(networks) > 100:
         logger.warning("""
 Your networks family has more than 100 networks and this can take a while to finish.
-You may want to use 'caspo classify' in order to extract representative networks
-having unique input-output behaviors first.
+If you haven't yet, you may want to use 'caspo classify' in order to extract 
+representative networks having unique input-output behaviors first.
         """)
 
     setup = core.Setup.from_json(args.setup)
@@ -130,7 +130,7 @@ def design_handler(args):
     df = None
     for i,od in enumerate(designer.designs):
         df_od = od.to_dataframe(setup.stimuli, setup.inhibitors)
-        df_od = pd.concat([pd.Series([i]*len(df_od), name='id'), df_od], axis=1)
+        df_od['id'] = i
 
         df = pd.concat([df,df_od], ignore_index=True)
 
@@ -162,82 +162,23 @@ def control_handler(args):
 
     controller.strategies.to_csv(os.path.join(args.out, 'strategies.csv'))
     visualize.intervention_strategies(controller.strategies.to_dataframe(), args.out)
+    
+    rows = []
+    exclusive, inclusive = controller.strategies.combinatorics()
+    for l,f in controller.strategies.frequencies_iter():
+        row = dict(intervention="%s=%s" % l, frequency=f)
 
-    return 0
+        if l in exclusive:
+            row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
 
-def analyze_handler(args):
-    logger = logging.getLogger("caspo")
+        if l in inclusive:
+            row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
 
-    if args.networks:
-        networks = core.LogicalNetworkList.from_csv(args.networks)
-        logger.info("Analyzing %s logical networks..." % len(networks))
+        rows.append(row)
 
-        if args.netstats:
-            with open(os.path.join(args.out,'stats-networks.csv'),'wb') as fd:
-                w = csv.DictWriter(fd,["mapping","frequency","exclusive","inclusive"])
-                w.writeheader()
-                exclusive, inclusive = networks.combinatorics()
-                for m,f in networks.frequencies_iter():
-                    row = dict(mapping="%s" % str(m), frequency="%.4f" % f)
-                    if m in exclusive:
-                        row["exclusive"] = ";".join(map(str, exclusive[m]))
-
-                    if m in inclusive:
-                        row["inclusive"] = ";".join(map(str, inclusive[m]))
-
-                    w.writerow(row)
-
-        if args.midas:
-            dataset = core.Dataset(args.midas[0], int(args.midas[1]))
-
-            networks.to_csv(os.path.join(args.out,'networks.csv'), size=True, dataset=dataset)
-
-            configure = ft.partial(configure_mt, args) if args.threads else None
-            
-            classifier = classify.Classifier(networks, dataset.setup)
-            behaviors = classifier.classify(configure=configure)
-            
-            behaviors.to_csv(os.path.join(args.out,'behaviors.csv'), known_eq=True, dataset=dataset)
-            behaviors.predictions(dataset.setup.filter(behaviors)).to_csv(os.path.join(args.out,'predictions.csv'), index=False)
-
-            logger.info("I/O logical behaviors: %s" % len(behaviors))
-            logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))
-
-    if args.strategies:
-        strategies = core.ClampingList.from_csv(args.strategies)
-        logger.info("Analyzing %s intervention strategies..." % len(strategies))
-
-        with open(os.path.join(args.out,'stats-strategies.csv'),'wb') as fd:
-            w = csv.DictWriter(fd,["literal","frequency","exclusive","inclusive"])
-            w.writeheader()
-            exclusive, inclusive = strategies.combinatorics()
-            for l,f in strategies.frequencies_iter():
-                row = dict(literal="%s=%s" % l, frequency="%.4f" % f)
-                if l in exclusive:
-                    row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
-
-                if l in inclusive:
-                    row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
-
-                w.writerow(row)
-
-    if args.designs and args.behaviors and args.setup:
-        behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
-
-        logger.info("Analyzing experimental designs with respect to %s I/O logical behaviors..." % len(behaviors))
-
-        setup = core.Setup.from_json(args.setup)
-
-        df = None
-        for i,od in pd.read_csv(args.designs).groupby("id"):
-            clampings = core.ClampingList.from_dataframe(od.drop("id", axis=1), setup.inhibitors)
-
-            df_od = clampings.differences(behaviors, setup.readouts)
-            df_od['id'] = i
-            
-            df = pd.concat([df,df_od], ignore_index=True)
-
-        df.to_csv(os.path.join(args.out,'stats-designs.csv'), index=False)
+    df = pd.DataFrame(rows)
+    df.to_csv(os.path.join(args.out,'stats-strategies.csv'), index=False)
+    visualize.interventions_frequency(df, args.out)
 
     return 0
 
@@ -271,11 +212,20 @@ def visualize_handler(args):
                 visualize.coloured_network(network, setup, os.path.join(args.out,'network-%s.dot' % i))
 
         nc = visualize.coloured_network(networks, setup, os.path.join(args.out,'networks-union.dot'))
-
+        
+    if args.stats_networks:
+        visualize.mappings_frequency(pd.read_csv(args.stats_networks), args.out)
+        
     if args.designs:
         visualize.experimental_designs(pd.read_csv(args.designs), args.out)
-
+        
+    if args.stats_designs:
+        visualize.differences_distribution(pd.read_csv(args.stats_designs), args.out)
+        
     if args.strategies:
         visualize.intervention_strategies(pd.read_csv(args.strategies), args.out)
+        
+    if args.stats_strategies:
+        visualize.interventions_frequency(pd.read_csv(args.stats_strategies), args.out)
 
     return 0
