@@ -19,6 +19,7 @@
 import os, sys, shutil, argparse, pkg_resources, logging, warnings
 
 with warnings.catch_warnings():
+    warnings.simplefilter("ignore"); 
     import matplotlib
     matplotlib.use('agg')
 

@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
-import os
-import matplotlib
-from matplotlib import pyplot as plt
+import os, warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore"); 
+    import matplotlib
+    from matplotlib import pyplot as plt
+    
 import seaborn as sns
 
 def behaviors_distribution(df,filepath):
