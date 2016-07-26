@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'caspo'
-copyright = u'2015, Santiago Videla'
+copyright = u'2014-2016, Santiago Videla'
 author = u'Santiago Videla'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -269,8 +269,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'caspo', u'caspo Documentation',
-   author, 'caspo', 'One line description of project.',
-   'Miscellaneous'),
+   author, 'caspo', 'Reasoning on the response of logical signaling networks families.',
+   'Systems biology'),
 ]
 
 # Documents to append as an appendix to all manuals.
