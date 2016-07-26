@@ -139,4 +139,4 @@ class Designer(object):
                 clingo.assign_external(gringo.Fun("query", [step]), True)
                 ret, step = clingo.solve(on_model=self.__save__), step + 1
                 
-        self.logger.info("%s optimal experimental designs in %.4fs" % (len(self.designs), clingo.stats['time_total']))
+        self.logger.info("%s optimal experimental designs found in %.4fs" % (len(self.designs), clingo.stats['time_total']))
