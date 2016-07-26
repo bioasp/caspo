@@ -147,10 +147,54 @@ Experimental designs
 Command Line Interface
 ----------------------
 
+Start by asking **caspo** for help::
+
+    $ caspo --help
+    usage: caspo [-h] [--quiet] [--out O] [--version]
+                 {learn,classify,predict,design,control,visualize,test} ...
+
+    Reasoning on the response of logical signaling networks with ASP
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --quiet               do not print anything to standard output
+      --out O               output directory path (Default to './out')
+      --version             show program's version number and exit
+
+    caspo subcommands:
+      for specific help on each subcommand use: caspo {cmd} --help
+
+      {learn,classify,predict,design,control,visualize,test}
+      
+
 .. _learn:
 
 Learn
 ^^^^^
+
+Help on **caspo learn**::
+
+    $ caspo learn --help
+    usage: caspo learn [-h] [--threads T] [--conf C] [--fit F] [--size S]
+                       [--factor D] [--discretization T] [--length L]
+                       pkn midas time
+
+    positional arguments:
+      pkn                 prior knowledge network in SIF format
+      midas               experimental dataset in MIDAS file
+      time                time-point to be used in MIDAS
+
+    optional arguments:
+      -h, --help          show this help message and exit
+      --threads T         run parallel search with given number of threads
+      --conf C            threads configurations (Default to many)
+      --fit F             tolerance over fitness (Default to 0)
+      --size S            tolerance over size (Default to 0)
+      --factor D          discretization over [0,D] (Default to 100)
+      --discretization T  discretization function: round, floor, ceil (Default to
+                          round)
+      --length L          max length for conjunctions (hyperedges) (Default to 0;
+                          unbounded)
 
 Run **caspo learn**::
 
@@ -172,6 +216,22 @@ The output of **caspo learn** will be two csv files, namely, *networks.csv* and 
 Classify
 ^^^^^^^^
 
+Help on **caspo classify**::
+
+    $ caspo classify --help
+    usage: caspo classify [-h] [--threads T] [--conf C] [--midas M T]
+                          networks setup
+
+    positional arguments:
+      networks     logical networks in CSV format
+      setup        experimental setup in JSON format
+
+    optional arguments:
+      -h, --help   show this help message and exit
+      --threads T  run parallel search with given number of threads
+      --conf C     threads configurations (Default to many)
+      --midas M T  experimental dataset in MIDAS file and time-point to be used
+      
 Run **caspo classify**::
 
     $ caspo classify networks.csv setup.json --midas dataset.csv 30
@@ -189,6 +249,27 @@ The output of **caspo classify** will be a csv file named *behaviors.csv* descri
 Design
 ^^^^^^
 
+Help on **caspo design**::
+
+    $ caspo design --help
+    usage: caspo design [-h] [--threads T] [--conf C] [--stimuli S]
+                        [--inhibitors I] [--nexp E] [--list L] [--relax]
+                        networks setup
+
+    positional arguments:
+      networks        logical networks in CSV format
+      setup           experimental setup in JSON format
+
+    optional arguments:
+      -h, --help      show this help message and exit
+      --threads T     run parallel search with given number of threads
+      --conf C        threads configurations (Default to many)
+      --stimuli S     maximum number of stimuli per experiment
+      --inhibitors I  maximum number of inhibitors per experiment
+      --nexp E        maximum number of experiments (Default to 10)
+      --list L        list of possible experiments
+      --relax         relax full pairwise discrimination (Default to False)
+
 Run **caspo design**::
 
     $ caspo design behaviors.csv setup.json
@@ -205,6 +286,18 @@ The output of **caspo design** will be two csv files, namely, *designs.csv* and 
 Predict
 ^^^^^^^
 
+Help on **caspo predict**::
+
+    $ caspo predict --help
+    usage: caspo predict [-h] networks setup
+
+    positional arguments:
+      networks    logical networks in CSV format.
+      setup       experimental setup in JSON format
+
+    optional arguments:
+      -h, --help  show this help message and exit
+
 Run **caspo predict**::
 
     $ caspo predict behaviors.csv setup.json
@@ -218,10 +311,31 @@ The output of **caspo predict** will be a csv file named *predictions.csv* descr
    :width: 600 px
 
 
-
 Control
 ^^^^^^^
-    
+
+Help on **caspo control**::
+
+        $ caspo control -h
+        usage: caspo control [-h] [--threads T] [--conf C] [--size M]
+                             [--allow-constraints] [--allow-goals]
+                             networks scenarios
+
+        positional arguments:
+          networks             logical networks in CSV format
+          scenarios            intervention scenarios in CSV format
+
+        optional arguments:
+          -h, --help           show this help message and exit
+          --threads T          run parallel search with given number of threads
+          --conf C             threads configurations (Default to many)
+          --size M             maximum size for interventions strategies (Default to 0
+                               (no limit))
+          --allow-constraints  allow intervention over side constraints (Default to
+                               False)
+          --allow-goals        allow intervention over goals (Default to False)
+          
+          
 Run **caspo control**::
 
     $ caspo control networks.csv scenarios.csv
