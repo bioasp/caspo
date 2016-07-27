@@ -62,11 +62,11 @@ Logical networks
 ^^^^^^^^^^^^^^^^
 
 Logical networks are given using a csv file as follows .
-The columns header specify possible logical mappings or functions, e.g. *d<=a+!c*  (*d equals a AND NOT c*).
+The columns header specify possible logical mappings or functions, e.g. *d<-a+!c*  (*d equals a AND NOT c*).
 Then, each row describes a logical network by specifying which logical mappings are present (1) in the network or not (0). Additional columns could be included to give more details related to each network, e.g., MSE, size, or the number of networks having the same input-output behavior. See the output csv files in subcommands :ref:`learn` (*networks.csv*) or :ref:`classify` (*behaviors.csv*). When parsing a csv file of logical networks, **caspo** ignores columns that cannot be parsed as logical mappings except for a column named *networks* which is interpreted as the number of networks exhibiting the same input-output behavior.
 
 .. csv-table::
-    :header: e<=c,e<=b,d<=a,d<=!c,d<=b,d<=a+!c,d<=b+!c,f<=d+e
+    :header: e<-c,e<-b,d<-a,d<-!c,d<-b,d<-a+!c,d<-b+!c,f<-d+e
 
     1,1,1,0,0,0,1,0
     1,1,1,1,0,0,0,0
@@ -80,18 +80,21 @@ Basic statistics over all logical networks are described using a csv file as fol
 .. csv-table::
     :header: mapping,frequency,exclusive,inclusive
 
-    e<=c,1.0000,,
-    e<=b,1.0000,,
-    d<=a,1.0000,,
-    d<=b+!c,0.6000,d<=!c,
-    d<=!c,0.4000,d<=b+!c,
-    d<=b,0.4000,,
+    e<-c,1.0000,,
+    e<-b,1.0000,,
+    d<-a,1.0000,,
+    d<-b+!c,0.6000,d<-!c,
+    d<-!c,0.4000,d<-b+!c,
+    d<-b,0.4000,,
+
+The predictions over the readout nodes in the PKN are shown per each condition. In the following example the readouts are species g and f. We show that for the last condition (where c and b are stimulated), the predictions for species g and f are 0 and 0.4 respectively on average.  This means that a family of Boolean Networks was learned and classified with some specific input-output behaviors and, for example, the 0.4 prediction over f represents the average prediction from all the set of input-output behaviors on this species.
+
 
 Logical predictions
 ^^^^^^^^^^^^^^^^^^^
 
 .. csv-table::
-    :header: a,c,b,di,AVG:g,AVG:f,VAR:g,VAR:f
+    :header: TR:a,TR:c,TR:b,TR:di,AVG:g,AVG:f,VAR:g,VAR:f
     
     1,0,0,0,0.0,0.0,0.0,0.0
     0,1,0,0,0.0,0.0,0.0,0.0
