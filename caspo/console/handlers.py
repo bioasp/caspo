@@ -45,7 +45,7 @@ def learn_handler(args):
     rows = []
     exclusive, inclusive = learner.networks.combinatorics()
     for m,f in learner.networks.frequencies_iter():
-        row = dict(mapping="%s" % str(m), frequency=f)
+        row = dict(mapping="%s" % str(m), frequency=f, exclusive="", inclusive="")
         if m in exclusive:
             row["exclusive"] = ";".join(map(str, exclusive[m]))
 
@@ -55,7 +55,8 @@ def learn_handler(args):
         rows.append(row)
     
     df = pd.DataFrame(rows)
-    df.to_csv(os.path.join(args.out,'stats-networks.csv'), index=False)
+    order = ["mapping","frequency","inclusive","exclusive"]
+    df[order].to_csv(os.path.join(args.out,'stats-networks.csv'), index=False)
     
     visualize.mappings_frequency(df, args.out)
 
@@ -166,7 +167,7 @@ def control_handler(args):
     rows = []
     exclusive, inclusive = controller.strategies.combinatorics()
     for l,f in controller.strategies.frequencies_iter():
-        row = dict(intervention="%s=%s" % l, frequency=f)
+        row = dict(intervention="%s=%s" % l, frequency=f, exclusive="", inclusive="")
 
         if l in exclusive:
             row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
@@ -177,7 +178,8 @@ def control_handler(args):
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    df.to_csv(os.path.join(args.out,'stats-strategies.csv'), index=False)
+    order = ["intervention","frequency","inclusive","exclusive"]
+    df[order].to_csv(os.path.join(args.out,'stats-strategies.csv'), index=False)
     visualize.interventions_frequency(df, args.out)
 
     return 0

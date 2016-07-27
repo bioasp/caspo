@@ -136,10 +136,10 @@ class Mapping(namedtuple('Mapping', ['clause', 'target'])):
         caspo.core.mapping.Mapping
             Created object instance
         """
-        if "<=" not in string:
+        if "<-" not in string:
             raise ValueError("Cannot parse the given string to a mapping")
             
-        target,clause_str = string.split('<=')
+        target,clause_str = string.split('<-')
             
         return klass(Clause.from_str(clause_str), target)
         
@@ -152,5 +152,5 @@ class Mapping(namedtuple('Mapping', ['clause', 'target'])):
         str
             String representation of the mapping as `target<=clause`
         """
-        return "%s<=%s" % (self.target, self.clause)
+        return "%s<-%s" % (self.target, self.clause)
         
