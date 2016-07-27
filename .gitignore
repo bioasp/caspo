@@ -37,3 +37,6 @@ nosetests.xml
 
 # notebook
 .ipynb_*
+
+# docs
+_build

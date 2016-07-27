@@ -15,5 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+import os
+import matplotlib
+from matplotlib import pyplot as plt
 
-from designer import *
+import seaborn as sns
+
+def predictions_variance(df, filepath=None):
+    df = df.filter(regex="^VAR:")
+    
+    by_readout = df.mean(axis=0).reset_index(level=0)
+    by_readout.columns=['Readout','Prediction variance (mean)']
+    
+    by_readout['Readout'] = by_readout.Readout.map(lambda n: n[4:])
+    
+    g1 = sns.factorplot(x='Readout', y='Prediction variance (mean)', data=by_readout, kind='bar', aspect=2)
+    
+    for tick in g1.ax.get_xticklabels():
+        tick.set_rotation(90)
+    
+    if filepath:
+        g1.savefig(os.path.join(filepath,'predictions-variance.pdf'))
+
+    return g1
+    
+    
