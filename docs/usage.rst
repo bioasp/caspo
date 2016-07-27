@@ -112,8 +112,7 @@ The intervention scenarios are specified as an *input file* of the **caspo contr
 
 Intervention strategies
 ^^^^^^^^^^^^^^^^^^^^^^^
-The intervention scenarios point to an assignment of a set of species (which do not belong to the stimuli, inhibitor and readouts sets).  
-The "1" value means that the species has to be always "on" (constant function), and the "-1" meanst that  
+The intervention strategies are given as an *output file* of the **caspo control** command.  This file points to an assignment of a set of species, which do not belong to the condition and goal sets previously defined in the intervention scenarios file.  The strategies show different ways to verify all the set of intervention scenarios given as an input file.  The  "1" (respectively "-1") value means that the species has to be always "on" (respectively "off"), in other words there is a constant boolean function on this species. The "0" value means that the species is not constrained.  
 
 .. csv-table:: Toy intervention strategies
     :header: c,b,e,d
@@ -122,6 +121,8 @@ The "1" value means that the species has to be always "on" (constant function), 
     -1,-1,0,0
     1,0,0,-1
 
+The **caspo control** command also outputs a file with statistics of the intervention strategies.
+The incluse and exclusive columns contain a list of strategies which in all solutions have the same (repsectively opposite state).
 
 .. csv-table:: Toy intervention strategies stats
     :header: intervention,frequency,exclusive,inclusive
@@ -135,18 +136,15 @@ The "1" value means that the species has to be always "on" (constant function), 
 Experimental designs
 ^^^^^^^^^^^^^^^^^^^^
 
+An example of a csv file shown as output of the **caspo design** command.  This file shows 1 experimental design identified by "0" composed of 2 different conditions.  The first condition proposes an experiment where "b" and "c" are stimulated. It also shows that under this condition the readout "f" will have 2 differences and the readout "1" will have 0 differences. Finally, under this first condition, the number of input-output behaviors pairs discriminated was 3.
+
 .. csv-table::
-    :header: id,a,b,c,di
+    :header: TR:id,TR:a,TR:b,TR:c,TR:di, DIF:f, DIF:g, pairs
     
-    0,0,1,1,0
-    0,0,1,0,0
+    0,0,1,1,0,2,0,3
+    0,0,1,0,0,1,0,2
 
 
-.. csv-table::
-    :header: id,f,g,pairs
-
-    0,2,0,2
-    0,2,0,2
 
 
 Command Line Interface
