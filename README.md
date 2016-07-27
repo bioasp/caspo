@@ -12,28 +12,7 @@ Altogether, this constitutes a pipeline for automated reasoning on logical signa
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
 ### Documentation
-Detailed documentation available at http://caspo.readthedocs.io
-
-### Usage
-Ask for help by running:
-
-```
-usage: caspo [-h] [--quiet] [--out O] [--version]
-             {learn,classify,predict,design,control,visualize,test} ...
-
-Reasoning on the response of logical signaling networks with ASP
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --quiet               do not print anything to standard output
-  --out O               output directory path (Default to './out')
-  --version             show program's version number and exit
-
-caspo subcommands:
-  for specific help on each subcommand use: caspo {cmd} --help
-
-  {learn,classify,predict,design,control,visualize,test}
-```
+Detailed documentation about how to install and use **caspo** is available at http://caspo.readthedocs.io.
 
 ### Samples
 
