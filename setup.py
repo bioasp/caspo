@@ -58,7 +58,8 @@ setup(name='caspo',
           "networkx",
           "pyparsing",
           "pydotplus",
-          "joblib"
+          "joblib",
+          "seaborn"
       ],
       entry_points={
           'console_scripts': [
