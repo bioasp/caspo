@@ -438,7 +438,7 @@ class LogicalNetworkList(object):
         avg = np.average(predictions[:,:,nc:], axis=0, weights=weights)
         var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=weights)
 
-        rcues = setup.cues(True)
+        rcues = map(lambda c: "TR:%s" % c, setup.cues(True))
         cols = np.concatenate([rcues, map(lambda r: "AVG:%s" % r, readouts), map(lambda r: "VAR:%s" % r, readouts)])
         
         #use the first network predictions to extract all clampings
