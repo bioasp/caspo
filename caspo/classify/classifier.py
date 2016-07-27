@@ -51,7 +51,7 @@ def __learn_io__(networks, setup, configure):
             clingo.ground([("base", [])])
             if clingo.solve() == gringo.SolveResult.UNSAT:
                 found = True
-                behaviors.known_eq[i] += (1 + network.graph['known_eq'])
+                behaviors.known_eq[i] += (1 + network.known_eq)
                 break
         
         if not found:

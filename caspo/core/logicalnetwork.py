@@ -148,10 +148,10 @@ class LogicalNetworkList(object):
         known_eq = None
         if networks:
             matrix = np.array([networks[0].to_array(hypergraph.mappings)])
-            known_eq = [networks[0].graph['known_eq']]
+            known_eq = [networks[0].known_eq]
             for network in networks[1:]:
                 matrix = np.append(matrix, [network.to_array(hypergraph.mappings)], axis=0)
-                known_eq.append(network.graph['known_eq'])
+                known_eq.append(networkknown_eq)
 
         return klass(hypergraph, matrix, known_eq)
         
@@ -216,10 +216,10 @@ class LogicalNetworkList(object):
         arr = network.to_array(self.hg.mappings)
         if len(self.matrix):
             self.matrix = np.append(self.matrix, [arr], axis=0)
-            self.known_eq = np.append(self.known_eq, network.graph['known_eq'])
+            self.known_eq = np.append(self.known_eq, network.known_eq)
         else:
             self.matrix = np.array([arr])
-            self.known_eq = np.array([network.graph['known_eq']])
+            self.known_eq = np.array([network.known_eq])
 
     def __len__(self):
         """
@@ -543,6 +543,10 @@ class LogicalNetwork(nx.DiGraph):
             Created object instance
         """
         return klass(map(lambda (i,j): (hg.clauses[j], hg.variable(i)), tuples), known_eq=0)
+        
+    @property
+    def known_eq(self):
+        return self.graph.get('known_eq',0)
 
     def to_graph(self):
         """
