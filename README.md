@@ -7,26 +7,19 @@ can be compatible with a set of experimental observations.
 Thus, automated **inference of logical networks from experimental data** would allow for
 identifying admissible large-scale logic models saving a lot of efforts and without any a priori bias. 
 Next, once a family a logical networks has been identified, one can suggest or **design new experiments** in order to reduce the uncertainty provided by this family.
-Finally, one can **look for intervention strategies** (i.e. inclusion minimal sets of knock-ins and knock-outs) that force
-a set of target species or compounds into a desired steady state. 
+Finally, one can **look for intervention strategies** that force a set of target species or compounds into a desired steady state.
 Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks. 
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
-### Installation
-
-If you are already using [Python](https://www.python.org/download/releases/2.7.6) with [NumPy](http://www.numpy.org/), you should be able to install **caspo** from [pypi](https://pypi.python.org/pypi/caspo) simply by running:
-```
-$ pip install caspo
-```
-If you are not using Python and/or NumPy, please visit the [wiki](https://github.com/bioasp/caspo/wiki) for detailed instructions.
+### Documentation
+Detailed documentation available at http://caspo.readthedocs.io
 
 ### Usage
 Ask for help by running:
 
 ```
-$ caspo --help
 usage: caspo [-h] [--quiet] [--out O] [--version]
-             {control,visualize,design,learn,test,analyze} ...
+             {learn,classify,predict,design,control,visualize,test} ...
 
 Reasoning on the response of logical signaling networks with ASP
 
@@ -39,10 +32,8 @@ optional arguments:
 caspo subcommands:
   for specific help on each subcommand use: caspo {cmd} --help
 
-  {control,visualize,design,learn,test,analyze}
+  {learn,classify,predict,design,control,visualize,test}
 ```
-
-Also, you may want to check out some examples at our [notebook](http://nbviewer.ipython.org/github/bioasp/caspo/tree/master/notebook/)
 
 ### Samples
 
