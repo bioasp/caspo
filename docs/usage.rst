@@ -87,11 +87,10 @@ Basic statistics over all logical networks are described using a csv file as fol
     d<-!c,0.4000,d<-b+!c,
     d<-b,0.4000,,
 
-The predictions over the readout nodes in the PKN are shown per each condition. In the following example the readouts are species g and f. We show that for the last condition (where c and b are stimulated), the predictions for species g and f are 0 and 0.4 respectively on average.  This means that a family of Boolean Networks was learned and classified with some specific input-output behaviors and, for example, the 0.4 prediction over f represents the average prediction from all the set of input-output behaviors on this species.
-
 
 Logical predictions
 ^^^^^^^^^^^^^^^^^^^
+The predictions of family of Boolean Networks over the readout nodes in the PKN are shown per each possible condition. This .csv file is *output* of the **caspo predict** command. In the following example the readouts are species "g" and "f". We show that for the last condition (where "c" and "b" are stimulated), the predictions for species "g" and "f" are 0 and 0.4 respectively on average (AVG: column).  This means that a family of Boolean Networks was previously learned and classified with some specific input-output behaviors, and that the 0.4 prediction over "f" represents the average prediction from all the set of input-output behaviors on this species.  The VAR column will show the variance of this prediction with respect to its prediction across all input-output behaviors for that condition.
 
 .. csv-table::
     :header: TR:a,TR:c,TR:b,TR:di,AVG:g,AVG:f,VAR:g,VAR:f
@@ -103,6 +102,7 @@ Logical predictions
 
 Intervention scenarios
 ^^^^^^^^^^^^^^^^^^^^^^
+The intervention scenarios are specified as an *input file* of the **caspo control** command.  This file points to an assignment of a set of species. There are two types of scenarios: SC, for the condition and SG for the goals. An scenario means that given the states of the conditions specified in the column SC, the goal species will have to have the value specified in the SG column. The "1" value means that the species is set to "on" (active), and the "-1" means that the species is set to "off" (inactive).
 
 .. csv-table::
    :header: SC:a,SG:f,SG:g
@@ -112,6 +112,7 @@ Intervention scenarios
 
 Intervention strategies
 ^^^^^^^^^^^^^^^^^^^^^^^
+The intervention strategies are given as an *output file* of the **caspo control** command.  This file points to an assignment of a set of species, which do not belong to the condition and goal sets previously defined in the intervention scenarios file.  The strategies show different ways to verify all the set of intervention scenarios given as an input file.  The  "1" (respectively "-1") value means that the species has to be always "on" (respectively "off"), in other words there is a constant boolean function on this species. The "0" value means that the species is not constrained.  
 
 .. csv-table:: Toy intervention strategies
     :header: c,b,e,d
@@ -120,6 +121,8 @@ Intervention strategies
     -1,-1,0,0
     1,0,0,-1
 
+The **caspo control** command also outputs a file with statistics of the intervention strategies.
+The incluse and exclusive columns contain a list of strategies which in all solutions have the same (repsectively opposite state).
 
 .. csv-table:: Toy intervention strategies stats
     :header: intervention,frequency,exclusive,inclusive
@@ -133,18 +136,15 @@ Intervention strategies
 Experimental designs
 ^^^^^^^^^^^^^^^^^^^^
 
+An example of a csv file shown as output of the **caspo design** command.  This file shows 1 experimental design identified by "0" composed of 2 different conditions.  The first condition proposes an experiment where "b" and "c" are stimulated. It also shows that under this condition the readout "f" will have 2 differences and the readout "1" will have 0 differences. Finally, under this first condition, the number of input-output behaviors pairs discriminated was 3.
+
 .. csv-table::
-    :header: id,a,b,c,di
+    :header: TR:id,TR:a,TR:b,TR:c,TR:di, DIF:f, DIF:g, pairs
     
-    0,0,1,1,0
-    0,0,1,0,0
+    0,0,1,1,0,2,0,3
+    0,0,1,0,0,1,0,2
 
 
-.. csv-table::
-    :header: id,f,g,pairs
-
-    0,2,0,2
-    0,2,0,2
 
 
 Command Line Interface
