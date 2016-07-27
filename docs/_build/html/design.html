@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design &mdash; caspo 3.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="caspo 3.0.0 documentation" href="index.html" />
+    <link rel="up" title="caspo’s API" href="api.html" />
+    <link rel="next" title="Visualize" href="visualize.html" />
+    <link rel="prev" title="Control" href="control.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="design">
+<h1>Design<a class="headerlink" href="#design" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-caspo.design.designer">
+<span id="caspo-design-designer"></span><h2>caspo.design.designer<a class="headerlink" href="#module-caspo.design.designer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.design.designer.Designer">
+<em class="property">class </em><code class="descclassname">caspo.design.designer.</code><code class="descname">Designer</code><span class="sig-paren">(</span><em>networks</em>, <em>setup</em>, <em>candidates=None</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.design.designer.Designer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Experimental designer to discriminate among a set of logical networks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>networks</strong> (<a class="reference internal" href="core.html#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetworkList</span></code></a>) &#8211; List of logical networks</li>
+<li><strong>setup</strong> (<a class="reference internal" href="core.html#caspo.core.setup.Setup" title="caspo.core.setup.Setup"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.setup.Setup</span></code></a>) &#8211; Experimental setup</li>
+<li><strong>candidates</strong> (<a class="reference internal" href="core.html#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.ClampingList</span></code></a>) &#8211; Optional list of candidate experiments given as a list of clampings</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.networks">
+<code class="descname">networks</code><a class="headerlink" href="#caspo.design.designer.Designer.networks" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="core.html#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetworkList</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.setup">
+<code class="descname">setup</code><a class="headerlink" href="#caspo.design.designer.Designer.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="core.html#caspo.core.setup.Setup" title="caspo.core.setup.Setup"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.setup.Setup</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.candidates">
+<code class="descname">candidates</code><a class="headerlink" href="#caspo.design.designer.Designer.candidates" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="core.html#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.ClampingList</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.designs">
+<code class="descname">designs</code><a class="headerlink" href="#caspo.design.designer.Designer.designs" title="Permalink to this definition">¶</a></dt>
+<dd><p>list[<a class="reference internal" href="core.html#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.ClampingList</span></code></a>]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.instance">
+<code class="descname">instance</code><a class="headerlink" href="#caspo.design.designer.Designer.instance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.encodings">
+<code class="descname">encodings</code><a class="headerlink" href="#caspo.design.designer.Designer.encodings" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.design.designer.Designer.logger">
+<code class="descname">logger</code><a class="headerlink" href="#caspo.design.designer.Designer.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Logger</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.design.designer.Designer.design">
+<code class="descname">design</code><span class="sig-paren">(</span><em>max_stimuli=-1</em>, <em>max_inhibitors=-1</em>, <em>max_experiments=10</em>, <em>relax=False</em>, <em>configure=None</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.design.designer.Designer.design" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all optimal experimental designs using up to <code class="xref py py-attr docutils literal"><span class="pre">max_experiments</span></code> experiments, such that each experiment has
+up to <code class="xref py py-attr docutils literal"><span class="pre">max_stimuli</span></code> stimuli and <code class="xref py py-attr docutils literal"><span class="pre">max_inhibitors</span></code> inhibitors. Each optimal experimental design is saved in the
+list attribute <a class="reference internal" href="#caspo.design.designer.Designer.designs" title="caspo.design.designer.Designer.designs"><code class="xref py py-attr docutils literal"><span class="pre">designs</span></code></a> as an instance of <a class="reference internal" href="core.html#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.ClampingList</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_stimuli</strong> (<em>int</em>) &#8211; Maximum number of stimuli per experiment</li>
+<li><strong>max_inhibitors</strong> (<em>int</em>) &#8211; Maximum number of inhibitors per experiment</li>
+<li><strong>max_experiments</strong> (<em>int</em>) &#8211; Maximum number of experiments per design</li>
+<li><strong>relax</strong> (<em>boolean</em>) &#8211; Whether to relax the full-pairwise networks discrimination (True) or not (False).
+If relax equals True, the number of experiments per design is fixed to <code class="xref py py-attr docutils literal"><span class="pre">max_experiments</span></code></li>
+<li><strong>configure</strong> (<em>callable</em>) &#8211; Callable object responsible of setting clingo configuration</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design</a><ul>
+<li><a class="reference internal" href="#module-caspo.design.designer">caspo.design.designer</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">caspo&#8217;s API</a><ul>
+      <li>Previous: <a href="control.html" title="previous chapter">Control</a></li>
+      <li>Next: <a href="visualize.html" title="next chapter">Visualize</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/design.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Santiago Videla.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/design.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Usage &mdash; caspo 3.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="caspo 3.0.0 documentation" href="index.html" />
+    <link rel="next" title="caspo’s API" href="api.html" />
+    <link rel="prev" title="Install" href="install.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="input-output-files">
+<h2>Input/Output files<a class="headerlink" href="#input-output-files" title="Permalink to this headline">¶</a></h2>
+<p>Input and output files in <strong>caspo</strong> are mostly comma separated values (csv) files.
+Next, we describe all files either consumed or produced when running <strong>caspo</strong> subcommands.</p>
+<div class="section" id="prior-knowledge-network">
+<h3>Prior knowledge network<a class="headerlink" href="#prior-knowledge-network" title="Permalink to this headline">¶</a></h3>
+<p>A prior knowledge network (PKN) is given using the <a class="reference external" href="http://wiki.cytoscape.org/Cytoscape_User_Manual/Network_Formats">simple interaction format (SIF)</a>.
+Lines in the SIF file must specify a source node, an edge sign (1 or -1), and one target node.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>a</td>
+<td>1</td>
+<td>d</td>
+</tr>
+<tr class="row-even"><td>b</td>
+<td>1</td>
+<td>d</td>
+</tr>
+<tr class="row-odd"><td>c</td>
+<td>-1</td>
+<td>d</td>
+</tr>
+<tr class="row-even"><td>b</td>
+<td>1</td>
+<td>e</td>
+</tr>
+<tr class="row-odd"><td>c</td>
+<td>1</td>
+<td>e</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="experimental-setup">
+<h3>Experimental setup<a class="headerlink" href="#experimental-setup" title="Permalink to this headline">¶</a></h3>
+<p>An experimental setup is given using the JSON format.
+The JSON file must specify three list of node names, namely, <em>stimuli</em>, <em>inhibitors</em>, and <em>readouts</em>.</p>
+<div class="code json highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;stimuli&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span>
+  <span class="s2">&quot;inhibitors&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
+  <span class="s2">&quot;readouts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="experimental-dataset">
+<h3>Experimental dataset<a class="headerlink" href="#experimental-dataset" title="Permalink to this headline">¶</a></h3>
+<p>A phosphoproteomics dataset is given using the <a class="reference external" href="http://www.cellnopt.org/doc/cnodocs/midas.html">MIDAS format</a>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">TR:Toy:CellLine</th>
+<th class="head">TR:a</th>
+<th class="head">TR:b</th>
+<th class="head">TR:c</th>
+<th class="head">TR:di</th>
+<th class="head">DA:f</th>
+<th class="head">DA:g</th>
+<th class="head">DV:f</th>
+<th class="head">DV:g</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>10</td>
+<td>10</td>
+<td>0.9</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>10</td>
+<td>10</td>
+<td>0.1</td>
+<td>0.9</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="logical-networks">
+<h3>Logical networks<a class="headerlink" href="#logical-networks" title="Permalink to this headline">¶</a></h3>
+<p>Logical networks are given using a csv file as follows.
+The columns header specify possible logical mappings or functions, e.g. <em>d&lt;=a+!c</em>  (<em>d equals a AND NOT c</em>).
+Then, each row describes a logical network by specifying which logical mappings are present (1) in the network or not (0). Additional columns could be included to give more details related to each network, e.g., MSE, size, or the number of networks having the same input-output behavior. See the output csv files in subcommands <a class="reference internal" href="#learn"><span>Learn</span></a> (<em>networks.csv</em>) or <a class="reference internal" href="#classify"><span>Classify</span></a> (<em>behaviors.csv</em>). When parsing a csv file of logical networks, <strong>caspo</strong> ignores columns that cannot be parsed as logical mappings except for a column named <em>networks</em> which is interpreted as the number of networks exhibiting the same input-output behavior.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">e&lt;=c</th>
+<th class="head">e&lt;=b</th>
+<th class="head">d&lt;=a</th>
+<th class="head">d&lt;=!c</th>
+<th class="head">d&lt;=b</th>
+<th class="head">d&lt;=a+!c</th>
+<th class="head">d&lt;=b+!c</th>
+<th class="head">f&lt;=d+e</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Basic statistics over all logical networks are described using a csv file as follows.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">mapping</th>
+<th class="head">frequency</th>
+<th class="head">exclusive</th>
+<th class="head">inclusive</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>e&lt;=c</td>
+<td>1.0000</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>e&lt;=b</td>
+<td>1.0000</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>d&lt;=a</td>
+<td>1.0000</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>d&lt;=b+!c</td>
+<td>0.6000</td>
+<td>d&lt;=!c</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>d&lt;=!c</td>
+<td>0.4000</td>
+<td>d&lt;=b+!c</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>d&lt;=b</td>
+<td>0.4000</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="logical-predictions">
+<h3>Logical predictions<a class="headerlink" href="#logical-predictions" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">a</th>
+<th class="head">c</th>
+<th class="head">b</th>
+<th class="head">di</th>
+<th class="head">AVG:g</th>
+<th class="head">AVG:f</th>
+<th class="head">VAR:g</th>
+<th class="head">VAR:f</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+<tr class="row-odd"><td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+</tr>
+<tr class="row-even"><td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1.0</td>
+<td>0.8</td>
+<td>0.0</td>
+<td>0.16</td>
+</tr>
+<tr class="row-odd"><td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0.0</td>
+<td>0.4</td>
+<td>0.0</td>
+<td>0.24</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="intervention-scenarios">
+<h3>Intervention scenarios<a class="headerlink" href="#intervention-scenarios" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">SC:a</th>
+<th class="head">SG:f</th>
+<th class="head">SG:g</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>-1</td>
+<td>-1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="intervention-strategies">
+<h3>Intervention strategies<a class="headerlink" href="#intervention-strategies" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="id3">
+<caption><span class="caption-text">Toy intervention strategies</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">c</th>
+<th class="head">b</th>
+<th class="head">e</th>
+<th class="head">d</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>0</td>
+<td>-1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>-1</td>
+<td>-1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>0</td>
+<td>0</td>
+<td>-1</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils" id="id4">
+<caption><span class="caption-text">Toy intervention strategies stats</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">intervention</th>
+<th class="head">frequency</th>
+<th class="head">exclusive</th>
+<th class="head">inclusive</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>c=-1</td>
+<td>0.3333</td>
+<td>&nbsp;</td>
+<td>b=-1</td>
+</tr>
+<tr class="row-odd"><td>c=1</td>
+<td>0.3333</td>
+<td>&nbsp;</td>
+<td>d=-1</td>
+</tr>
+<tr class="row-even"><td>b=-1</td>
+<td>0.3333</td>
+<td>&nbsp;</td>
+<td>c=-1</td>
+</tr>
+<tr class="row-odd"><td>e=-1</td>
+<td>0.3333</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>d=-1</td>
+<td>0.3333</td>
+<td>&nbsp;</td>
+<td>c=1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="experimental-designs">
+<h3>Experimental designs<a class="headerlink" href="#experimental-designs" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">id</th>
+<th class="head">a</th>
+<th class="head">b</th>
+<th class="head">c</th>
+<th class="head">di</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">id</th>
+<th class="head">f</th>
+<th class="head">g</th>
+<th class="head">pairs</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr class="row-odd"><td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<p>Start by asking <strong>caspo</strong> for help:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo --help
+usage: caspo [-h] [--quiet] [--out O] [--version]
+             {learn,classify,predict,design,control,visualize,test} ...
+
+Reasoning on the response of logical signaling networks with ASP
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --quiet               do not print anything to standard output
+  --out O               output directory path (Default to &#39;./out&#39;)
+  --version             show program&#39;s version number and exit
+
+caspo subcommands:
+  for specific help on each subcommand use: caspo {cmd} --help
+
+  {learn,classify,predict,design,control,visualize,test}
+</pre></div>
+</div>
+<div class="section" id="learn">
+<span id="id1"></span><h3>Learn<a class="headerlink" href="#learn" title="Permalink to this headline">¶</a></h3>
+<p>Help on <strong>caspo learn</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo learn --help
+usage: caspo learn [-h] [--threads T] [--conf C] [--fit F] [--size S]
+                   [--factor D] [--discretization T] [--length L]
+                   pkn midas time
+
+positional arguments:
+  pkn                 prior knowledge network in SIF format
+  midas               experimental dataset in MIDAS file
+  time                time-point to be used in MIDAS
+
+optional arguments:
+  -h, --help          show this help message and exit
+  --threads T         run parallel search with given number of threads
+  --conf C            threads configurations (Default to many)
+  --fit F             tolerance over fitness (Default to 0)
+  --size S            tolerance over size (Default to 0)
+  --factor D          discretization over [0,D] (Default to 100)
+  --discretization T  discretization function: round, floor, ceil (Default to
+                      round)
+  --length L          max length for conjunctions (hyperedges) (Default to 0;
+                      unbounded)
+</pre></div>
+</div>
+<p>Run <strong>caspo learn</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo learn pkn.sif dataset.csv 30 --fit 0.04
+
+Running caspo learn...
+Optimum logical network learned in 1.0537s
+Optimum logical networks has MSE 0.0499 and size 28
+2150 (nearly) optimal logical networks learned in 2.6850s
+Weighted MSE: 0.0513
+</pre></div>
+</div>
+<p>The output of <strong>caspo learn</strong> will be two csv files, namely, <em>networks.csv</em> and <em>stats-networks.csv</em>. The file <em>networks.csv</em> describes all logical networks found with their corresponding MSE and size. The file <em>stats-networks.csv</em> describes the frequency of each logical mapping over all networks together with pairs of mutually inclusive/exclusive mappings. The weighted MSE combining all networks is also computed and printed in the standard output. In addition, the following default visualizations are provided describing the family of logical networks:</p>
+<a class="reference internal image-reference" href="_images/learn.png"><img alt="_images/learn.png" src="_images/learn.png" style="width: 600px;" /></a>
+</div>
+<div class="section" id="classify">
+<span id="id2"></span><h3>Classify<a class="headerlink" href="#classify" title="Permalink to this headline">¶</a></h3>
+<p>Help on <strong>caspo classify</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo classify --help
+usage: caspo classify [-h] [--threads T] [--conf C] [--midas M T]
+                      networks setup
+
+positional arguments:
+  networks     logical networks in CSV format
+  setup        experimental setup in JSON format
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --threads T  run parallel search with given number of threads
+  --conf C     threads configurations (Default to many)
+  --midas M T  experimental dataset in MIDAS file and time-point to be used
+</pre></div>
+</div>
+<p>Run <strong>caspo classify</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo classify networks.csv setup.json --midas dataset.csv 30
+
+Running caspo classify...
+Classifying 2150 logical networks...
+Input-Output logical behaviors: 31
+Weighted MSE: 0.0513
+</pre></div>
+</div>
+<p>The output of <strong>caspo classify</strong> will be a csv file named <em>behaviors.csv</em> describing one representative logical network for each input-output behavior found among given networks. For each representative network, the number of networks having the same behavior is also given. Further, if a dataset is given, the weighted MSE is computed. Also, one of the following visualizations is provided depending on whether the dataset was given as an argument or not.</p>
+<a class="reference internal image-reference" href="_images/classify.png"><img alt="_images/classify.png" src="_images/classify.png" style="width: 600px;" /></a>
+</div>
+<div class="section" id="design">
+<h3>Design<a class="headerlink" href="#design" title="Permalink to this headline">¶</a></h3>
+<p>Help on <strong>caspo design</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo design --help
+usage: caspo design [-h] [--threads T] [--conf C] [--stimuli S]
+                    [--inhibitors I] [--nexp E] [--list L] [--relax]
+                    networks setup
+
+positional arguments:
+  networks        logical networks in CSV format
+  setup           experimental setup in JSON format
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --threads T     run parallel search with given number of threads
+  --conf C        threads configurations (Default to many)
+  --stimuli S     maximum number of stimuli per experiment
+  --inhibitors I  maximum number of inhibitors per experiment
+  --nexp E        maximum number of experiments (Default to 10)
+  --list L        list of possible experiments
+  --relax         relax full pairwise discrimination (Default to False)
+</pre></div>
+</div>
+<p>Run <strong>caspo design</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo design behaviors.csv setup.json
+
+Running caspo design...
+1 optimal experimental designs found in 219.5648s
+</pre></div>
+</div>
+<p>The output of <strong>caspo design</strong> will be two csv files, namely, <em>designs.csv</em> and <em>stats-designs.csv</em>. The file <em>designs.csv</em> describes all optimal experimental designs. The file <em>stats-designs.csv</em> describes for each experimental designs the number of pairwise differences per experimental condition and readout. Also, the number of pairs of input-output behaviors discriminated by experimental condition is given. In addition, the following visualizations are provided for each experimental design:</p>
+<a class="reference internal image-reference" href="_images/design.png"><img alt="_images/design.png" src="_images/design.png" style="width: 600px;" /></a>
+</div>
+<div class="section" id="predict">
+<h3>Predict<a class="headerlink" href="#predict" title="Permalink to this headline">¶</a></h3>
+<p>Help on <strong>caspo predict</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo predict --help
+usage: caspo predict [-h] networks setup
+
+positional arguments:
+  networks    logical networks in CSV format.
+  setup       experimental setup in JSON format
+
+optional arguments:
+  -h, --help  show this help message and exit
+</pre></div>
+</div>
+<p>Run <strong>caspo predict</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo predict behaviors.csv setup.json
+
+Running caspo predict...
+Computing all predictions and their variance for 31 logical networks...
+</pre></div>
+</div>
+<p>The output of <strong>caspo predict</strong> will be a csv file named <em>predictions.csv</em> describing for each possible experimental perturbation, the corresponding weighted average prediction and its variance for each readout. Also, the following visualization is provided:</p>
+<a class="reference internal image-reference" href="_images/predict.png"><img alt="_images/predict.png" src="_images/predict.png" style="width: 600px;" /></a>
+</div>
+<div class="section" id="control">
+<h3>Control<a class="headerlink" href="#control" title="Permalink to this headline">¶</a></h3>
+<p>Help on <strong>caspo control</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo control -h
+usage: caspo control [-h] [--threads T] [--conf C] [--size M]
+                     [--allow-constraints] [--allow-goals]
+                     networks scenarios
+
+positional arguments:
+  networks             logical networks in CSV format
+  scenarios            intervention scenarios in CSV format
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --threads T          run parallel search with given number of threads
+  --conf C             threads configurations (Default to many)
+  --size M             maximum size for interventions strategies (Default to 0
+                       (no limit))
+  --allow-constraints  allow intervention over side constraints (Default to
+                       False)
+  --allow-goals        allow intervention over goals (Default to False)
+</pre></div>
+</div>
+<p>Run <strong>caspo control</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo control networks.csv scenarios.csv
+
+Running caspo control...
+30 optimal intervention strategies found in 9.2413s
+</pre></div>
+</div>
+<p>The output of <strong>caspo control</strong> will be two csv files, namely, <em>strategies.csv</em> and <em>stats-strategies.csv</em>. The file <em>strategies.csv</em> describes all intervention strategies found. The file <em>stats-strategies.csv</em>  describes the frequency of each intervention over all strategies together with pairs of mutually inclusive/exclusive interventions. In addition, the following default visualizations are provided describing all intervention strategies:</p>
+<a class="reference internal image-reference" href="_images/control.png"><img alt="_images/control.png" src="_images/control.png" style="width: 600px;" /></a>
+</div>
+<div class="section" id="visualize">
+<h3>Visualize<a class="headerlink" href="#visualize" title="Permalink to this headline">¶</a></h3>
+<p>Run <strong>caspo visualize</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ caspo visualize --pkn out/pkn.sif --networks out/networks.csv --setup out/setup.json
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#input-output-files">Input/Output files</a><ul>
+<li><a class="reference internal" href="#prior-knowledge-network">Prior knowledge network</a></li>
+<li><a class="reference internal" href="#experimental-setup">Experimental setup</a></li>
+<li><a class="reference internal" href="#experimental-dataset">Experimental dataset</a></li>
+<li><a class="reference internal" href="#logical-networks">Logical networks</a></li>
+<li><a class="reference internal" href="#logical-predictions">Logical predictions</a></li>
+<li><a class="reference internal" href="#intervention-scenarios">Intervention scenarios</a></li>
+<li><a class="reference internal" href="#intervention-strategies">Intervention strategies</a></li>
+<li><a class="reference internal" href="#experimental-designs">Experimental designs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a><ul>
+<li><a class="reference internal" href="#learn">Learn</a></li>
+<li><a class="reference internal" href="#classify">Classify</a></li>
+<li><a class="reference internal" href="#design">Design</a></li>
+<li><a class="reference internal" href="#predict">Predict</a></li>
+<li><a class="reference internal" href="#control">Control</a></li>
+<li><a class="reference internal" href="#visualize">Visualize</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Install</a></li>
+      <li>Next: <a href="api.html" title="next chapter">caspo&#8217;s API</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Santiago Videla.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/usage.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

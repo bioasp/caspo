@@ -1,0 +1,1785 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Core &mdash; caspo 3.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="caspo 3.0.0 documentation" href="index.html" />
+    <link rel="up" title="caspo’s API" href="api.html" />
+    <link rel="next" title="Learn" href="learn.html" />
+    <link rel="prev" title="caspo’s API" href="api.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="core">
+<h1>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-caspo.core.setup">
+<span id="caspo-core-setup"></span><h2>caspo.core.setup<a class="headerlink" href="#module-caspo.core.setup" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.setup.Setup">
+<em class="property">class </em><code class="descclassname">caspo.core.setup.</code><code class="descname">Setup</code><span class="sig-paren">(</span><em>stimuli</em>, <em>inhibitors</em>, <em>readouts</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Experimental setup describing stimuli, inhibitors and readouts species names</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stimuli</strong> (<em>list[str]</em>) &#8211; List of stimuli species</li>
+<li><strong>inhibitors</strong> (<em>list[str]</em>) &#8211; List of inhibitors species</li>
+<li><strong>readouts</strong> (<em>list[str]</em>) &#8211; List of readouts species</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="caspo.core.setup.Setup.stimuli">
+<code class="descname">stimuli</code><a class="headerlink" href="#caspo.core.setup.Setup.stimuli" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list[str]</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.setup.Setup.inhibitors">
+<code class="descname">inhibitors</code><a class="headerlink" href="#caspo.core.setup.Setup.inhibitors" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list[str]</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.setup.Setup.readouts">
+<code class="descname">readouts</code><a class="headerlink" href="#caspo.core.setup.Setup.readouts" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list[str]</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.setup.Setup.__len__">
+<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of stimuli, inhibitors, and readouts</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Sum of stimuli, inhibitors, and readouts</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.setup.Setup.clampings_iter">
+<code class="descname">clampings_iter</code><span class="sig-paren">(</span><em>cues=None</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.clampings_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over all possible clampings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cues</strong> (<em>Optional[iterable]</em>) &#8211; If given, restricts clampings over given species names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><em>caspo.core.clamping.Clamping</em> &#8211;
+The next clamping with respect to the experimental setup</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.setup.Setup.cues">
+<code class="descname">cues</code><span class="sig-paren">(</span><em>rename_inhibitors=False</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.cues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns stimuli and inhibitors species</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rename_inhibitors</strong> (<em>boolean</em>) &#8211; If True, rename inhibitors with an ending &#8216;i&#8217; as in MIDAS files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of species names in order: first stimuli followed by inhibitors</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.setup.Setup.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>networks</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new experimental setup restricted to species active in the given networks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>networks</strong> (<em>caspo.core.LogicalNetworkList</em>) &#8211; List of logical networks</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Restricted experimental setup</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">caspo.core.Setup</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.setup.Setup.from_json">
+<em class="property">classmethod </em><code class="descname">from_json</code><span class="sig-paren">(</span><em>klass</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an experimental setup from a JSON file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Absolute path to JSON file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">caspo.core.Setup</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.setup.Setup.nodes">
+<code class="descname">nodes</code><a class="headerlink" href="#caspo.core.setup.Setup.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>frozenset: unique species names in the experimental setup</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.setup.Setup.to_funset">
+<code class="descname">to_funset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.to_funset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the experimental setup to a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> object instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> object instances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.setup.Setup.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.setup.Setup.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the experimental setup to a JSON file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Absolute path where to write the JSON file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.literal">
+<span id="caspo-core-literal"></span><h2>caspo.core.literal<a class="headerlink" href="#module-caspo.core.literal" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.literal.Literal">
+<em class="property">class </em><code class="descclassname">caspo.core.literal.</code><code class="descname">Literal</code><a class="headerlink" href="#caspo.core.literal.Literal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Literal class describing a variable or its negation</p>
+<dl class="attribute">
+<dt id="caspo.core.literal.Literal.variable">
+<code class="descname">variable</code><a class="headerlink" href="#caspo.core.literal.Literal.variable" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.literal.Literal.signature">
+<code class="descname">signature</code><a class="headerlink" href="#caspo.core.literal.Literal.signature" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int (either 1 or -1)</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.literal.Literal.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.literal.Literal.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the string representation of the literal</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of the literal</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.literal.Literal.from_str">
+<em class="property">classmethod </em><code class="descname">from_str</code><span class="sig-paren">(</span><em>klass</em>, <em>string</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.literal.Literal.from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a literal from a string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; If the string starts with &#8216;!&#8217;, it&#8217;s interpreted as a negated variable</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.literal.Literal" title="caspo.core.literal.Literal">caspo.core.literal.Literal</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.clamping">
+<span id="caspo-core-clamping"></span><h2>caspo.core.clamping<a class="headerlink" href="#module-caspo.core.clamping" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.clamping.Clamping">
+<em class="property">class </em><code class="descclassname">caspo.core.clamping.</code><code class="descname">Clamping</code><a class="headerlink" href="#caspo.core.clamping.Clamping" title="Permalink to this definition">¶</a></dt>
+<dd><p>A clamping is a frozenset of <a class="reference internal" href="#caspo.core.literal.Literal" title="caspo.core.literal.Literal"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.literal.Literal</span></code></a> object instances where each
+literal describes a clamped variable</p>
+<dl class="method">
+<dt id="caspo.core.clamping.Clamping.bool">
+<code class="descname">bool</code><span class="sig-paren">(</span><em>variable</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.Clamping.bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the given variable is positively clamped</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variable</strong> (<em>str</em>) &#8211; The variable name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the given variable is positively clamped, False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.Clamping.drop_literals">
+<code class="descname">drop_literals</code><span class="sig-paren">(</span><em>literals</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.Clamping.drop_literals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new clamping without the given literals</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>literals</strong> (iterable[<a class="reference internal" href="#caspo.core.literal.Literal" title="caspo.core.literal.Literal"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.literal.Literal</span></code></a>]) &#8211; Iterable of literals to be removed</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new clamping without the given literals</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.clamping.Clamping" title="caspo.core.clamping.Clamping">caspo.core.clamping.Clamping</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.clamping.Clamping.from_tuples">
+<em class="property">classmethod </em><code class="descname">from_tuples</code><span class="sig-paren">(</span><em>klass</em>, <em>tuples</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.Clamping.from_tuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a clamping from tuples of the form (variable, sign)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tuples</strong> (<em>iterable[(str,int)]</em>) &#8211; An iterable of tuples describing clamped variables</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.clamping.Clamping" title="caspo.core.clamping.Clamping">caspo.core.clamping.Clamping</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.Clamping.has_variable">
+<code class="descname">has_variable</code><span class="sig-paren">(</span><em>variable</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.Clamping.has_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the given variable is present in the clamping</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variable</strong> (<em>str</em>) &#8211; The variable name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the given variable is present in the clamping, False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.Clamping.to_array">
+<code class="descname">to_array</code><span class="sig-paren">(</span><em>variables</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.Clamping.to_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the clamping to an 1-D array with respect to the given variables</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variables</strong> (<em>list[str]</em>) &#8211; List of variables names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">1-D array where position <cite>i</cite> correspond to the sign of the clamped variable at
+position <cite>i</cite> in the given list of variables</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray">numpy.ndarray</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.Clamping.to_funset">
+<code class="descname">to_funset</code><span class="sig-paren">(</span><em>index</em>, <em>name='clamped'</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.Clamping.to_funset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the clamping to a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> object instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> object instances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="caspo.core.clamping.ClampingList">
+<em class="property">class </em><code class="descclassname">caspo.core.clamping.</code><code class="descname">ClampingList</code><span class="sig-paren">(</span><em>data=None</em>, <em>index=None</em>, <em>dtype=None</em>, <em>name=None</em>, <em>copy=False</em>, <em>fastpath=False</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <a class="reference internal" href="#caspo.core.clamping.Clamping" title="caspo.core.clamping.Clamping"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.Clamping</span></code></a> object instances as a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">pandas.Series</a></p>
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.combinatorics">
+<code class="descname">combinatorics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.combinatorics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mutually exclusive/inclusive clampings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A tuple of 2 dictionaries.
+For each literal key, the first dict has as value the set of mutually exclusive clampings while
+the second dict has as value the set of mutually inclusive clampings.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(dict,dict)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.differences">
+<code class="descname">differences</code><span class="sig-paren">(</span><em>networks</em>, <em>readouts</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.differences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the total number of pairwise differences over the given readouts for the given networks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>networks</strong> (iterable[<a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetwork</span></code></a>]) &#8211; Iterable of logical networks to compute pairwise differences</li>
+<li><strong>readouts</strong> (<em>list[str]</em>) &#8211; List of readouts species names</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Total number of pairwise differences for each clamping over each readout</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.drop_literals">
+<code class="descname">drop_literals</code><span class="sig-paren">(</span><em>literals</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.drop_literals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new list of clampings without the given literals</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>literals</strong> (iterable[<a class="reference internal" href="#caspo.core.literal.Literal" title="caspo.core.literal.Literal"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.literal.Literal</span></code></a>]) &#8211; Iterable of literals to be removed from each clamping</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The new list of clampings</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList">caspo.core.clamping.ClampingList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.frequencies_iter">
+<code class="descname">frequencies_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.frequencies_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over clamped variables&#8217; frequencies</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>tuple[ caspo.core.literal.Literal, float ]</em> &#8211;
+The next tuple of the form (literal, frequency)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.frequency">
+<code class="descname">frequency</code><span class="sig-paren">(</span><em>literal</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the frequency of a clamped variable</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>literal</strong> (<a class="reference internal" href="#caspo.core.literal.Literal" title="caspo.core.literal.Literal"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.literal.Literal</span></code></a>) &#8211; The clamped variable</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The frequency of the given literal</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211;
+If the variable is not present in any of the individual clampings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.clamping.ClampingList.from_csv">
+<em class="property">classmethod </em><code class="descname">from_csv</code><span class="sig-paren">(</span><em>klass</em>, <em>filename</em>, <em>inhibitors=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of clampings from a CSV file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> (<em>str</em>) &#8211; Absolute path to a CSV file to be loaded with <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html#pandas.read_csv">pandas.read_csv</a>. The resulting DataFrame is passed to <a class="reference internal" href="#caspo.core.clamping.ClampingList.from_dataframe" title="caspo.core.clamping.ClampingList.from_dataframe"><code class="xref py py-func docutils literal"><span class="pre">from_dataframe()</span></code></a>.</li>
+<li><strong>inhibitors</strong> (<em>Optional[list[str]]</em>) &#8211; If given, species names ending with <cite>i</cite> and found in the list will be interpreted as inhibitors</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Created object instance</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList">caspo.core.clamping.ClampingList</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.clamping.ClampingList.from_dataframe">
+<em class="property">classmethod </em><code class="descname">from_dataframe</code><span class="sig-paren">(</span><em>klass</em>, <em>df</em>, <em>inhibitors=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.from_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of clampings from a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a> object instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a>) &#8211; Columns and rows correspond to species names and individual clampings, respectively</li>
+<li><strong>inhibitors</strong> (<em>Optional[list[str]]</em>) &#8211; If given, species names ending with <cite>i</cite> and found in the list will be interpreted as inhibitors</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Created object instance</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">caspo.core.ClampingList</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.to_csv">
+<code class="descname">to_csv</code><span class="sig-paren">(</span><em>filename</em>, <em>stimuli=[]</em>, <em>inhibitors=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the list of clampings to a CSV file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) &#8211; Absolute path where to write the CSV file</li>
+<li><strong>stimuli</strong> (<em>Optional[list[str]]</em>) &#8211; List of stimuli names. If given, stimuli are converted to {0,1} instead of {-1,1}.</li>
+<li><strong>inhibitors</strong> (<em>Optional[list[str]]</em>) &#8211; List of inhibitors names. If given, inhibitors are renamed and converted to {0,1} instead of {-1,1}.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.to_dataframe">
+<code class="descname">to_dataframe</code><span class="sig-paren">(</span><em>stimuli=[]</em>, <em>inhibitors=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the list of clampigns to a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a> object instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>stimuli</strong> (<em>Optional[list[str]]</em>) &#8211; List of stimuli names. If given, stimuli are converted to {0,1} instead of {-1,1}.</li>
+<li><strong>inhibitors</strong> (<em>Optional[list[str]]</em>) &#8211; List of inhibitors names. If given, inhibitors are renamed and converted to {0,1} instead of {-1,1}.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame representation of the list of clampings</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clamping.ClampingList.to_funset">
+<code class="descname">to_funset</code><span class="sig-paren">(</span><em>lname='clamping'</em>, <em>cname='clamped'</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clamping.ClampingList.to_funset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the list of clampings to a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lname</strong> (<em>str</em>) &#8211; Predicate name for the clamping id</li>
+<li><strong>cname</strong> (<em>str</em>) &#8211; Predicate name for the clamped variable</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Representation of all clampings as a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">set</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.dataset">
+<span id="caspo-core-dataset"></span><h2>caspo.core.dataset<a class="headerlink" href="#module-caspo.core.dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.dataset.Dataset">
+<em class="property">class </em><code class="descclassname">caspo.core.dataset.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>midas</em>, <em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.dataset.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>An experimental phospho-proteomics dataset extending <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>midas</strong> (<em>Absolute PATH to a MIDAS file</em>) &#8211; </li>
+<li><strong>time</strong> (<em>Data acquisition time-point for the early response</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="caspo.core.dataset.Dataset.setup">
+<code class="descname">setup</code><a class="headerlink" href="#caspo.core.dataset.Dataset.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#caspo.core.setup.Setup" title="caspo.core.setup.Setup"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.setup.Setup</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.dataset.Dataset.clampings">
+<code class="descname">clampings</code><a class="headerlink" href="#caspo.core.dataset.Dataset.clampings" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#caspo.core.clamping.ClampingList" title="caspo.core.clamping.ClampingList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.ClampingList</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.dataset.Dataset.readouts">
+<code class="descname">readouts</code><a class="headerlink" href="#caspo.core.dataset.Dataset.readouts" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.dataset.Dataset.is_inhibitor">
+<code class="descname">is_inhibitor</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.dataset.Dataset.is_inhibitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if the given species name is a inhibitor or not</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the given name is a inhibitor, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.dataset.Dataset.is_readout">
+<code class="descname">is_readout</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.dataset.Dataset.is_readout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if the given species name is a readout or not</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the given name is a readout, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.dataset.Dataset.is_stimulus">
+<code class="descname">is_stimulus</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.dataset.Dataset.is_stimulus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if the given species name is a stimulus or not</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the given name is a stimulus, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.dataset.Dataset.to_funset">
+<code class="descname">to_funset</code><span class="sig-paren">(</span><em>discrete</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.dataset.Dataset.to_funset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the dataset to a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>discrete</strong> (<em>callable</em>) &#8211; A discretization function</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Representation of the dataset as a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.graph">
+<span id="caspo-core-graph"></span><h2>caspo.core.graph<a class="headerlink" href="#module-caspo.core.graph" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.graph.Graph">
+<em class="property">class </em><code class="descclassname">caspo.core.graph.</code><code class="descname">Graph</code><span class="sig-paren">(</span><em>data=None</em>, <em>**attr</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interaction Graph (a.k.a. Prior Knowledge Network) extending <a class="reference external" href="https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph">networkx.MultiDiGraph</a></p>
+<dl class="method">
+<dt id="caspo.core.graph.Graph.__plot__">
+<code class="descname">__plot__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph.__plot__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this graph ready for plotting</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of the object instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph">caspo.core.graph.Graph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.graph.Graph.compress">
+<code class="descname">compress</code><span class="sig-paren">(</span><em>setup</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph.compress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the compressed graph according to the given experimental setup</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>setup</strong> (<a class="reference internal" href="#caspo.core.setup.Setup" title="caspo.core.setup.Setup"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.setup.Setup</span></code></a>) &#8211; Experimental setup used to compress the graph</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Compressed graph</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph">caspo.core.graph.Graph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.graph.Graph.from_tuples">
+<em class="property">classmethod </em><code class="descname">from_tuples</code><span class="sig-paren">(</span><em>klass</em>, <em>tuples</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph.from_tuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a graph from an iterable of tuples describing edges like (source, target, sign)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tuples</strong> (<em>iterable[tuple]</em>) &#8211; Tuples describing signed and directed edges</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph">caspo.core.graph.Graph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.graph.Graph.predecessors">
+<code class="descname">predecessors</code><span class="sig-paren">(</span><em>node</em>, <em>exclude_compressed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph.predecessors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of predecessors of a given node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node</strong> (<em>str</em>) &#8211; The target node</li>
+<li><strong>exclude_compressed</strong> (<em>boolean</em>) &#8211; If true, compressed nodes are excluded from the predecessors list</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of predecessors nodes</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.graph.Graph.read_sif">
+<em class="property">classmethod </em><code class="descname">read_sif</code><span class="sig-paren">(</span><em>klass</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph.read_sif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a graph from a cytoscape SIF file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) &#8211; Absolute path to a SIF file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph">caspo.core.graph.Graph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.graph.Graph.successors">
+<code class="descname">successors</code><span class="sig-paren">(</span><em>node</em>, <em>exclude_compressed=True</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.graph.Graph.successors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of successors of a given node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node</strong> (<em>str</em>) &#8211; The target node</li>
+<li><strong>exclude_compressed</strong> (<em>boolean</em>) &#8211; If true, compressed nodes are excluded from the successors list</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of successors nodes</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.hypergraph">
+<span id="caspo-core-hypergraph"></span><h2>caspo.core.hypergraph<a class="headerlink" href="#module-caspo.core.hypergraph" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.hypergraph.HyperGraph">
+<em class="property">class </em><code class="descclassname">caspo.core.hypergraph.</code><code class="descname">HyperGraph</code><span class="sig-paren">(</span><em>nodes</em>, <em>hyper</em>, <em>edges</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hypergraph representation providing the link between logical networks and
+the corresponding expanded prior knowledge network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nodes</strong> (<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">pandas.Series</a>) &#8211; Values in the Series correspond to variables names</li>
+<li><strong>hyper</strong> (<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">pandas.Series</a>) &#8211; Values in the Series correspond to the index in <a class="reference internal" href="#caspo.core.hypergraph.HyperGraph.nodes" title="caspo.core.hypergraph.HyperGraph.nodes"><code class="xref py py-attr docutils literal"><span class="pre">nodes</span></code></a> (target node)</li>
+<li><strong>edges</strong> (<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a>) &#8211; Hyperedges details as a DataFrame with columns <cite>hyper_idx</cite> (corresponds to the index in <a class="reference internal" href="#caspo.core.hypergraph.HyperGraph.hyper" title="caspo.core.hypergraph.HyperGraph.hyper"><code class="xref py py-attr docutils literal"><span class="pre">hyper</span></code></a>),
+<cite>name</cite> (source node), and <cite>sign</cite> (1 or -1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="caspo.core.hypergraph.HyperGraph.nodes">
+<code class="descname">nodes</code><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">pandas.Series</a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.hypergraph.HyperGraph.hyper">
+<code class="descname">hyper</code><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.hyper" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">pandas.Series</a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.hypergraph.HyperGraph.edges">
+<code class="descname">edges</code><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.hypergraph.HyperGraph.clauses">
+<code class="descname">clauses</code><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.clauses" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em></p>
+<p>Mapping from hyperedge id (<cite>hyper_idx</cite>) to <a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clause.Clause</span></code></a> object instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.hypergraph.HyperGraph.clauses_idx">
+<code class="descname">clauses_idx</code><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.clauses_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em></p>
+<p>The reverse of <a class="reference internal" href="#caspo.core.hypergraph.HyperGraph.clauses" title="caspo.core.hypergraph.HyperGraph.clauses"><code class="xref py py-attr docutils literal"><span class="pre">clauses</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.hypergraph.HyperGraph.mappings">
+<code class="descname">mappings</code><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.mappings" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">pandas.Series</a></p>
+<p>Series of tuples of the form (clause, variable)</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.hypergraph.HyperGraph.from_graph">
+<em class="property">classmethod </em><code class="descname">from_graph</code><span class="sig-paren">(</span><em>klass</em>, <em>graph</em>, <em>length=0</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.from_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a hypergraph (expanded graph) from a <a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.graph.Graph</span></code></a> object instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>graph</strong> (<a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.graph.Graph</span></code></a>) &#8211; The base interaction graph to be expanded</li>
+<li><strong>length</strong> (<em>int</em>) &#8211; Maximum length for hyperedges source sets. If 0, use maximum possible in each case.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Created object instance</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph">caspo.core.hypergraph.HyperGraph</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.hypergraph.HyperGraph.to_funset">
+<code class="descname">to_funset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.to_funset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the hypergraph to a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Representation of the hypergraph as a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.hypergraph.HyperGraph.variable">
+<code class="descname">variable</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.hypergraph.HyperGraph.variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variable name for a given variable id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; Variable id</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Variable name</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.mapping">
+<span id="caspo-core-mapping"></span><h2>caspo.core.mapping<a class="headerlink" href="#module-caspo.core.mapping" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.mapping.Mapping">
+<em class="property">class </em><code class="descclassname">caspo.core.mapping.</code><code class="descname">Mapping</code><a class="headerlink" href="#caspo.core.mapping.Mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>A logical mapping as a tuple made of a <a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clause.Clause</span></code></a> and a target</p>
+<dl class="attribute">
+<dt id="caspo.core.mapping.Mapping.clause">
+<code class="descname">clause</code><a class="headerlink" href="#caspo.core.mapping.Mapping.clause" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clause.Clause</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.mapping.Mapping.target">
+<code class="descname">target</code><a class="headerlink" href="#caspo.core.mapping.Mapping.target" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.mapping.Mapping.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.Mapping.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the string representation of the mapping</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of the mapping as <cite>target&lt;=clause</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.mapping.Mapping.from_str">
+<em class="property">classmethod </em><code class="descname">from_str</code><span class="sig-paren">(</span><em>klass</em>, <em>string</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.Mapping.from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a mapping from a string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> (<em>str</em>) &#8211; String of the form <cite>target&lt;=clause</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.mapping.Mapping" title="caspo.core.mapping.Mapping">caspo.core.mapping.Mapping</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="caspo.core.mapping.MappingList">
+<em class="property">class </em><code class="descclassname">caspo.core.mapping.</code><code class="descname">MappingList</code><span class="sig-paren">(</span><em>mappings</em>, <em>indexes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.MappingList" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of indexed <a class="reference internal" href="#caspo.core.mapping.Mapping" title="caspo.core.mapping.Mapping"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.mapping.Mapping</span></code></a> objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mappings</strong> ([<a class="reference internal" href="#caspo.core.mapping.Mapping" title="caspo.core.mapping.Mapping"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.mapping.Mapping</span></code></a>]) &#8211; The list of logical mappings</li>
+<li><strong>indexes</strong> (<em>[int]</em>) &#8211; An optional list of integers to use as indexes</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="caspo.core.mapping.MappingList.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.MappingList.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of mappings can be indexed by:</p>
+<ol class="arabic simple">
+<li>a tuple <a class="reference internal" href="#caspo.core.mapping.Mapping" title="caspo.core.mapping.Mapping"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.mapping.Mapping</span></code></a> to get its corresponding index</li>
+<li>a list of integers to get all the corresponding mappings objects</li>
+<li>a single integer to get its corresponding mapping object</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An integer, a MappingList or a single mapping</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.mapping.MappingList.__iter__">
+<code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.MappingList.__iter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over mappings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>caspo.core.mapping.Mapping</em> &#8211;
+The next logical mapping</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.mapping.MappingList.__len__">
+<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.MappingList.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of mappings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of mappings</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.mapping.MappingList.iteritems">
+<code class="descname">iteritems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.mapping.MappingList.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over all mappings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>(int,Mapping)</em> &#8211;
+The next pair (index, mapping)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.clause">
+<span id="caspo-core-clause"></span><h2>caspo.core.clause<a class="headerlink" href="#module-caspo.core.clause" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.clause.Clause">
+<em class="property">class </em><code class="descclassname">caspo.core.clause.</code><code class="descname">Clause</code><a class="headerlink" href="#caspo.core.clause.Clause" title="Permalink to this definition">¶</a></dt>
+<dd><p>A conjunction clause is a frozenset of <a class="reference internal" href="#caspo.core.literal.Literal" title="caspo.core.literal.Literal"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.literal.Literal</span></code></a> object instances</p>
+<dl class="method">
+<dt id="caspo.core.clause.Clause.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clause.Clause.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the string representation of the clause</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.clause.Clause.bool">
+<code class="descname">bool</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clause.Clause.bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Boolean evaluation of the clause with respect to a given state</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> (<em>dict</em>) &#8211; Key-value mapping describing a Boolean state</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The evaluation of the clause with respect to the given state</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.clause.Clause.from_str">
+<em class="property">classmethod </em><code class="descname">from_str</code><span class="sig-paren">(</span><em>klass</em>, <em>string</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.clause.Clause.from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a clause from a given string of the form <cite>a+!b</cite> which translates to <cite>a AND NOT b</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause">caspo.core.clause.Clause</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-caspo.core.logicalnetwork">
+<span id="caspo-core-logicalnetwork"></span><h2>caspo.core.logicalnetwork<a class="headerlink" href="#module-caspo.core.logicalnetwork" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork">
+<em class="property">class </em><code class="descclassname">caspo.core.logicalnetwork.</code><code class="descname">LogicalNetwork</code><span class="sig-paren">(</span><em>data=None</em>, <em>**attr</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logical network class extends <a class="reference external" href="https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph">networkx.DiGraph</a> with nodes being,
+either <a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clause.Clause</span></code></a> object instances or species names (str).</p>
+<dl class="attribute">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.known_eq">
+<code class="descname">known_eq</code><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.known_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em></p>
+<p>Number of known equivalences (through the <cite>graph</cite> attribute)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.__plot__">
+<code class="descname">__plot__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.__plot__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference external" href="https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph">networkx.MultiDiGraph</a> ready for plotting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Network object instance ready for plotting</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph">networkx.MultiDiGraph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.fixpoint">
+<code class="descname">fixpoint</code><span class="sig-paren">(</span><em>clamping</em>, <em>steps=0</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.fixpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the fixpoint with respect to a given <a class="reference internal" href="#caspo.core.clamping.Clamping" title="caspo.core.clamping.Clamping"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.Clamping</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>clamping</strong> (<a class="reference internal" href="#caspo.core.clamping.Clamping" title="caspo.core.clamping.Clamping"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clamping.Clamping</span></code></a>) &#8211; The clamping with respect to the fixpoint is computed</li>
+<li><strong>steps</strong> (<em>int</em>) &#8211; If greater than zero, a maximum of steps is performed</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The key-value mapping describing the state of the logical network</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.formulas_iter">
+<code class="descname">formulas_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.formulas_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over all variable-clauses in the logical network</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>tuple[str,frozenset[caspo.core.clause.Clause]]</em> &#8211;
+The next tuple of the form (variable, set of clauses) in the logical network.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.from_hypertuples">
+<em class="property">classmethod </em><code class="descname">from_hypertuples</code><span class="sig-paren">(</span><em>klass</em>, <em>hg</em>, <em>tuples</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.from_hypertuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a logical network from an iterable of integer tuples matching mappings in the given
+<a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.hypergraph.HyperGraph</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>hg</strong> (<a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.hypergraph.HyperGraph</span></code></a>) &#8211; Underlying hypergraph</li>
+<li><strong>tuples</strong> (<em>(int,int)</em>) &#8211; tuples matching mappings in the given hypergraph</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Created object instance</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork">caspo.core.logicalnetwork.LogicalNetwork</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.predictions">
+<code class="descname">predictions</code><span class="sig-paren">(</span><em>clampings</em>, <em>readouts</em>, <em>stimuli=[]</em>, <em>inhibitors=[]</em>, <em>nclampings=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes network predictions for the given iterable of clampings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>clampings</strong> (<em>iterable</em>) &#8211; Iterable over clampings</li>
+<li><strong>readouts</strong> (<em>list[str]</em>) &#8211; List of readouts names</li>
+<li><strong>stimuli</strong> (<em>Optional[list[str]]</em>) &#8211; List of stimuli names</li>
+<li><strong>inhibitors</strong> (<em>Optional[list[str]]</em>) &#8211; List of inhibitors names</li>
+<li><strong>nclampings</strong> (<em>Optional[int]</em>) &#8211; If greater than zero, it must be the number of clampings in the iterable. Otherwise,
+clampings must implement the special method <code class="xref py py-func docutils literal"><span class="pre">__len__()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame with network predictions for each clamping. If stimuli and inhibitors are given,
+columns are included describing each clamping. Otherwise, columns correspond to readouts only.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.size">
+<code class="descname">size</code><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>int: The size of this logical network</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>state</em>, <em>clamping</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a simulation step from the given state and with respect to the given clamping</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<em>dict</em>) &#8211; The key-value mapping describing the current state of the logical network</li>
+<li><strong>clamping</strong> (<a class="reference internal" href="#caspo.core.clamping.Clamping" title="caspo.core.clamping.Clamping"><em>caspo.core.clamping.Clamping</em></a>) &#8211; A clamping over variables in the logical network</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The key-value mapping describing the next state of the logical network</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.to_array">
+<code class="descname">to_array</code><span class="sig-paren">(</span><em>mappings</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.to_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the logical network to a binary array with respect to the given mappings from a
+<a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.hypergraph.HyperGraph</span></code></a> object instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mappings</strong> (<a class="reference internal" href="#caspo.core.mapping.MappingList" title="caspo.core.mapping.MappingList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.mapping.MappingList</span></code></a>) &#8211; Mappings to create the binary array</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Binary array with respect to the given mappings describing the logical network</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray">numpy.ndarray</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.to_graph">
+<code class="descname">to_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.to_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the logical network to its underlying interaction graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The underlying interaction graph</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.graph.Graph" title="caspo.core.graph.Graph">caspo.core.graph.Graph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetwork.variables">
+<code class="descname">variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetwork.variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns variables in the logical network</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Unique variables names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set[str]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList">
+<em class="property">class </em><code class="descclassname">caspo.core.logicalnetwork.</code><code class="descname">LogicalNetworkList</code><span class="sig-paren">(</span><em>hg</em>, <em>matrix=None</em>, <em>known_eq=None</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetwork</span></code></a> object instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hg</strong> (<a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.hypergraph.HyperGraph</span></code></a>) &#8211; Underlying hypergraph of all logical networks.</li>
+<li><strong>matrix</strong> (Optional[<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray">numpy.ndarray</a>]) &#8211; 2-D binary array representation of all logical networks.
+If None, an empty array is initialised</li>
+<li><strong>known_eq</strong> (Optional[<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray">numpy.ndarray</a>]) &#8211; Number of known equivalences for each logical network in <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList.matrix" title="caspo.core.logicalnetwork.LogicalNetworkList.matrix"><code class="xref py py-attr docutils literal"><span class="pre">matrix</span></code></a>.
+If None, an array of zeros is initialised with the same length as <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList.matrix" title="caspo.core.logicalnetwork.LogicalNetworkList.matrix"><code class="xref py py-attr docutils literal"><span class="pre">matrix</span></code></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.hg">
+<code class="descname">hg</code><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.hg" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.hypergraph.HyperGraph</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.matrix">
+<code class="descname">matrix</code><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray">numpy.ndarray</a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.known_eq">
+<code class="descname">known_eq</code><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.known_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray">numpy.ndarray</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.__iter__">
+<code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.__iter__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over all logical networks in the list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>caspo.core.logicalnetwork.LogicalNetwork</em> &#8211;
+The next logical network in the list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.__len__">
+<code class="descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of logical networks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of logical networks</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.__plot__">
+<code class="descname">__plot__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.__plot__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference external" href="https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph">networkx.MultiDiGraph</a> ready for plotting. Edges weights correspond to mappings frequencies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Network object instance ready for plotting</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph">networkx.MultiDiGraph</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>network</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetwork</span></code></a> to the list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network</strong> (<a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetwork</span></code></a>) &#8211; The network to append</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.combinatorics">
+<code class="descname">combinatorics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.combinatorics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mutually exclusive/inclusive mappings</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A tuple of 2 dictionaries.
+For each mapping key, the first dict has as value the set of mutually exclusive mappings while
+the second dict has as value the set of mutually inclusive mappings.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(dict,dict)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.concat">
+<code class="descname">concat</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the concatenation with another <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetworkList</span></code></a> object instance.
+It is assumed that both have the same underlying hypergraph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> (<a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetworkList</span></code></a>) &#8211; The list to concatenate</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">If other is empty returns self, if self is empty returns other, otherwise a new
+<code class="xref py py-class docutils literal"><span class="pre">caspo.core.LogicalNetworkList</span></code> is created by concatenating self and other.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList">caspo.core.logicalnetwork.LogicalNetworkList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.frequencies_iter">
+<code class="descname">frequencies_iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.frequencies_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over all mappings&#8217; frequencies</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>tuple[tuple[caspo.core.clause.Clause, str], float]</em> &#8211;
+The next pair (mapping,frequency)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.frequency">
+<code class="descname">frequency</code><span class="sig-paren">(</span><em>mapping</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns frequency of a given mapping, i.e., a tuple (<a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clause.Clause</span></code></a>, str)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mapping</strong> (<em>tuple</em>) &#8211; A mapping (<a class="reference internal" href="#caspo.core.clause.Clause" title="caspo.core.clause.Clause"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.clause.Clause</span></code></a>, str)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Frequency of the given mapping over all logical networks</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211;
+If the given mapping is not found in the mappings of <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList.hg" title="caspo.core.logicalnetwork.LogicalNetworkList.hg"><code class="xref py py-attr docutils literal"><span class="pre">hg</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.from_csv">
+<em class="property">classmethod </em><code class="descname">from_csv</code><span class="sig-paren">(</span><em>klass</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of logical networks from a CSV file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Absolute path to CSV file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Created object instance</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList">caspo.core.logicalnetwork.LogicalNetworkList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.from_hypergraph">
+<em class="property">classmethod </em><code class="descname">from_hypergraph</code><span class="sig-paren">(</span><em>klass</em>, <em>hypergraph</em>, <em>networks=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.from_hypergraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of logical networks from a given hypergraph and an
+optional list of <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetwork</span></code></a> object instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>hypegraph</strong> (<a class="reference internal" href="#caspo.core.hypergraph.HyperGraph" title="caspo.core.hypergraph.HyperGraph"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.hypergraph.HyperGraph</span></code></a>) &#8211; Underlying hypergraph for this logical network list</li>
+<li><strong>networks</strong> (<em>Optional[list]</em>) &#8211; List of <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetwork" title="caspo.core.logicalnetwork.LogicalNetwork"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetwork</span></code></a> object instances</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Created object instance</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList">caspo.core.logicalnetwork.LogicalNetworkList</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.predictions">
+<code class="descname">predictions</code><span class="sig-paren">(</span><em>setup</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a> with the weighted average predictions and variance of all readouts for each possible clampings.
+Weights corresponds to the known equivalences for each logical network in <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList.known_eq" title="caspo.core.logicalnetwork.LogicalNetworkList.known_eq"><code class="xref py py-attr docutils literal"><span class="pre">known_eq</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>setup</strong> (<a class="reference internal" href="#caspo.core.setup.Setup" title="caspo.core.setup.Setup"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.setup.Setup</span></code></a>) &#8211; Experimental setup</li>
+<li><strong>n_jobs</strong> (<em>int</em>) &#8211; Number of jobs to run in parallel. Default to -1 (all cores available)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame with the weighted variance of readouts predictions for each possible clamping</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance">Wikipedia: Weighted sample variance</a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop all networks in the list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.split">
+<code class="descname">split</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits logical networks according to given indices</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> (<em>list</em>) &#8211; 1-D array of sorted integers, the entries indicate where the array is split</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList" title="caspo.core.logicalnetwork.LogicalNetworkList"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.logicalnetwork.LogicalNetworkList</span></code></a> object instances</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.split.html#numpy-split">numpy.split</a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.to_csv">
+<code class="descname">to_csv</code><span class="sig-paren">(</span><em>filename</em>, <em>known_eq=False</em>, <em>dataset=None</em>, <em>size=False</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the list of logical networks to a CSV file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) &#8211; Absolute path where to write the CSV file</li>
+<li><strong>known_eq</strong> (<em>boolean</em>) &#8211; If True, a column with known equivalences is included in the DataFrame</li>
+<li><strong>dataset</strong> (Optional[<a class="reference internal" href="#caspo.core.dataset.Dataset" title="caspo.core.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.dataset.Dataset</span></code></a>]) &#8211; If not None, a column with the MSE with respect to the given dataset is included</li>
+<li><strong>size</strong> (<em>boolean</em>) &#8211; If True, a column with the size of each logical network is included</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.to_dataframe">
+<code class="descname">to_dataframe</code><span class="sig-paren">(</span><em>known_eq=False</em>, <em>dataset=None</em>, <em>size=False</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the list of logical networks to a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a> object instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>known_eq</strong> (<em>boolean</em>) &#8211; If True, a column with known equivalences is included in the DataFrame</li>
+<li><strong>dataset</strong> (Optional[<a class="reference internal" href="#caspo.core.dataset.Dataset" title="caspo.core.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.dataset.Dataset</span></code></a>]) &#8211; If not None, a column with the MSE with respect to the given dataset is included in the DataFrame</li>
+<li><strong>size</strong> (<em>boolean</em>) &#8211; If True, a column with the size of each logical network is included in the DataFrame</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame representation of the list of logical networks.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas.DataFrame</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.to_funset">
+<code class="descname">to_funset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.to_funset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the list of logical networks to a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Representation of all networks as a set of <a class="reference external" href="http://potassco.sourceforge.net/gringo.html#Fun">gringo.Fun</a> instances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="caspo.core.logicalnetwork.LogicalNetworkList.weighted_mse">
+<code class="descname">weighted_mse</code><span class="sig-paren">(</span><em>dataset</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#caspo.core.logicalnetwork.LogicalNetworkList.weighted_mse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the weighted MSE over all logical networks with respect to the given <code class="xref py py-class docutils literal"><span class="pre">caspo.learn.dataset.Dataset</span></code> object instance.
+Weights corresponds to the known equivalences for each logical network in <a class="reference internal" href="#caspo.core.logicalnetwork.LogicalNetworkList.known_eq" title="caspo.core.logicalnetwork.LogicalNetworkList.known_eq"><code class="xref py py-attr docutils literal"><span class="pre">known_eq</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataset</strong> (<a class="reference internal" href="#caspo.core.dataset.Dataset" title="caspo.core.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">caspo.core.dataset.Dataset</span></code></a>) &#8211; Dataset to compute MSE</li>
+<li><strong>n_jobs</strong> (<em>int</em>) &#8211; Number of jobs to run in parallel. Default to -1 (all cores available)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Weighted MSE</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Core</a><ul>
+<li><a class="reference internal" href="#module-caspo.core.setup">caspo.core.setup</a></li>
+<li><a class="reference internal" href="#module-caspo.core.literal">caspo.core.literal</a></li>
+<li><a class="reference internal" href="#module-caspo.core.clamping">caspo.core.clamping</a></li>
+<li><a class="reference internal" href="#module-caspo.core.dataset">caspo.core.dataset</a></li>
+<li><a class="reference internal" href="#module-caspo.core.graph">caspo.core.graph</a></li>
+<li><a class="reference internal" href="#module-caspo.core.hypergraph">caspo.core.hypergraph</a></li>
+<li><a class="reference internal" href="#module-caspo.core.mapping">caspo.core.mapping</a></li>
+<li><a class="reference internal" href="#module-caspo.core.clause">caspo.core.clause</a></li>
+<li><a class="reference internal" href="#module-caspo.core.logicalnetwork">caspo.core.logicalnetwork</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api.html">caspo&#8217;s API</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">caspo&#8217;s API</a></li>
+      <li>Next: <a href="learn.html" title="next chapter">Learn</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/core.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2014-2016, Santiago Videla.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/core.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
