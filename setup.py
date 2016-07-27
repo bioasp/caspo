@@ -52,14 +52,10 @@ setup(name='caspo',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          "numpy",
-          "pandas",
-          "scikit-learn",
           "networkx",
           "pyparsing",
           "pydotplus",
-          "joblib",
-          "seaborn"
+          "joblib"
       ],
       entry_points={
           'console_scripts': [
