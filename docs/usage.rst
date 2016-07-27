@@ -63,7 +63,7 @@ Logical networks
 
 Logical networks are given using a csv file as follows.
 The columns header specify possible logical mappings or functions, e.g. *d<-a+!c*  (*d equals a AND NOT c*).
-Then, each row describes a logical network by specifying which logical mappings are present (1) in the network or not (0). Additional columns could be included to give more details related to each network, e.g., MSE, size, or the number of networks having the same input-output behavior. See the output csv files in subcommands :ref:`learn` (*networks.csv*) or :ref:`classify` (*behaviors.csv*). When parsing a csv file of logical networks, **caspo** ignores columns that cannot be parsed as logical mappings except for a column named *networks* which is interpreted as the number of networks exhibiting the same input-output behavior.
+Then, each row describes a logical network by specifying which logical mappings are present (1) in the network or not (0). Additional columns could be included to give more details related to each network, e.g., MSE, size, or the number of networks having the same input-output behavior. See the output csv files in subcommands :ref:`learn` (*networks.csv*) or :ref:`classify` (*behaviors.csv*). When parsing a csv file of logical networks, **caspo** ignores columns that cannot be parsed as logical mappings except for a column named *known_eq* which is interpreted as the number of known networks exhibiting the same input-output behavior as the representative network.
 
 .. csv-table::
     :header: e<-c,e<-b,d<-a,d<-!c,d<-b,d<-a+!c,d<-b+!c,f<-d+e
