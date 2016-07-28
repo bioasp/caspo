@@ -11,7 +11,9 @@ Finally, one can **look for intervention strategies** that force a set of target
 Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks. 
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
-### Documentation
+### Documentation 
+[![Documentation Status](https://readthedocs.org/projects/caspo/badge/?version=latest)](http://caspo.readthedocs.io/en/latest/?badge=latest)
+
 Detailed documentation about how to install and use **caspo** is available at http://caspo.readthedocs.io.
 
 ### Samples
