@@ -115,7 +115,7 @@ Intervention strategies
 The intervention strategies are given as an *output file* of the **caspo control** command.  This file points to an assignment of a set of species, which do not belong to the condition and goal sets previously defined in the intervention scenarios file.  The strategies show different ways to verify all the set of intervention scenarios given as an input file.  The  "1" (respectively "-1") value means that the species has to be always "on" (respectively "off"), in other words there is a constant boolean function on this species. The "0" value means that the species is not constrained.  
 
 .. csv-table:: Toy intervention strategies
-    :header: c,b,e,d
+    :header: TR:c,TR:b,TR:e,TR:d
     
     0,0,-1,0
     -1,-1,0,0
