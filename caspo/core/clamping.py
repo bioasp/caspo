@@ -61,7 +61,7 @@ class ClampingList(pd.Series):
 
         return fs
         
-    def to_dataframe(self, stimuli=[], inhibitors=[]):
+    def to_dataframe(self, stimuli=[], inhibitors=[], prepend=""):
         """
         Converts the list of clampigns to a `pandas.DataFrame`_ object instance
         
@@ -72,6 +72,9 @@ class ClampingList(pd.Series):
         
         inhibitors : Optional[list[str]]
             List of inhibitors names. If given, inhibitors are renamed and converted to {0,1} instead of {-1,1}.
+        
+        prepend : str
+            Columns are renamed using the given string at the beginning
         
         Returns
         -------
@@ -99,9 +102,9 @@ class ClampingList(pd.Series):
             else:
                 matrix = np.array([arr])
 
-        return pd.DataFrame(matrix, columns=stimuli + [i+'i' for i in inhibitors] if nc > 0 else variables)
+        return pd.DataFrame(matrix, columns=map(lambda c: prepend + "%s" % c, stimuli + [i+'i' for i in inhibitors] if nc > 0 else variables))
         
-    def to_csv(self, filename, stimuli=[], inhibitors=[]):
+    def to_csv(self, filename, stimuli=[], inhibitors=[], prepend=""):
         """
         Writes the list of clampings to a CSV file
         
@@ -115,21 +118,28 @@ class ClampingList(pd.Series):
         
         inhibitors : Optional[list[str]]
             List of inhibitors names. If given, inhibitors are renamed and converted to {0,1} instead of {-1,1}.
+        
+        prepend : str
+            Columns are renamed using the given string at the beginning
         """
-        self.to_dataframe(stimuli, inhibitors).to_csv(filename, index=False)
+        self.to_dataframe(stimuli, inhibitors, prepend).to_csv(filename, index=False)
         
     @classmethod
     def from_dataframe(klass, df, inhibitors=[]):
         """
-        Creates a list of clampings from a `pandas.DataFrame`_ object instance
+        Creates a list of clampings from a `pandas.DataFrame`_ object instance.
+        Column names are expected to be of the form `TR:species_name`
         
         Parameters
         ----------
         df : `pandas.DataFrame`_
-            Columns and rows correspond to species names and individual clampings, respectively
+            Columns and rows correspond to species names and individual clampings, respectively.
             
         inhibitors : Optional[list[str]]
-            If given, species names ending with `i` and found in the list will be interpreted as inhibitors
+            If given, species names ending with `i` and found in the list (without the `i`) 
+            will be interpreted as inhibitors. That is, if they are set to 1, the corresponding species is inhibited
+            and therefore its negatively clamped. Otherwise, all 1s (resp. -1s) are interpreted as positively 
+            (resp. negatively) clamped
 
 
         Returns
@@ -146,21 +156,21 @@ class ClampingList(pd.Series):
             if ni > 0:
                 literals = []
                 for v,s in row.iteritems():
-                    if v.endswith('i') and v[:-1] in inhibitors:
+                    if v.endswith('i') and v[3:-1] in inhibitors:
                         if s == 1:
-                            literals.append(Literal(v[:-1], -1))
+                            literals.append(Literal(v[3:-1], -1))
                     else:
-                        literals.append(Literal(v, 1 if s == 1 else -1))
+                        literals.append(Literal(v[3:], 1 if s == 1 else -1))
                 clampings.append(Clamping(literals))
             else:
-                clampings.append(Clamping(map(lambda (v,s): Literal(v,s), row[row!=0].iteritems())))
+                clampings.append(Clamping(map(lambda (v,s): Literal(v[3:],s), row[row!=0].iteritems())))
             
         return klass(clampings)
         
     @classmethod
     def from_csv(klass, filename, inhibitors=[]):
         """
-        Creates a list of clampings from a CSV file
+        Creates a list of clampings from a CSV file. Column names are expected to be of the form `TR:species_name`
         
         Parameters
         ----------
@@ -168,7 +178,10 @@ class ClampingList(pd.Series):
             Absolute path to a CSV file to be loaded with `pandas.read_csv`_. The resulting DataFrame is passed to :func:`from_dataframe`.
         
         inhibitors : Optional[list[str]]
-            If given, species names ending with `i` and found in the list will be interpreted as inhibitors
+            If given, species names ending with `i` and found in the list (without the `i`) 
+            will be interpreted as inhibitors. That is, if they are set to 1, the corresponding species is inhibited
+            and therefore its negatively clamped. Otherwise, all 1s (resp. -1s) are interpreted as positively 
+            (resp. negatively) clamped
             
             
         Returns
@@ -250,7 +263,7 @@ class ClampingList(pd.Series):
                 
         return exclusive, inclusive
 
-    def differences(self, networks, readouts):
+    def differences(self, networks, readouts, prepend=""):
         """
         Returns the total number of pairwise differences over the given readouts for the given networks
         
@@ -261,6 +274,10 @@ class ClampingList(pd.Series):
         
         readouts : list[str]
             List of readouts species names
+        
+        prepend : str
+            Columns are renamed using the given string at the beginning
+        
         
         Returns
         -------
@@ -273,8 +290,9 @@ class ClampingList(pd.Series):
             r,c = np.where(n1.predictions(self,readouts) != n2.predictions(self,readouts))
             z[r,c] += 1
             p[r] += 1
-        
-        return pd.concat([pd.DataFrame(z, columns=readouts), pd.Series(p, name='pairs')], axis=1)
+
+        df = pd.DataFrame(z, columns=map(lambda c: prepend + "%s" % c, readouts))
+        return pd.concat([df, pd.Series(p, name='pairs')], axis=1)
         
     def drop_literals(self, literals):
         """
@@ -325,6 +343,14 @@ class Clamping(frozenset):
     def to_funset(self, index, name="clamped"):
         """
         Converts the clamping to a set of `gringo.Fun`_ object instances
+        
+        Parameters
+        ----------
+        index : int
+            An external identifier to associate several clampings together in ASP
+            
+        name : str
+            A function name for the clamping
         
         Returns
         -------

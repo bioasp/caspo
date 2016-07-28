@@ -55,21 +55,21 @@ class LogicalNetworkList(object):
         2-D binary array representation of all logical networks.
         If None, an empty array is initialised
 
-    known_eq : Optional[`numpy.ndarray`_]
-        Number of known equivalences for each logical network in :attr:`matrix`.
-        If None, an array of zeros is initialised with the same length as :attr:`matrix`
+    networks : Optional[`numpy.ndarray`_]
+        For each network in the list, it gives the number of networks having the same behavior.
+        If None, an array of ones is initialised with the same length as the number of networks in the list.
 
     Attributes
     ----------
     hg : :class:`caspo.core.hypergraph.HyperGraph`
     matrix : `numpy.ndarray`_
-    known_eq : `numpy.ndarray`_
+    networks : `numpy.ndarray`_
     
     
     .. _numpy.ndarray: http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray
     """
 
-    def __init__(self, hg, matrix=None, known_eq=None):
+    def __init__(self, hg, matrix=None, networks=None):
         self.hg = hg
 
         if matrix is None:
@@ -77,10 +77,10 @@ class LogicalNetworkList(object):
         else:
             self.matrix = matrix
 
-        if isinstance(known_eq, np.ndarray):
-            self.known_eq = known_eq
+        if isinstance(networks, np.ndarray):
+            self.networks = networks
         else:
-            self.known_eq = np.array(known_eq) if known_eq else np.zeros(len(self.matrix))
+            self.networks = np.array(networks, dtype=int) if networks else np.ones(len(self.matrix), dtype=int)
 
 
     @classmethod
@@ -118,12 +118,12 @@ class LogicalNetworkList(object):
         hypergraph = HyperGraph.from_graph(graph)
         hypergraph.mappings = mappings
         
-        if 'known_eq' in df.columns:
-            known_eq = df['known_eq'].values
+        if 'networks' in df.columns:
+            nnet = df['networks'].values.astype(int)
         else:
-            known_eq = None
+            nnet = None
 
-        return klass(hypergraph, matrix=df[cols].values, known_eq=known_eq)
+        return klass(hypergraph, matrix=df[cols].values, networks=nnet)
 
     @classmethod
     def from_hypergraph(klass, hypergraph, networks=[]):
@@ -145,22 +145,22 @@ class LogicalNetworkList(object):
            Created object instance
         """
         matrix = None
-        known_eq = None
+        nnet = None
         if networks:
             matrix = np.array([networks[0].to_array(hypergraph.mappings)])
-            known_eq = [networks[0].known_eq]
+            nnet = [networks[0].networks]
             for network in networks[1:]:
                 matrix = np.append(matrix, [network.to_array(hypergraph.mappings)], axis=0)
-                known_eq.append(networkknown_eq)
+                nnet.append(network.networks)
 
-        return klass(hypergraph, matrix, known_eq)
+        return klass(hypergraph, matrix, nnet)
         
     def reset(self):
         """
         Drop all networks in the list
         """
         self.matrix = np.array([])
-        self.known_eq = np.array([])
+        self.networks = np.array([])
 
     def split(self, indices):
         """
@@ -202,7 +202,7 @@ class LogicalNetworkList(object):
         elif len(self) == 0:
             return other
         else:
-            return LogicalNetworkList(self.hg, np.append(self.matrix, other.matrix, axis=0), np.concatenate([self.known_eq,other.known_eq]))
+            return LogicalNetworkList(self.hg, np.append(self.matrix, other.matrix, axis=0), np.concatenate([self.networks,other.networks]))
 
     def append(self, network):
         """
@@ -216,10 +216,10 @@ class LogicalNetworkList(object):
         arr = network.to_array(self.hg.mappings)
         if len(self.matrix):
             self.matrix = np.append(self.matrix, [arr], axis=0)
-            self.known_eq = np.append(self.known_eq, network.known_eq)
+            self.networks = np.append(self.networks, network.networks)
         else:
             self.matrix = np.array([arr])
-            self.known_eq = np.array([network.known_eq])
+            self.networks = np.array([network.networks])
 
     def __len__(self):
         """
@@ -242,7 +242,14 @@ class LogicalNetworkList(object):
             The next logical network in the list
         """
         for i,arr in enumerate(self.matrix):
-            yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(arr==1)[0]]), known_eq=self.known_eq[i])
+            yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(arr==1)[0]]), networks=self.networks[i])
+        
+    def __getitem__(self, index):
+        matrix, networks = self.matrix[index,:], self.networks[index]
+        if hasattr(index,'__iter__'):
+            return LogicalNetworkList(self.hg, matrix, networks)
+        else:
+            return LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(matrix==1)[0]]), networks=networks)
 
     def to_funset(self):
         """
@@ -277,20 +284,23 @@ class LogicalNetworkList(object):
 
         return fs
 
-    def to_dataframe(self, known_eq=False, dataset=None, size=False, n_jobs=-1):
+    def to_dataframe(self, networks=False, dataset=None, size=False, n_jobs=-1):
         """
         Converts the list of logical networks to a `pandas.DataFrame`_ object instance
 
         Parameters
         ----------
-        known_eq : boolean
-            If True, a column with known equivalences is included in the DataFrame
+        networks : boolean
+            If True, a column with number of networks having the same behavior is included in the DataFrame
 
         dataset: Optional[:class:`caspo.core.dataset.Dataset`]
             If not None, a column with the MSE with respect to the given dataset is included in the DataFrame
 
         size: boolean
             If True, a column with the size of each logical network is included in the DataFrame
+        
+        n_jobs : int
+            Number of jobs to run in parallel. Default to -1 (all cores available)
 
         Returns
         -------
@@ -303,8 +313,8 @@ class LogicalNetworkList(object):
         length = len(self)
         df = pd.DataFrame(self.matrix, columns=map(str, self.hg.mappings))
 
-        if known_eq:
-            df = pd.concat([df,pd.DataFrame({'known_eq': self.known_eq})], axis=1)
+        if networks:
+            df = pd.concat([df,pd.DataFrame({'networks': self.networks})], axis=1)
 
         if dataset is not None:
             clampings = dataset.clampings
@@ -320,7 +330,7 @@ class LogicalNetworkList(object):
 
         return df
 
-    def to_csv(self, filename, known_eq=False, dataset=None, size=False):
+    def to_csv(self, filename, networks=False, dataset=None, size=False, n_jobs=-1):
         """
         Writes the list of logical networks to a CSV file
 
@@ -329,17 +339,20 @@ class LogicalNetworkList(object):
         filename : str
             Absolute path where to write the CSV file
 
-        known_eq : boolean
-            If True, a column with known equivalences is included in the DataFrame
+        networks : boolean
+            If True, a column with number of networks having the same behavior is included in the file
 
         dataset: Optional[:class:`caspo.core.dataset.Dataset`]
             If not None, a column with the MSE with respect to the given dataset is included
 
         size: boolean
             If True, a column with the size of each logical network is included
+        
+        n_jobs : int
+            Number of jobs to run in parallel. Default to -1 (all cores available)
 
         """
-        self.to_dataframe(known_eq, dataset, size).to_csv(filename, index=False)
+        self.to_dataframe(networks, dataset, size).to_csv(filename, index=False)
 
     def frequencies_iter(self):
         """
@@ -405,7 +418,7 @@ class LogicalNetworkList(object):
     def predictions(self, setup, n_jobs=-1):
         """
         Returns a `pandas.DataFrame`_ with the weighted average predictions and variance of all readouts for each possible clampings.
-        Weights corresponds to the known equivalences for each logical network in :attr:`known_eq`.
+        For each logical network the weight corresponds to the number of networks having the same behavior (:attr:`networks`).
 
         Parameters
         ----------
@@ -434,9 +447,8 @@ class LogicalNetworkList(object):
         clampings = list(setup.clampings_iter(cues))
         predictions[:,:,:] = Parallel(n_jobs=n_jobs)(delayed(__parallel_predictions__)(n, clampings, readouts, stimuli, inhibitors) for n in self)
 
-        weights = self.known_eq + 1
-        avg = np.average(predictions[:,:,nc:], axis=0, weights=weights)
-        var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=weights)
+        avg = np.average(predictions[:,:,nc:], axis=0, weights=self.networks)
+        var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=self.networks)
 
         rcues = map(lambda c: "TR:%s" % c, setup.cues(True))
         cols = np.concatenate([rcues, map(lambda r: "AVG:%s" % r, readouts), map(lambda r: "VAR:%s" % r, readouts)])
@@ -450,7 +462,7 @@ class LogicalNetworkList(object):
     def weighted_mse(self, dataset, n_jobs=-1):
         """
         Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.learn.dataset.Dataset` object instance.
-        Weights corresponds to the known equivalences for each logical network in :attr:`known_eq`.
+        For each logical network the weight corresponds to the number of networks having the same behavior (:attr:`networks`).
 
         Parameters
         ----------
@@ -465,16 +477,15 @@ class LogicalNetworkList(object):
         float
             Weighted MSE
         """
-        weights = self.known_eq + 1
         predictions = np.zeros((len(self), len(dataset.clampings), len(dataset.setup.readouts)))
         predictions[:,:,:] = Parallel(n_jobs=n_jobs)(delayed(__parallel_predictions__)(n, dataset.clampings, dataset.setup.readouts) for n in self)
         for i,network in enumerate(self):
-            predictions[i,:,:] *= weights[i]
+            predictions[i,:,:] *= self.networks[i]
 
         readouts = dataset.readouts.values
         pos = ~np.isnan(readouts)
 
-        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(weights))[pos])
+        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(self.networks))[pos])
 
     def __plot__(self):
         """
@@ -516,8 +527,8 @@ class LogicalNetwork(nx.DiGraph):
 
     Attributes
     ----------
-    known_eq : int
-        Number of known equivalences (through the `graph` attribute)
+    networks : int
+        Number of networks having the same behavior (including this representative network itself)
     
     
     .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
@@ -542,11 +553,11 @@ class LogicalNetwork(nx.DiGraph):
         caspo.core.logicalnetwork.LogicalNetwork
             Created object instance
         """
-        return klass(map(lambda (i,j): (hg.clauses[j], hg.variable(i)), tuples), known_eq=0)
+        return klass(map(lambda (i,j): (hg.clauses[j], hg.variable(i)), tuples), networks=1)
         
     @property
-    def known_eq(self):
-        return self.graph.get('known_eq',0)
+    def networks(self):
+        return self.graph.get('networks',1)
 
     def to_graph(self):
         """

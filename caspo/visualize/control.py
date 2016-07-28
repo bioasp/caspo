@@ -25,6 +25,7 @@ def intervention_strategies(df,filepath):
     rwg = matplotlib.colors.ListedColormap(['red','white','green'])
     fig = plt.figure(figsize=(max((len(df.columns)-1) * .5, 4), max(len(df)*0.6,2.5)))
     
+    df.columns = map(lambda c: c[3:], df.columns)
     ax = sns.heatmap(df, linewidths=.5, cbar=False, cmap=rwg, linecolor='gray')
     
     ax.set_xlabel("Species")

@@ -24,11 +24,14 @@ import seaborn as sns
 def experimental_designs(df,filepath):
     axes = []
     bw = matplotlib.colors.ListedColormap(['white','black'])
+    cols = df.columns
+    for i,dd in df.groupby("TR:id"):        
+        cues = dd.drop(filter(lambda c: not c.startswith("TR:"), cols) + ["TR:id"], axis=1).reset_index(drop=True)
+        cues.columns = map(lambda c: c[3:], cues.columns)
 
-    for i,dd in df.groupby("id"):
-        fig = plt.figure(figsize=(max((len(dd.columns)-1) * .5, 4), max(len(dd)*0.6,2.5)))
+        fig = plt.figure(figsize=(max((len(cues.columns)-1) * .5, 4), max(len(cues)*0.6,2.5)))
         
-        ax = sns.heatmap(dd.drop("id", axis=1).reset_index(drop=True), linewidths=.5, cbar=False, cmap=bw, linecolor='gray')
+        ax = sns.heatmap(cues, linewidths=.5, cbar=False, cmap=bw, linecolor='gray')
         [t.set_color('r') if t.get_text().endswith('i') else t.set_color('g') for t in ax.xaxis.get_ticklabels()]
         
         ax.set_xlabel("Stimuli (green) and Inhibitors (red)")
@@ -44,12 +47,15 @@ def experimental_designs(df,filepath):
 
 def differences_distribution(df, filepath):    
     axes = []
-    for i,dd in df.groupby("id"):
+    cols = df.columns
+    for i,dd in df.groupby("TR:id"):
         palette = sns.color_palette("Set1", len(dd))
         fig = plt.figure()
         
-        readouts = dd.drop(["id","pairs"], axis=1).reset_index(drop=True).T
-        ax1 = readouts.plot(kind='bar', stacked=True, color=palette)
+        readouts = dd.drop(filter(lambda c: not c.startswith("DIF:"), cols) + ["TR:id"], axis=1).reset_index(drop=True)
+        readouts.columns = map(lambda c: c[4:], readouts.columns)
+        
+        ax1 = readouts.T.plot(kind='bar', stacked=True, color=palette)
 
         ax1.set_xlabel("Readout")
         ax1.set_ylabel("Pairwise differences")

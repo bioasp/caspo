@@ -33,9 +33,9 @@ def __learn_io__(networks, setup, configure):
     setup_fs = setup.to_funset()
     
     behaviors = core.LogicalNetworkList.from_hypergraph(networks.hg)
-    for network in networks:
+    for rep in networks:
         found = False
-        nl = core.LogicalNetworkList.from_hypergraph(networks.hg, [network])
+        nl = core.LogicalNetworkList.from_hypergraph(networks.hg, [rep])
         for i,behavior in enumerate(behaviors):
             bl = core.LogicalNetworkList.from_hypergraph(networks.hg, [behavior])
             fs = setup_fs.union(nl.concat(bl).to_funset())
@@ -51,11 +51,11 @@ def __learn_io__(networks, setup, configure):
             clingo.ground([("base", [])])
             if clingo.solve() == gringo.SolveResult.UNSAT:
                 found = True
-                behaviors.known_eq[i] += (1 + network.known_eq)
+                behaviors.networks[i] += rep.networks
                 break
         
         if not found:
-            behaviors.append(network)
+            behaviors.append(rep)
         
     return behaviors
 

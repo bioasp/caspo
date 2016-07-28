@@ -22,9 +22,9 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 def behaviors_distribution(df,filepath):
-    cols = ["known_eq","index"]
+    cols = ["networks","index"]
     rcols = ["Logical networks", "Input-Output behaviors"]
-    sort_cols = ["known_eq"]
+    sort_cols = ["networks"]
     
     if "mse" in df.columns:
         cols.append("mse")
@@ -34,9 +34,6 @@ def behaviors_distribution(df,filepath):
         df.mse = df.mse.map(lambda f: "%.4f" % f)
     
     df = df.sort_values(sort_cols).reset_index(drop=True).reset_index(level=0)[cols]
-    df.known_eq = df.known_eq + 1
-    df.index = df.index + 1
-    
     df.columns = rcols
     
     if "MSE" in df.columns:

@@ -89,10 +89,10 @@ def classify_handler(args):
         dataset = core.Dataset(args.midas[0], int(args.midas[1]))
         logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))
         
-        df = behaviors.to_dataframe(known_eq=True, dataset=dataset)
+        df = behaviors.to_dataframe(networks=True, dataset=dataset)
         df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)
     else:
-        df = behaviors.to_dataframe(known_eq=True)
+        df = behaviors.to_dataframe(networks=True)
         df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)
         
     visualize.behaviors_distribution(df, args.out)
@@ -130,25 +130,16 @@ def design_handler(args):
 
     df = None
     for i,od in enumerate(designer.designs):
-        df_od = od.to_dataframe(setup.stimuli, setup.inhibitors)
-        df_od['id'] = i
+        ei = od.to_dataframe(stimuli=setup.stimuli, inhibitors=setup.inhibitors, prepend="TR:")
+        eo = od.differences(networks, setup.readouts, prepend="DIF:")
 
-        df = pd.concat([df,df_od], ignore_index=True)
+        con = pd.concat([pd.Series([i]*len(od), name='TR:id'),ei,eo], axis=1)        
+        df = pd.concat([df,con], ignore_index=True)
 
     visualize.experimental_designs(df, args.out)
     df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
     
-    diff = None
-    for i,d in df.groupby("id"):
-        clampings = core.ClampingList.from_dataframe(d.drop("id", axis=1), setup.inhibitors)
-
-        dd = clampings.differences(networks, setup.readouts)
-        dd['id'] = i
-        
-        diff = dd if diff is None else pd.concat([diff,dd], ignore_index=True)
-        
-    visualize.differences_distribution(diff, args.out)
-    diff.to_csv(os.path.join(args.out,'stats-designs.csv'), index=False)
+    visualize.differences_distribution(df, args.out)
 
     return 0
 
@@ -161,8 +152,10 @@ def control_handler(args):
     configure = ft.partial(configure_mt,args) if args.threads else None
     controller.control(args.size, configure)
 
-    controller.strategies.to_csv(os.path.join(args.out, 'strategies.csv'))
-    visualize.intervention_strategies(controller.strategies.to_dataframe(), args.out)
+    df = controller.strategies.to_dataframe(prepend="TR:")
+    df.to_csv(os.path.join(args.out, 'strategies.csv'), index=False)
+    
+    visualize.intervention_strategies(df, args.out)
     
     rows = []
     exclusive, inclusive = controller.strategies.combinatorics()
