@@ -19,7 +19,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '3.0.0dev'
+from caspo import __package__, __author__, __email__, __license__, __version__
 
 long_desc = """
 The aim of caspo is to implement a pipeline for automated reasoning on logical signaling networks. 
@@ -30,8 +30,8 @@ For more details visit `caspo's website`_.
 .. _`caspo's website`: http://bioasp.github.io/caspo/
 
 """
-setup(name='caspo',
-      version=version,
+setup(name=__package__,
+      version=__version__,
       description="Reasoning on the response of logical signaling networks with Answer Set Programming",
       long_description=long_desc + open('CHANGES').read(),
       classifiers=["Intended Audience :: Science/Research", 
@@ -44,10 +44,10 @@ setup(name='caspo',
                    ], 
                    # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='logical signaling networks systems biology answer set programming',
-      author='Santiago Videla',
-      author_email='santiago.videla@gmail.com',
+      author=__author__,
+      author_email=__email__,
       url='http://bioasp.github.io/caspo/',
-      license='GPLv3+',
+      license=__license__,
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,

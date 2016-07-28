@@ -15,3 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+
+__package__ = "caspo"
+__author__ = "Santiago Videla"
+__email__ = "santiago.videla@gmail.com"
+__license__ = "GPLv3+"
+__version__ = "3.0.0"
