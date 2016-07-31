@@ -65,7 +65,7 @@ Any argument given after *bioasp/caspo* will be consumed by **caspo**. For examp
 
       optional arguments:
         -h, --help          show this help message and exit
-        --threads T         run parallel search with given number of threads
+        --threads T         run clingo with given number of threads
         --conf C            threads configurations (Default to many)
         --fit F             tolerance over fitness (Default to 0)
         --size S            tolerance over size (Default to 0)
@@ -195,7 +195,7 @@ Ask for help on a subcommand by running for example::
 
     optional arguments:
       -h, --help          show this help message and exit
-      --threads T         run parallel search with given number of threads
+      --threads T         run clingo with given number of threads
       --conf C            threads configurations (Default to many)
       --fit F             tolerance over fitness (Default to 0)
       --size S            tolerance over size (Default to 0)
