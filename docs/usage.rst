@@ -15,6 +15,9 @@ Prior knowledge network
 
 A prior knowledge network (PKN) is given using the `simple interaction format (SIF)`_.
 Lines in the SIF file must specify a source node, an edge sign (1 or -1), and one target node.
+Note that SIF format specification also consider several target nodes per line but this is not supported in **caspo** at the moment.
+In the example shown below we would say that *a* and *b* have a positive influence over *d* while *c* has a negative influence over *d*.
+
 
 .. _simple interaction format (SIF): http://wiki.cytoscape.org/Cytoscape_User_Manual/Network_Formats
 
@@ -28,12 +31,12 @@ Lines in the SIF file must specify a source node, an edge sign (1 or -1), and on
      c	   1	 e
    ===== ===== =====
 
-
 Experimental setup
 ^^^^^^^^^^^^^^^^^^
 
 An experimental setup is given using the JSON format.
 The JSON file must specify three list of node names, namely, *stimuli*, *inhibitors*, and *readouts*.
+In the following example, *a*, *b*, and *c* are stimuli, *d* is an inhibitor while *f* and *g* are readouts.
 
 .. code:: json
 
@@ -41,12 +44,18 @@ The JSON file must specify three list of node names, namely, *stimuli*, *inhibit
      "stimuli": ["a", "b", "c"], 
      "inhibitors": ["d"],
      "readouts": ["f", "g"] 
-   }   
+   }
 
 Experimental dataset
 ^^^^^^^^^^^^^^^^^^^^
 
 A phosphoproteomics dataset is given using the `MIDAS format`_.
+Notably, MIDAS format considers time-series data but as we will see later, **caspo** always requires the user to define the time-point of interest when reading a MIDAS file (see :ref:`learn`).
+Different time-points of *data acquisition* are specified in columns with prefix DA:.
+
+In the example shown below, looking at the third row we would say that, when *a* and *c* are present, i.e. stimulated, and *d* is not inhibited, i.e., the inhibitor of *d* is not present, readouts for *f* and *g* at time-point 10 are 0.9 and 0, respectively.
+Meanwhile, looking at the four row we would say that when *a* and *c* are present and *d* is inhibited (the inhibitor of *d* it is present), readouts for *f* and *g* at time-point 10 are 0.1 and 0.9, respectively.
+
 
 .. _MIDAS format: http://www.cellnopt.org/doc/cnodocs/midas.html
 
@@ -57,13 +66,21 @@ A phosphoproteomics dataset is given using the `MIDAS format`_.
     1,1,0,1,1,0,0,0,0
     1,1,0,1,0,10,10,0.9,0
     1,1,0,1,1,10,10,0.1,0.9
-
+    
 Logical networks
 ^^^^^^^^^^^^^^^^
 
 Logical networks are given using a csv file as follows.
-The columns header specify possible logical mappings or functions, e.g. *d<-a+!c*  (*d equals a AND NOT c*).
-Then, each row describes a logical network by specifying which logical mappings are present (1) in the network or not (0). Additional columns could be included to give more details related to each network, e.g., MSE, size, or the number of networks having the same input-output behavior. See the output csv files in subcommands :ref:`learn` (*networks.csv*) or :ref:`classify` (*behaviors.csv*). When parsing a csv file of logical networks, **caspo** ignores columns that cannot be parsed as logical mappings except for a column named *known_eq* which is interpreted as the number of known networks exhibiting the same input-output behavior as the representative network.
+We assume that every logical mapping in a given network is in disjunctive normal form (DNF). 
+Thus, columns header specify all possible conjunctions targeting any given node, e.g. *d<-a+!c*  (*d equals a AND NOT c*).
+Then, each row describes a logical network by specifying which conjunctions are present (1) in the network or not (0). 
+Whenever, two conjunctions targeting the same node are present in a given network they are connected using OR.
+For example, if we look at the first row in the example below, since *d<-a* and *d<-b+!c* are both present, the complete logical mapping for *d* would be: *d equals a OR (b AND NOT c)*.
+ 
+Additional columns could be included to give more details related to each network, e.g., MSE, size, or the number of networks having the same input-output behavior. 
+See the output csv files in subcommands :ref:`learn` (*networks.csv*) or :ref:`classify` (*behaviors.csv*). 
+However, when parsing a csv file of logical networks, **caspo** ignores columns that cannot be parsed as logical mappings except for a column named *networks* which is interpreted as the number of networks exhibiting the same input-output behavior (including the representative network being parsed).
+In particular, such a column will be relevant when computing weighted average predictions (see :ref:`predict`).
 
 .. csv-table::
     :header: e<-c,e<-b,d<-a,d<-!c,d<-b,d<-a+!c,d<-b+!c,f<-d+e
@@ -75,7 +92,9 @@ Then, each row describes a logical network by specifying which logical mappings 
     1,1,1,0,0,0,1,0
     
 
-Basic statistics over all logical networks are described using a csv file as follows.
+Basic statistics over a family of logical networks are described using a csv file as follows.
+For each logical mapping conjunction we compute its frequency of occurrence over all logical networks in the family.
+Also, mutually exclusive/inclusive pairs of mapping conjunctions are identified.
 
 .. csv-table::
     :header: mapping,frequency,exclusive,inclusive
@@ -88,9 +107,35 @@ Basic statistics over all logical networks are described using a csv file as fol
     d<-b,0.4000,,
 
 
+Experimental designs
+^^^^^^^^^^^^^^^^^^^^
+
+An experimental design is essentially a set of experimental perturbations, i.e., various combinations of stimuli and inhibitors.
+But also, we describe an experimental design by how its perturbations discriminate the family of input-output behaviors (see :ref:`design` for an example visualization).
+Experimental designs are given using a csv file as shown below.
+A column named *id* is used to identify rows corresponding to the same experimental design.
+Next, columns with prefix TR: correspond to experimental perturbations in the same way as in MIDAS format.
+Finally, for each combination of stimiuli and inhibitors in a given experimental design, we count pairwise differences generated over specific readouts (columns with prefix DIF:) and pairs of behaviors being discriminated by at least one readout (column named *pairs*).
+
+In the example below we show one experimental design made of two experimental perturbations.
+The first perturbation requires *b* and *c* to be stimulated, it generates 2 pairwise differences over *f*, and it discriminates 2 pairs of behaviors.
+The second perturbation requires *b* to be stimulated and *d* to be inhibited, it generates 1 pairwise difference over *f*, 1 pairwise difference over *g*, and it discriminates 1 pair of behaviors.
+
+.. csv-table::
+    :header: id,TR:a,TR:b,TR:c,TR:di, DIF:f, DIF:g, pairs
+    
+    0,0,1,1,0,2,0,2
+    0,0,1,0,1,1,1,1
+
+
 Logical predictions
 ^^^^^^^^^^^^^^^^^^^
-The predictions of a family of Boolean Networks over the readout nodes in the PKN are shown per each possible condition. This .csv file is an *output* of the **caspo predict** command. In the following example the readouts are species "g" and "f". We show that for the last condition (where "c" and "b" are stimulated), the predictions for species "g" and "f" are 0 and 0.4 respectively on average (AVG: column).  This means that a family of Boolean Networks was previously learned and classified with some specific input-output behaviors, and that the 0.4 prediction over "f" represents the average prediction from all the set of input-output behaviors on this species.  The VAR column shows the variance of this prediction with respect to its prediction across all input-output behaviors for that condition.
+
+Based on the input-output classification (see :ref:`classify`), we can compute the response of the system for every possible perturbation by combining the ensemble of predictions from all input-output behaviors.
+Thus, predictions of a logical networks family are given using a csv file as the (incomplete) example below.
+For each possible combination of stimuli and inhibitors (columns with prefix TR:), the prediction for any readout node will be the weighted average (columns with prefix AVG:) over the predictions from all input-output behaviors and where each weight corresponds to the number of networks exhibiting the corresponding behavior. 
+Also, the mean variance over all predictions is computed (columns with prefix VAR:).
+See :ref:`predict` for an example visualization of readout mean variances.
 
 .. csv-table::
     :header: TR:a,TR:c,TR:b,TR:di,AVG:g,AVG:f,VAR:g,VAR:f
@@ -100,19 +145,36 @@ The predictions of a family of Boolean Networks over the readout nodes in the PK
     0,0,1,0,1.0,0.8,0.0,0.16
     0,1,1,0,0.0,0.4,0.0,0.24
 
+
 Intervention scenarios
 ^^^^^^^^^^^^^^^^^^^^^^
-The intervention scenarios are specified as an *input file* of the **caspo control** command.  This file points to an assignment of a set of species. There are two types of scenarios: SC, for the condition and SG for the goals. An scenario means that given the states of the conditions specified in the column SC, the goal species must have the value specified in the SG column. The "1" value means that the species is set to "on" (active), and the "-1" means that the species is set to "off" (inactive).
+
+An intervention scenario is simply a pair of constraints and goals over nodes in a logical network.
+Thus, intervention scenarios are given using a csv file as shown below.
+Each column specifies either a *scenario constraint* (SC:) or a *scenario goal* (SG:) over any node in the network.
+Next, each row in the file describes a different intervention scenario.
+Values can be either 1 for active, -1 for inactive, or 0 for neither active nor inactive.
+That is, a 0 means there are no constraint nor expectation over that node in the corresponding scenario.
+
+In the example below, we show two intervention scenarios.
+The first scenario requires that both, *f* and *g* to reach the inactive state under the constraint of *a* being active.
+The second scenario required only *f* to reach the active state under no constraints.
 
 .. csv-table::
    :header: SC:a,SG:f,SG:g
     
     1,-1,-1
-
+    0,1,0
 
 Intervention strategies
 ^^^^^^^^^^^^^^^^^^^^^^^
-The intervention strategies are given as an *output file* of the **caspo control** command.  This file points to an assignment of a set of species, which do not belong to the condition and goal sets previously defined in the intervention scenarios file.  The strategies show different ways to verify all the set of intervention scenarios given as an input file.  The  "1" (respectively "-1") value means that the species has to be always "on" (respectively "off"), in other words there is a constant boolean function on this species. The "0" value means that the species is not constrained.  
+
+An intervention strategy is a set of Boolean interventions over nodes in a logical network.
+Thus, intervention strategies are given using a csv file as shown below.
+Each column specifies a Boolean intervention over a given node (prefix TR: is used for consistency with MIDAS and other csv files).
+Next, each row in the file describes a different intervention strategy.
+Values can be either 1 for active, -1 for inactive, or 0 for neither active nor inactive.
+That is, a 0 means there is no intervention over that node in the corresponding strategy.
 
 .. csv-table:: Toy intervention strategies
     :header: TR:c,TR:b,TR:e,TR:d
@@ -121,8 +183,9 @@ The intervention strategies are given as an *output file* of the **caspo control
     -1,-1,0,0
     1,0,0,-1
 
-The **caspo control** command also outputs a csv file with statistics of the intervention strategies.
-The inclusive and exclusive columns of this file contain a list of strategies which in all solutions have the same (repsectively opposite state).
+Basic statistics over a set of intervention strategies are described using a csv file as follows.
+For each Boolean intervention we compute its frequency of occurrence over all strategies in the set.
+Also, mutually exclusive/inclusive pairs of interventions are identified.
 
 .. csv-table:: Toy intervention strategies stats
     :header: intervention,frequency,exclusive,inclusive
@@ -133,24 +196,23 @@ The inclusive and exclusive columns of this file contain a list of strategies wh
     e=-1,0.3333,,
     d=-1,0.3333,,c=1
 
-Experimental designs
-^^^^^^^^^^^^^^^^^^^^
-
-An example of a csv file shown as output of the **caspo design** command.  This file shows 1 experimental design identified by "0" composed of 2 different conditions.  The first condition proposes an experiment where "b" and "c" are stimulated. It also shows that this experimental condition allows to discriminate the readout "f" 2 times accross all input-output behaviors, and it does not allow to discriminate the readout "g". Under this first condition, the number of input-output behaviors pairs that will be discriminated will be of 3.
-
-.. csv-table::
-    :header: TR:id,TR:a,TR:b,TR:c,TR:di, DIF:f, DIF:g, pairs
-    
-    0,0,1,1,0,2,0,3
-    0,0,1,0,0,1,0,2
-
-
-
 
 Command Line Interface
 ----------------------
 
-Start by asking **caspo** for help::
+The command line interface (CLI) of **caspo** offers various subcommands: 
+
+* *learn*: for learning a family of (nearly) optimal logical networks
+* *classify*: for classifying a family of networks wrt their I/O behaviors
+* *design*: for designing experiments to discriminate a family of I/O behaviors
+* *predict*: for predicting based on a family of networks and I/O behaviors
+* *control*: for controlling a family of logical networks in several intervention scenarios 
+* *visualize*: for basic visualization
+* *test*: for running all subcommands using various examples
+
+Next, we will see how to run each subcommand and describe their outputs.
+
+If you haven't done it yet, start by asking **caspo** for help::
 
     $ caspo --help
     usage: caspo [-h] [--quiet] [--out O] [--version]
@@ -169,7 +231,7 @@ Start by asking **caspo** for help::
 
       {learn,classify,predict,design,control,visualize,test}
       
-
+      
 .. _learn:
 
 Learn
@@ -189,7 +251,7 @@ Help on **caspo learn**::
 
     optional arguments:
       -h, --help          show this help message and exit
-      --threads T         run parallel search with given number of threads
+      --threads T         run clingo with given number of threads
       --conf C            threads configurations (Default to many)
       --fit F             tolerance over fitness (Default to 0)
       --size S            tolerance over size (Default to 0)
@@ -209,7 +271,14 @@ Run **caspo learn**::
     2150 (nearly) optimal logical networks learned in 2.6850s
     Weighted MSE: 0.0513
     
-The output of **caspo learn** will be two csv files, namely, *networks.csv* and *stats-networks.csv*. The file *networks.csv* describes all logical networks found with their corresponding MSE and size. The file *stats-networks.csv* describes the frequency of each logical mapping over all networks together with pairs of mutually inclusive/exclusive mappings. The weighted MSE combining all networks is also computed and printed in the standard output. In addition, the following default visualizations are provided describing the family of logical networks:
+The output of **caspo learn** will be two csv files, namely, *networks.csv* and *stats-networks.csv*. 
+The file *networks.csv* describes all logical networks found with their corresponding MSE and size. 
+The file *stats-networks.csv* describes the frequency of each logical mapping conjunction over all networks together with pairs of mutually inclusive/exclusive mappings. 
+The weighted MSE combining all networks is also computed and printed in the standard output. 
+
+In addition, the following default visualizations are provided describing the family of logical networks.
+At the top, we show two alternative ways of describing the distribution of logical networks with respect to MSE and size.
+At the bottom, we show the (sorted) frequencies for all logical mapping conjunctions.
 
 .. image:: /images/learn.png
    :width: 600 px
@@ -231,7 +300,7 @@ Help on **caspo classify**::
 
     optional arguments:
       -h, --help   show this help message and exit
-      --threads T  run parallel search with given number of threads
+      --threads T  run clingo with given number of threads
       --conf C     threads configurations (Default to many)
       --midas M T  experimental dataset in MIDAS file and time-point to be used
       
@@ -244,10 +313,18 @@ Run **caspo classify**::
     Input-Output logical behaviors: 31
     Weighted MSE: 0.0513
     
-The output of **caspo classify** will be a csv file named *behaviors.csv* describing one representative logical network for each input-output behavior found among given networks. For each representative network, the number of networks having the same behavior is also given. Further, if a dataset is given, the weighted MSE is computed. Also, one of the following visualizations is provided depending on whether the dataset was given as an argument or not.
+The output of **caspo classify** will be a csv file named *behaviors.csv* describing one representative logical network for each input-output behavior found among given networks. 
+For each representative network, the number of networks having the same behavior is also given. 
+Further, if a dataset is given, the weighted MSE is computed. 
+
+Also, one of the following visualizations is provided depending on whether the dataset was given as an argument or not.
+If the a dataset is given, the figure at the top is generated where I/O behaviors are grouped by MSE to the given dataset.
+Otherwise, the figure at the bottom is generated.
 
 .. image:: /images/classify.png
    :width: 600 px
+
+.. _design:
 
 Design
 ^^^^^^
@@ -265,7 +342,7 @@ Help on **caspo design**::
 
     optional arguments:
       -h, --help      show this help message and exit
-      --threads T     run parallel search with given number of threads
+      --threads T     run clingo with given number of threads
       --conf C        threads configurations (Default to many)
       --stimuli S     maximum number of stimuli per experiment
       --inhibitors I  maximum number of inhibitors per experiment
@@ -280,11 +357,16 @@ Run **caspo design**::
     Running caspo design...
     1 optimal experimental designs found in 219.5648s
     
-The output of **caspo design** will be two csv files, namely, *designs.csv* and *stats-designs.csv*. The file *designs.csv* describes all optimal experimental designs. The file *stats-designs.csv* describes for each experimental designs the number of pairwise differences per experimental condition and readout. Also, the number of pairs of input-output behaviors discriminated by experimental condition is given. In addition, the following visualizations are provided for each experimental design:
+The output of **caspo design** will be one csv file, namely, *designs.csv*, describing all optimal experimental designs.
+In addition, the following visualizations are provided for each experimental design in such a file.
+At the left we show all experimental conditions for each experimental design.
+At the top right we show the number of pairs of I/O behaviors discriminated by each experimental condition.
+At the bottom right we show the number of pairwise differences over specific readouts by each experimental condition.
 
 .. image:: /images/design.png
    :width: 600 px
 
+.. _predict:
 
 Predict
 ^^^^^^^
@@ -308,11 +390,13 @@ Run **caspo predict**::
     Running caspo predict...
     Computing all predictions and their variance for 31 logical networks...
 
-The output of **caspo predict** will be a csv file named *predictions.csv* describing for each possible experimental perturbation, the corresponding weighted average prediction and its variance for each readout. Also, the following visualization is provided:
+The output of **caspo predict** will be a csv file named *predictions.csv* describing for each possible experimental perturbation, the corresponding weighted average prediction and its variance for each readout. 
+Also, the following visualization is provided showing the mean prediction variance for each readout over all possible experimental perturbations.
 
 .. image:: /images/predict.png
    :width: 600 px
 
+.. _control:
 
 Control
 ^^^^^^^
@@ -330,7 +414,7 @@ Help on **caspo control**::
 
         optional arguments:
           -h, --help           show this help message and exit
-          --threads T          run parallel search with given number of threads
+          --threads T          run clingo with given number of threads
           --conf C             threads configurations (Default to many)
           --size M             maximum size for interventions strategies (Default to 0
                                (no limit))
@@ -347,7 +431,10 @@ Run **caspo control**::
     30 optimal intervention strategies found in 9.2413s
 
 
-The output of **caspo control** will be two csv files, namely, *strategies.csv* and *stats-strategies.csv*. The file *strategies.csv* describes all intervention strategies found. The file *stats-strategies.csv*  describes the frequency of each intervention over all strategies together with pairs of mutually inclusive/exclusive interventions. In addition, the following default visualizations are provided describing all intervention strategies:
+The output of **caspo control** will be two csv files, namely, *strategies.csv* and *stats-strategies.csv*. 
+The file *strategies.csv* describes all intervention strategies found. 
+The file *stats-strategies.csv* describes the frequency of each intervention over all strategies together with pairs of mutually inclusive/exclusive interventions. 
+In addition, the following default visualizations are provided describing all intervention strategies:
 
 .. image:: /images/control.png
    :width: 600 px
@@ -356,7 +443,88 @@ The output of **caspo control** will be two csv files, namely, *strategies.csv* 
 Visualize
 ^^^^^^^^^
 
+Help on **caspo visualize**::
+
+    $ caspo visualize --help
+    usage: caspo visualize [-h] [--pkn P] [--setup S] [--networks N] [--midas M T]
+                           [--sample R] [--stats-networks F] [--behaviors B]
+                           [--designs D] [--predictions P] [--strategies S]
+                           [--stats-strategies F]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --pkn P               prior knowledge network in SIF format
+      --setup S             experimental setup in JSON format
+      --networks N          logical networks in CSV format
+      --midas M T           experimental dataset in MIDAS file and time-point
+      --sample R            visualize a sample of R logical networks or 0 for all
+                            (Default to -1 (none))
+      --stats-networks F    logical mappings frequencies in CSV format
+      --behaviors B         logical networks in CSV format
+      --designs D           experimental designs in CSV format
+      --predictions P       logical predictions in CSV format
+      --strategies S        intervention strategies in CSV format
+      --stats-strategies F  intervention frequencies in CSV format
+
 Run **caspo visualize**::
 
     $ caspo visualize --pkn out/pkn.sif --networks out/networks.csv --setup out/setup.json
 
+Test
+^^^^
+
+Help on **caspo test**::
+    
+    $ caspo test --help
+    usage: caspo test [-h] [--threads T] [--conf C]
+                      [--testcase {Toy,LiverToy,LiverDREAM,ExtLiver}]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --threads T           run clingo with given number of threads
+      --conf C              threads configurations (Default to many)
+      --testcase {Toy,LiverToy,LiverDREAM,ExtLiver}
+                            testcase name
+                            
+Run **caspo test**::
+
+    $ caspo test
+
+    Testing caspo subcommands using test case Toy.
+
+    Copying files for running tests:
+    	Prior knowledge network: pkn.sif
+    	Phospho-proteomics dataset: dataset.csv
+    	Experimental setup: setup.json
+    	Intervention scenarios: scenarios.csv
+
+    $ caspo --out out learn out/pkn.sif out/dataset.csv 10 --fit 0.1 --size 5
+
+    Optimum logical network learned in 0.0066s
+    Optimum logical networks has MSE 0.1100 and size 7
+    5 (nearly) optimal logical networks learned in 0.0075s
+    Weighted MSE: 0.1100
+
+    $ caspo --out out classify out/networks.csv out/setup.json out/dataset.csv 10
+
+    Classifying 5 logical networks...
+    Input-Output logical behaviors: 3
+    Weighted MSE: 0.1100
+
+    $ caspo --out out design out/behaviors.csv out/setup.json
+
+    1 optimal experimental designs found in 0.0047s
+
+    $ caspo --out out predict out/behaviors.csv out/setup.json
+
+    Computing all predictions and their variance for 3 logical networks...
+
+    $ caspo --out out control out/networks.csv out/scenarios.csv
+
+    3 optimal intervention strategies found in 0.0043s
+
+    $ caspo --out out visualize --pkn out/pkn.sif --setup out/setup.json \
+            --networks out/networks.csv --midas out/dataset.csv 10 \
+            --stats-networks=out/stats-networks.csv --behaviors out/behaviors.csv \
+            --designs=out/designs.csv --predictions=out/predictions.csv \
+            --strategies=out/strategies.csv --stats-strategies=out/stats-strategies.csv

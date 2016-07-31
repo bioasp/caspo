@@ -16,7 +16,6 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
-import matplotlib
 from matplotlib import pyplot as plt
     
 import seaborn as sns

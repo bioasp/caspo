@@ -25,8 +25,8 @@ def experimental_designs(df,filepath):
     axes = []
     bw = matplotlib.colors.ListedColormap(['white','black'])
     cols = df.columns
-    for i,dd in df.groupby("TR:id"):        
-        cues = dd.drop(filter(lambda c: not c.startswith("TR:"), cols) + ["TR:id"], axis=1).reset_index(drop=True)
+    for i,dd in df.groupby("id"):        
+        cues = dd.drop(filter(lambda c: not c.startswith("TR:"), cols) + ["id"], axis=1).reset_index(drop=True)
         cues.columns = map(lambda c: c[3:], cues.columns)
 
         fig = plt.figure(figsize=(max((len(cues.columns)-1) * .5, 4), max(len(cues)*0.6,2.5)))
@@ -48,11 +48,11 @@ def experimental_designs(df,filepath):
 def differences_distribution(df, filepath):    
     axes = []
     cols = df.columns
-    for i,dd in df.groupby("TR:id"):
+    for i,dd in df.groupby("id"):
         palette = sns.color_palette("Set1", len(dd))
         fig = plt.figure()
         
-        readouts = dd.drop(filter(lambda c: not c.startswith("DIF:"), cols) + ["TR:id"], axis=1).reset_index(drop=True)
+        readouts = dd.drop(filter(lambda c: not c.startswith("DIF:"), cols) + ["id"], axis=1).reset_index(drop=True)
         readouts.columns = map(lambda c: c[4:], readouts.columns)
         
         ax1 = readouts.T.plot(kind='bar', stacked=True, color=palette)

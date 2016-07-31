@@ -16,7 +16,6 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 import os
-import matplotlib
 from matplotlib import pyplot as plt
 
 import seaborn as sns
@@ -38,5 +37,4 @@ def predictions_variance(df, filepath=None):
         g1.savefig(os.path.join(filepath,'predictions-variance.pdf'))
 
     return g1
-    
     

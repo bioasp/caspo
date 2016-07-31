@@ -90,11 +90,10 @@ def classify_handler(args):
         logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))
         
         df = behaviors.to_dataframe(networks=True, dataset=dataset)
-        df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)
     else:
         df = behaviors.to_dataframe(networks=True)
-        df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)
-        
+
+    df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)        
     visualize.behaviors_distribution(df, args.out)
     
 def predict_handler(args):
@@ -133,12 +132,11 @@ def design_handler(args):
         ei = od.to_dataframe(stimuli=setup.stimuli, inhibitors=setup.inhibitors, prepend="TR:")
         eo = od.differences(networks, setup.readouts, prepend="DIF:")
 
-        con = pd.concat([pd.Series([i]*len(od), name='TR:id'),ei,eo], axis=1)        
+        con = pd.concat([pd.Series([i]*len(od), name='id'),ei,eo], axis=1)        
         df = pd.concat([df,con], ignore_index=True)
 
-    visualize.experimental_designs(df, args.out)
     df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
-    
+    visualize.experimental_designs(df, args.out)
     visualize.differences_distribution(df, args.out)
 
     return 0
@@ -206,16 +204,35 @@ def visualize_handler(args):
             for i, network in enumerate(sample):
                 visualize.coloured_network(network, setup, os.path.join(args.out,'network-%s.dot' % i))
 
-        nc = visualize.coloured_network(networks, setup, os.path.join(args.out,'networks-union.dot'))
+        visualize.coloured_network(networks, setup, os.path.join(args.out,'networks-union.dot'))
+        
+        if args.midas:
+            dataset = core.Dataset(args.midas[0], int(args.midas[1]))
+            
+            df = networks.to_dataframe(dataset=dataset, size=True)
+            visualize.networks_distribution(df, args.out)
         
     if args.stats_networks:
         visualize.mappings_frequency(pd.read_csv(args.stats_networks), args.out)
+    
+    if args.behaviors:
+        behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
         
+        if args.midas:
+            dataset = core.Dataset(args.midas[0], int(args.midas[1]))
+            df = behaviors.to_dataframe(networks=True, dataset=dataset)
+        else:
+            df = behaviors.to_dataframe(networks=True)
+            
+        visualize.behaviors_distribution(df, args.out)
+                    
     if args.designs:
-        visualize.experimental_designs(pd.read_csv(args.designs), args.out)
+        df = pd.read_csv(args.designs)
+        visualize.experimental_designs(df, args.out)
+        visualize.differences_distribution(df, args.out)
         
-    if args.stats_designs:
-        visualize.differences_distribution(pd.read_csv(args.stats_designs), args.out)
+    if args.predictions:
+        visualize.predictions_variance(pd.read_csv(args.predictions), args.out)
         
     if args.strategies:
         visualize.intervention_strategies(pd.read_csv(args.strategies), args.out)
