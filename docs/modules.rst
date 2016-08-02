@@ -5,14 +5,14 @@ Learn
 ^^^^^
     
 .. automodule:: caspo.learn
-    :members:
+    :members: Learner
 
 
 Classify
 ^^^^^^^^
 
 .. automodule:: caspo.classify
-    :members:
+    :members: Classifier
     
 
 Design
