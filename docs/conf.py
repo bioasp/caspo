@@ -20,8 +20,8 @@ import mock
 
 import sphinx_rtd_theme
 
-MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'joblib', 'networkx.drawing.nx_pydot',
-                'seaborn', 'sklearn', 'sklearn.metrics', 'gringo']
+MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'joblib', 'networkx.drawing', 
+                'networkx.drawing.nx_pydot', 'seaborn', 'sklearn', 'sklearn.metrics', 'gringo']
 
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
