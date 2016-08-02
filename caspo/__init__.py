@@ -21,3 +21,5 @@ __author__ = "Santiago Videla"
 __email__ = "santiago.videla@gmail.com"
 __license__ = "GPLv3+"
 __version__ = "3.0.0"
+
+import learn, classify, design, control, visualize
