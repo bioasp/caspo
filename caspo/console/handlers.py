@@ -195,10 +195,13 @@ def visualize_handler(args):
         networks = core.LogicalNetworkList.from_csv(args.networks)
         
         if args.sample > -1:
-            try:
-                sample = random.sample(networks, args.sample)
-            except ValueError as e:
-                logger.warning("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
+            if args.sample > 0:
+                try:
+                    sample = random.sample(networks, args.sample)
+                except ValueError as e:
+                    logger.warning("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
+                    sample = networks
+            else:
                 sample = networks
 
             for i, network in enumerate(sample):
