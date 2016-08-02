@@ -5,7 +5,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/bioasp/caspo/archive/master.zip
+  path: .
 
 build:
   number: 0
@@ -16,14 +16,8 @@ build:
 requirements:
   build:
     - python
-    - networkx
-    - pyparsing
-    - pydotplus
-    - joblib
   run:
-    - python
-    - ipython
-    - ipywidgets
+    - python    
     - pandas
     - scipy
     - scikit-learn
@@ -33,7 +27,7 @@ requirements:
     - pyparsing
     - pydotplus
     - joblib
-    - gringo
+    - clingo
 
 test:
   commands:

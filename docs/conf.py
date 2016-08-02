@@ -19,14 +19,15 @@ import shlex
 import mock
 
 import sphinx_rtd_theme
- 
-MOCK_MODULES = ['numpy', 'scipy', 'matplotlib',
+
+MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'joblib', 'networkx.drawing.nx_pydot',
                 'seaborn', 'sklearn', 'sklearn.metrics', 'gringo']
 
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
 sys.modules['pandas'] = mock.Mock(DataFrame=object, Series=object)
+sys.modules['networkx'] = mock.Mock(MultiDiGraph=object, DiGraph=object)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

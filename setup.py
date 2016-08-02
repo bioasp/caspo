@@ -51,12 +51,6 @@ setup(name=__package__,
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          "networkx",
-          "pyparsing",
-          "pydotplus",
-          "joblib"
-      ],
       entry_points={
           'console_scripts': [
               'caspo=caspo.console.main:run',
