@@ -461,7 +461,7 @@ class LogicalNetworkList(object):
 
     def weighted_mse(self, dataset, n_jobs=-1):
         """
-        Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.learn.dataset.Dataset` object instance.
+        Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.core.dataset.Dataset` object instance.
         For each logical network the weight corresponds to the number of networks having the same behavior (:attr:`networks`).
 
         Parameters

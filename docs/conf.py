@@ -20,11 +20,13 @@ import mock
 
 import sphinx_rtd_theme
  
-MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'pandas', 
+MOCK_MODULES = ['numpy', 'scipy', 'matplotlib',
                 'seaborn', 'sklearn', 'sklearn.metrics', 'gringo']
 
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
+
+sys.modules['pandas'] = mock.Mock(DataFrame=object, Series=object)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

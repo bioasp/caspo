@@ -29,7 +29,7 @@ from caspo import core
 
 def __learn_io__(networks, setup, configure):
     root = os.path.dirname(__file__)
-    encoding = os.path.join(root, 'encodings/io.lp')
+    encoding = os.path.join(root, 'encodings/classify/io.lp')
     setup_fs = setup.to_funset()
     
     behaviors = core.LogicalNetworkList.from_hypergraph(networks.hg)

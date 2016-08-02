@@ -65,7 +65,7 @@ class Designer(object):
         
         root = os.path.dirname(__file__)
         self.encodings = {
-            'design': os.path.join(root, 'encodings/idesign.lp')
+            'design': os.path.join(root, 'encodings/design/idesign.lp')
         }
         self.__optimum__ = None
         

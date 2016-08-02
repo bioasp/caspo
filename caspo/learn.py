@@ -52,7 +52,7 @@ class Learner(object):
     Attributes
     ----------
         graph : :class:`caspo.core.graph.Graph`
-        dataset : :class:`.dataset.Dataset`
+        dataset : :class:`caspo.core.dataset.Dataset`
         length : int
         factor : int
         discrete : str
@@ -81,12 +81,12 @@ class Learner(object):
         
         root = os.path.dirname(__file__)
         self.encodings = {
-            'guess':    os.path.join(root, 'encodings/guess.lp'),
-            'fixpoint': os.path.join(root, 'encodings/fixpoint.lp'),
-            'rss':      os.path.join(root, 'encodings/residual.lp'),
-            'opt':      os.path.join(root, 'encodings/optimization.lp'),
-            'enum':     os.path.join(root, 'encodings/enumeration.lp'),
-            'random':   os.path.join(root, 'encodings/random.lp')
+            'guess':    os.path.join(root, 'encodings/learn/guess.lp'),
+            'fixpoint': os.path.join(root, 'encodings/learn/fixpoint.lp'),
+            'rss':      os.path.join(root, 'encodings/learn/residual.lp'),
+            'opt':      os.path.join(root, 'encodings/learn/optimization.lp'),
+            'enum':     os.path.join(root, 'encodings/learn/enumeration.lp'),
+            'random':   os.path.join(root, 'encodings/learn/random.lp')
         }
         
         self.logger = logging.getLogger("caspo")
