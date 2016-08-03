@@ -25,13 +25,6 @@ Design
     :members:
 
 
-Predict
-^^^^^^^
-
-.. automodule:: caspo.predict
-    :members:
-
-
 Control
 ^^^^^^^
 
