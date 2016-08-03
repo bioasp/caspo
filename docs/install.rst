@@ -79,7 +79,7 @@ Next, download the file :download:`environment.yml <../environment.yml>` and use
     #
 
 That's it. Now, you should be able to run **caspo** within the created environment.
-Note that you need to *activate* the environment everytime you open a new terminal.
+Note that you need to *activate* the environment every time you open a new terminal.
 
 Next, go to :ref:`testing-install`.
 
