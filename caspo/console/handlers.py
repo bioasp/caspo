@@ -16,11 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging, csv, ntpath, random
+import os, logging, random
 import functools as ft
 import pandas as pd
 
-from caspo import core, learn, classify, design, control, visualize
+from caspo import core, learn, classify, design, control, predict, visualize
 
 def configure_mt(args, proxy, overwrite=None):
     proxy.solve.parallel_mode = args.threads
@@ -30,7 +30,7 @@ def configure_mt(args, proxy, overwrite=None):
 
 def learn_handler(args):
     logger = logging.getLogger("caspo")
-    
+
     graph = core.Graph.read_sif(args.pkn)
     dataset = core.Dataset(args.midas, args.time)
     zipped = graph.compress(dataset.setup)
@@ -41,7 +41,7 @@ def learn_handler(args):
     learner.learn(args.fit, args.size, configure)
 
     logger.info("Weighted MSE: %.4f" % learner.networks.weighted_mse(dataset))
-    
+
     rows = []
     exclusive, inclusive = learner.networks.combinatorics()
     for m,f in learner.networks.frequencies_iter():
@@ -53,65 +53,56 @@ def learn_handler(args):
             row["inclusive"] = ";".join(map(str, inclusive[m]))
 
         rows.append(row)
-    
+
     df = pd.DataFrame(rows)
     order = ["mapping","frequency","inclusive","exclusive"]
     df[order].to_csv(os.path.join(args.out,'stats-networks.csv'), index=False)
-    
+
     visualize.mappings_frequency(df, args.out)
 
     df = learner.networks.to_dataframe(dataset=dataset, size=True)
     df.to_csv(os.path.join(args.out,'networks.csv'), index=False)
-    
+
     visualize.networks_distribution(df, args.out)
 
     return 0
-    
+
 def classify_handler(args):
     logger = logging.getLogger("caspo")
-    
+
     configure = ft.partial(configure_mt, args) if args.threads else None
-    
+
     networks = core.LogicalNetworkList.from_csv(args.networks)
     setup = core.Setup.from_json(args.setup)
-    
+
     classifier = classify.Classifier(networks, setup)
-    
+
     logger.info("Classifying %s logical networks..." % len(networks))
-    
+
     behaviors = classifier.classify(configure=configure)
-    
+
     logger.info("Input-Output logical behaviors: %s" % len(behaviors))
-    
+
     setup = setup.filter(behaviors)
-    
+
     if args.midas:
         dataset = core.Dataset(args.midas[0], int(args.midas[1]))
         logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))
-        
+
         df = behaviors.to_dataframe(networks=True, dataset=dataset)
     else:
         df = behaviors.to_dataframe(networks=True)
 
-    df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)        
+    df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)
     visualize.behaviors_distribution(df, args.out)
-    
-def predict_handler(args):
-    logger = logging.getLogger("caspo")
-    
-    networks = core.LogicalNetworkList.from_csv(args.networks)
-    if len(networks) > 100:
-        logger.warning("""
-Your networks family has more than 100 networks and this can take a while to finish.
-If you haven't yet, you may want to use 'caspo classify' in order to extract 
-representative networks having unique input-output behaviors first.
-        """)
 
+def predict_handler(args):
+    networks = core.LogicalNetworkList.from_csv(args.networks)
     setup = core.Setup.from_json(args.setup)
-    
-    logger.info("Computing all predictions and their variance for %s logical networks..." % len(networks))
-    df = networks.predictions(setup.filter(networks))
-    
+
+    predictor = predict.Predictor(networks, setup)
+    df = predictor.predict()
+
     df.to_csv(os.path.join(args.out,'predictions.csv'), index=False)
     visualize.predictions_variance(df, args.out)
 
@@ -132,7 +123,7 @@ def design_handler(args):
         ei = od.to_dataframe(stimuli=setup.stimuli, inhibitors=setup.inhibitors, prepend="TR:")
         eo = od.differences(networks, setup.readouts, prepend="DIF:")
 
-        con = pd.concat([pd.Series([i]*len(od), name='id'),ei,eo], axis=1)        
+        con = pd.concat([pd.Series([i]*len(od), name='id'),ei,eo], axis=1)
         df = pd.concat([df,con], ignore_index=True)
 
     df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
@@ -152,9 +143,9 @@ def control_handler(args):
 
     df = controller.strategies.to_dataframe(prepend="TR:")
     df.to_csv(os.path.join(args.out, 'strategies.csv'), index=False)
-    
+
     visualize.intervention_strategies(df, args.out)
-    
+
     rows = []
     exclusive, inclusive = controller.strategies.combinatorics()
     for l,f in controller.strategies.frequencies_iter():
@@ -193,7 +184,7 @@ def visualize_handler(args):
 
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
-        
+
         if args.sample > -1:
             if args.sample > 0:
                 try:
@@ -208,38 +199,38 @@ def visualize_handler(args):
                 visualize.coloured_network(network, setup, os.path.join(args.out,'network-%s.dot' % i))
 
         visualize.coloured_network(networks, setup, os.path.join(args.out,'networks-union.dot'))
-        
+
         if args.midas:
             dataset = core.Dataset(args.midas[0], int(args.midas[1]))
-            
+
             df = networks.to_dataframe(dataset=dataset, size=True)
             visualize.networks_distribution(df, args.out)
-        
+
     if args.stats_networks:
         visualize.mappings_frequency(pd.read_csv(args.stats_networks), args.out)
-    
+
     if args.behaviors:
         behaviors = core.LogicalNetworkList.from_csv(args.behaviors)
-        
+
         if args.midas:
             dataset = core.Dataset(args.midas[0], int(args.midas[1]))
             df = behaviors.to_dataframe(networks=True, dataset=dataset)
         else:
             df = behaviors.to_dataframe(networks=True)
-            
+
         visualize.behaviors_distribution(df, args.out)
-                    
+
     if args.designs:
         df = pd.read_csv(args.designs)
         visualize.experimental_designs(df, args.out)
         visualize.differences_distribution(df, args.out)
-        
+
     if args.predictions:
         visualize.predictions_variance(pd.read_csv(args.predictions), args.out)
-        
+
     if args.strategies:
         visualize.intervention_strategies(pd.read_csv(args.strategies), args.out)
-        
+
     if args.stats_strategies:
         visualize.interventions_frequency(pd.read_csv(args.stats_strategies), args.out)
 
