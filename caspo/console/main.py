@@ -59,7 +59,7 @@ def run():
     classify.add_argument("setup", help="experimental setup in JSON format")
     classify.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point to be used")
     classify.set_defaults(handler=classify_handler)
-    
+
     predict = subparsers.add_parser("predict")
     predict.add_argument("networks", help="logical networks in CSV format.")
     predict.add_argument("setup", help="experimental setup in JSON format")
@@ -122,7 +122,7 @@ def run():
         logger.info("\nRunning caspo %s..." % args.cmd)
         if not os.path.exists(args.out):
             os.mkdir(args.out)
-        
+
         try:
             return args.handler(args)
         except:
@@ -161,7 +161,7 @@ def run():
         }
 
         params = testcases[testcase]
-        
+
         header = "#" * 20
 
         ###### LEARN ######
@@ -191,9 +191,9 @@ def run():
         except Exception as e:
             logger.critical(header + " Testing on caspo %s has failed. " % args.cmd + header)
             logger.critical(e)
-            
+
         ###### CLASSIFY #####
-        
+
         if threads:
             args = parser.parse_args(['--out', out, 'classify',
                                       os.path.join(out, 'networks.csv'),
@@ -265,7 +265,7 @@ def run():
             logger.info(e)
             logger.info("Testing on caspo %s has failed." % args.cmd)
 
-            
+
         ###### CONTROL ######
 
         if threads:
@@ -307,11 +307,15 @@ def run():
                                   '--strategies', os.path.join(out, 'strategies.csv'),
                                   '--stats-strategies', os.path.join(out, 'stats-strategies.csv')])
 
-        cmdline = "\n$ caspo --out {out} visualize --pkn {pkn} --setup {setup} --networks {networks} --midas {midas} {time} --stats-networks={stats_networks} --behaviors {behaviors} --designs={designs} --predictions={predictions} --strategies={strategies} --stats-strategies={stats_strategies}\n"
-                               
+        cmdline = """\n$ caspo --out {out} visualize --pkn {pkn} --setup {setup}
+        --networks {networks} --midas {midas} {time}
+        --stats-networks={stats_networks} --behaviors {behaviors}
+        --designs={designs} --predictions={predictions}
+        --strategies={strategies} --stats-strategies={stats_strategies}\n"""
+
         logger.info(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), networks=os.path.join(out, 'networks.csv'),
-                                   midas=os.path.join(out, 'dataset.csv'), time=params[0], setup=os.path.join(out, 'setup.json'), 
-                                   stats_networks=os.path.join(out, 'stats-networks.csv'), behaviors=os.path.join(out, 'behaviors.csv'), designs=os.path.join(out, 'designs.csv'), 
+                                   midas=os.path.join(out, 'dataset.csv'), time=params[0], setup=os.path.join(out, 'setup.json'),
+                                   stats_networks=os.path.join(out, 'stats-networks.csv'), behaviors=os.path.join(out, 'behaviors.csv'), designs=os.path.join(out, 'designs.csv'),
                                    predictions=os.path.join(out, 'predictions.csv'), strategies=os.path.join(out, 'strategies.csv'), stats_strategies=os.path.join(out, 'stats-strategies.csv')))
         try:
             args.handler(args)

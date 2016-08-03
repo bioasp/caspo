@@ -32,7 +32,7 @@ class ScenarioList(object):
     Parameters
     ----------
     filename : str
-        Absolute PATH to a CSV file specifying intervention scenarios
+        Absolute PATH to a CSV file specifying several intervention scenarios
 
     allow_constraints : boolean
         Either to allow intervention over constraints or not
@@ -45,52 +45,41 @@ class ScenarioList(object):
         constraints : :class:`caspo.core.clamping.ClampingList`
         goals : :class:`caspo.core.clamping.ClampingList`
     """
-    
+
     def __init__(self, filename, allow_constraints=False, allow_goals=False):
         df = pd.read_csv(filename)
-        
+
         self.df_cons = df.filter(regex='^SC').rename(columns=lambda c: c[3:])
         self.df_goals = df.filter(regex='^SG').rename(columns=lambda c: c[3:])
-        
+
         self.exclude = set()
         if not allow_constraints:
             self.exclude = self.exclude.union(self.df_cons.columns)
-            
+
         if not allow_goals:
             self.exclude = self.exclude.union(self.df_goals.columns)
-        
-        clampings = []
-        for i,row in self.df_cons.iterrows():
-            literals = map(lambda (v,s): core.Literal(v,s), row[row != 0].iteritems())
-            clampings.append(core.Clamping(literals))
-            
-        self.df_cons = pd.concat([self.df_cons, pd.Series(clampings, name='Clamping')], axis=1)
-        
-        clampings = []
-        for i,row in self.df_goals.iterrows():
-            literals = map(lambda (v,s): core.Literal(v,s), row[row != 0].iteritems())
-            clampings.append(core.Clamping(literals))
-            
-        self.df_goals = pd.concat([self.df_goals, pd.Series(clampings, name='Clamping')], axis=1)
-                
+
+    def __clamping_list__(self, df):
+        return core.ClampingList([core.Clamping(map(lambda (v,s): core.Literal(v,s), row[row != 0].iteritems())) for _,row in df.iterrows()])
+
     @property
     def constraints(self):
-        return core.ClampingList(self.df_cons["Clamping"])
-        
+        return self.__clamping_list__(self.df_cons)
+
     @property
     def goals(self):
-        return core.ClampingList(self.df_goals["Clamping"])
-        
+        return self.__clamping_list__(self.df_goals)
+
     def to_funset(self):
         """
         Converts the intervention scenarios to a set of `gringo.Fun`_ instances
-        
+
         Returns
         -------
         set
             Representation of the intervention scenarios as a set of `gringo.Fun`_ instances
-        
-        
+
+
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         return self.constraints.to_funset("scenario","constrained").union(self.goals.to_funset("scenario","goal"))
@@ -98,24 +87,23 @@ class ScenarioList(object):
 
 class Controller(object):
     """
-    Controller of logical networks
-    
+    Controller of logical networks family for various intervention scenarios
+
     Parameters
     ----------
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
         List of logical networks
-    
-    scenarios : :class:`caspo.control.scenario.ScenarioList`
+
+    scenarios : :class:`caspo.control.ScenarioList`
         List of intervention scenarios
-    
+
     Attributes
     ----------
         networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
-        scenarios : :class:`caspo.control.scenario.ScenarioList`
+        scenarios : :class:`caspo.control.ScenarioList`
         strategies : :class:`caspo.core.clamping.ClampingList`
         instance : str
         encodings : dict
-        logger : Logger
     """
     def __init__(self, networks, scenarios):
         self.networks = networks
@@ -133,7 +121,7 @@ class Controller(object):
             'control':    os.path.join(root, 'encodings/control/encoding.lp')
         }
 
-        self.logger = logging.getLogger("caspo")
+        self._logger = logging.getLogger("caspo")
 
     def __save__(self,model):
         tuples = (f.args() for f in model.atoms())
@@ -142,14 +130,26 @@ class Controller(object):
     def control(self, size=0, configure=None):
         """
         Finds all inclusion-minimal intervention strategies up to the given size.
-        Each intervention strategy is saved as a :class:`caspo.core.clamping.Clamping` 
-        in the :attr:`strategies` attribute.
-        
+        Intervention strategies found are saved in the attribute :attr:`strategies`
+        as a :class:`caspo.core.clamping.ClampingList` object instance.
+
+        Example::
+
+            >>> from caspo import core, control
+
+            >>> networks = core.LogicalNetworkList.from_csv('networks.csv')
+            >>> scenarios = control.ScenarioList('scenarios.csv')
+
+            >>> controller = control.Controller(networks, scenarios)
+            >>> controller.control()
+
+            >>> controller.strategies.to_csv('strategies.csv')
+
         Parameters
         ----------
         size : int
-            Maximum size for intervention sets
-        
+            Maximum number of intervention per intervention strategy
+
         configure : callable
             Callable object responsible of setting clingo configuration
         """
@@ -178,6 +178,6 @@ class Controller(object):
         clingo.solve(on_model=self.__save__)
 
         n,t = len(self._strategies), clingo.stats['time_total']
-        self.logger.info("%s optimal intervention strategies found in %.4fs" % (n,t))
+        self._logger.info("%s optimal intervention strategies found in %.4fs" % (n,t))
 
         self.strategies = core.ClampingList(self._strategies)

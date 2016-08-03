@@ -31,7 +31,7 @@ def __learn_io__(networks, setup, configure):
     root = os.path.dirname(__file__)
     encoding = os.path.join(root, 'encodings/classify/io.lp')
     setup_fs = setup.to_funset()
-    
+
     behaviors = core.LogicalNetworkList.from_hypergraph(networks.hg)
     for rep in networks:
         found = False
@@ -44,69 +44,81 @@ def __learn_io__(networks, setup, configure):
             clingo = gringo.Control()
             if configure is not None:
                 configure(clingo.conf)
-                
+
             clingo.add("base", [], instance)
             clingo.load(encoding)
 
             clingo.ground([("base", [])])
             if clingo.solve() == gringo.SolveResult.UNSAT:
                 found = True
-                behaviors.networks[i] += rep.networks
+                behaviors.add_network(i,rep)
                 break
-        
+
         if not found:
             behaviors.append(rep)
-        
+
     return behaviors
 
 class Classifier(object):
     """
-    Classifier of given list of logical networks with respect to a given experimental setup
-    
+    Classifier of given list of logical networks with respect to a given experimental setup.
+
     Parameters
     ----------
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
-        The list of networks
+        The list of logical networks
 
     setup : :class:`caspo.core.setup.Setup`
         The experimental setup with respect to the input-output behaviors must be computed
-    
-    
+
+
     Attributes
     ----------
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
     setup : :class:`caspo.core.setup.Setup`
     """
-    
+
     def __init__(self, networks, setup):
         self.networks = networks
         self.setup = setup
-    
+
     def classify(self, n_jobs=-1, configure=None):
         """
-        Returns input-output behaviors for the list of logical networks :attr:`networks`
+        Returns input-output behaviors for the list of logical networks in the attribute :attr:`networks`
+
+        Example::
+
+            >>> from caspo import core, classify
+
+            >>> networks = core.LogicalNetworkList.from_csv('networks.csv')
+            >>> setup = core.Setup.from_json('setup.json')
+
+            >>> classifier = classify.Classifier(networks, setup)
+            >>> behaviors = classifier.classify()
+
+            >>> behaviors.to_csv('behaviors.csv', networks=True)
 
         n_jobs : int
             Number of jobs to run in parallel. Default to -1 (all cores available)
-    
+
         configure : callable
             Callable object responsible of setting clingo configuration
-    
-    
+
+
         Returns
         -------
         caspo.core.logicalnetwork.LogicalNetworkList
             The list of networks with one representative for each behavior
         """
         networks = self.networks
-        
+
         n = len(networks)
         cpu = n_jobs if n_jobs > -1 else mp.cpu_count()
-    
+
         if cpu > 1:
             lp = int(np.ceil(n / float(cpu))) if n > cpu else 1
             parts = networks.split(np.arange(lp, n, lp))
-        
+
             behaviors_parts = Parallel(n_jobs=n_jobs)(delayed(__learn_io__)(part, self.setup, configure) for part in parts)
             networks = core.LogicalNetworkList.from_hypergraph(networks.hg)
             for b in behaviors_parts:

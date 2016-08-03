@@ -41,7 +41,7 @@ def __parallel_predictions__(network, clampings, readouts, stimuli=[], inhibitor
 
 def __parallel_mse__(network, clampings, readouts, observations, pos):
     return network._mse(clampings, readouts, observations, pos)
-    
+
 class LogicalNetworkList(object):
     """
     List of :class:`caspo.core.logicalnetwork.LogicalNetwork` object instances
@@ -59,13 +59,7 @@ class LogicalNetworkList(object):
         For each network in the list, it gives the number of networks having the same behavior.
         If None, an array of ones is initialised with the same length as the number of networks in the list.
 
-    Attributes
-    ----------
-    hg : :class:`caspo.core.hypergraph.HyperGraph`
-    matrix : `numpy.ndarray`_
-    networks : `numpy.ndarray`_
-    
-    
+
     .. _numpy.ndarray: http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray
     """
 
@@ -73,20 +67,23 @@ class LogicalNetworkList(object):
         self.hg = hg
 
         if matrix is None:
-            self.matrix = np.array([])
+            self.__matrix = np.array([])
         else:
-            self.matrix = matrix
+            self.__matrix = matrix
 
         if isinstance(networks, np.ndarray):
-            self.networks = networks
+            self.__networks = networks
         else:
-            self.networks = np.array(networks, dtype=int) if networks else np.ones(len(self.matrix), dtype=int)
+            self.__networks = np.array(networks, dtype=int) if networks else np.ones(len(self.__matrix), dtype=int)
 
 
     @classmethod
     def from_csv(klass, filename):
         """
-        Creates a list of logical networks from a CSV file
+        Creates a list of logical networks from a CSV file.
+        Columns that cannot be parsed as a :class:`caspo.core.mapping.Mapping` are ignored
+        except for a column named `networks` which (if present) is interpreted as the number
+        of logical networks having the same input-output behavior.
 
         Parameters
         ----------
@@ -107,7 +104,7 @@ class LogicalNetworkList(object):
             try:
                 ct = Mapping.from_str(m)
                 mappings.append(ct)
-                cols.append(m)                
+                cols.append(m)
                 for source, sign in ct.clause:
                     edges.add((source,ct.target,sign))
             except:
@@ -117,7 +114,7 @@ class LogicalNetworkList(object):
         graph = Graph.from_tuples(edges)
         hypergraph = HyperGraph.from_graph(graph)
         hypergraph.mappings = mappings
-        
+
         if 'networks' in df.columns:
             nnet = df['networks'].values.astype(int)
         else:
@@ -154,13 +151,26 @@ class LogicalNetworkList(object):
                 nnet.append(network.networks)
 
         return klass(hypergraph, matrix, nnet)
-        
+
+    def add_network(self, pos, network):
+        """
+        Adds a network to the logical network at the given position
+        """
+        self.__networks[pos] += network.networks
+
+    @property
+    def mappings(self):
+        """
+        :class:`caspo.core.mapping.MappingList`: the list of mappings present in at least one logical network in this list
+        """
+        return self.hg.mappings[np.unique(np.where(self.__matrix==1)[1])]
+
     def reset(self):
         """
         Drop all networks in the list
         """
-        self.matrix = np.array([])
-        self.networks = np.array([])
+        self.__matrix = np.array([])
+        self.__networks = np.array([])
 
     def split(self, indices):
         """
@@ -179,12 +189,12 @@ class LogicalNetworkList(object):
 
         .. seealso:: `numpy.split <http://docs.scipy.org/doc/numpy/reference/generated/numpy.split.html#numpy-split>`_
         """
-        return map(lambda part: LogicalNetworkList(self.hg, part), np.split(self.matrix, indices))
+        return map(lambda part: LogicalNetworkList(self.hg, part), np.split(self.__matrix, indices))
 
     def concat(self, other):
         """
         Returns the concatenation with another :class:`caspo.core.logicalnetwork.LogicalNetworkList` object instance.
-        It is assumed that both have the same underlying hypergraph.
+        It is assumed (not checked) that both have the same underlying hypergraph.
 
         Parameters
         ----------
@@ -202,7 +212,7 @@ class LogicalNetworkList(object):
         elif len(self) == 0:
             return other
         else:
-            return LogicalNetworkList(self.hg, np.append(self.matrix, other.matrix, axis=0), np.concatenate([self.networks,other.networks]))
+            return LogicalNetworkList(self.hg, np.append(self.__matrix, other.__matrix, axis=0), np.concatenate([self.__networks,other.__networks]))
 
     def append(self, network):
         """
@@ -214,12 +224,12 @@ class LogicalNetworkList(object):
             The network to append
         """
         arr = network.to_array(self.hg.mappings)
-        if len(self.matrix):
-            self.matrix = np.append(self.matrix, [arr], axis=0)
-            self.networks = np.append(self.networks, network.networks)
+        if len(self.__matrix):
+            self.__matrix = np.append(self.__matrix, [arr], axis=0)
+            self.__networks = np.append(self.__networks, network.networks)
         else:
-            self.matrix = np.array([arr])
-            self.networks = np.array([network.networks])
+            self.__matrix = np.array([arr])
+            self.__networks = np.array([network.networks])
 
     def __len__(self):
         """
@@ -230,7 +240,7 @@ class LogicalNetworkList(object):
         int
             Number of logical networks
         """
-        return len(self.matrix)
+        return len(self.__matrix)
 
     def __iter__(self):
         """
@@ -241,11 +251,11 @@ class LogicalNetworkList(object):
         caspo.core.logicalnetwork.LogicalNetwork
             The next logical network in the list
         """
-        for i,arr in enumerate(self.matrix):
-            yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(arr==1)[0]]), networks=self.networks[i])
-        
+        for i,arr in enumerate(self.__matrix):
+            yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(arr==1)[0]]), networks=self.__networks[i])
+
     def __getitem__(self, index):
-        matrix, networks = self.matrix[index,:], self.networks[index]
+        matrix, networks = self.__matrix[index,:], self.__networks[index]
         if hasattr(index,'__iter__'):
             return LogicalNetworkList(self.hg, matrix, networks)
         else:
@@ -259,8 +269,8 @@ class LogicalNetworkList(object):
         -------
         set
             Representation of all networks as a set of `gringo.Fun`_ instances
-        
-        
+
+
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set((gringo.Fun("variable", [var]) for var in self.hg.nodes))
@@ -298,7 +308,7 @@ class LogicalNetworkList(object):
 
         size: boolean
             If True, a column with the size of each logical network is included in the DataFrame
-        
+
         n_jobs : int
             Number of jobs to run in parallel. Default to -1 (all cores available)
 
@@ -306,22 +316,22 @@ class LogicalNetworkList(object):
         -------
         `pandas.DataFrame`_
             DataFrame representation of the list of logical networks.
-        
-        
+
+
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         length = len(self)
-        df = pd.DataFrame(self.matrix, columns=map(str, self.hg.mappings))
+        df = pd.DataFrame(self.__matrix, columns=map(str, self.hg.mappings))
 
         if networks:
-            df = pd.concat([df,pd.DataFrame({'networks': self.networks})], axis=1)
+            df = pd.concat([df,pd.DataFrame({'networks': self.__networks})], axis=1)
 
         if dataset is not None:
             clampings = dataset.clampings
             readouts = dataset.readouts.columns
             observations = dataset.readouts.values
             pos = ~np.isnan(observations)
-            
+
             mse = Parallel(n_jobs=n_jobs)(delayed(__parallel_mse__)(n, clampings, readouts, observations[pos], pos) for n in self)
             df = pd.concat([df,pd.DataFrame({'mse': mse})], axis=1)
 
@@ -347,7 +357,7 @@ class LogicalNetworkList(object):
 
         size: boolean
             If True, a column with the size of each logical network is included
-        
+
         n_jobs : int
             Number of jobs to run in parallel. Default to -1 (all cores available)
 
@@ -356,26 +366,25 @@ class LogicalNetworkList(object):
 
     def frequencies_iter(self):
         """
-        Iterates over all mappings' frequencies
+        Iterates over all non-zero frequencies of logical conjunction mappings in this list
 
         Yields
         ------
-        tuple[tuple[caspo.core.clause.Clause, str], float]
+        tuple[caspo.core.mapping.Mapping, float]
             The next pair (mapping,frequency)
         """
-        f = self.matrix.mean(axis=0)
-        for i,m in self.hg.mappings.iteritems():
-            if f[i] > 0:
-                yield m,f[i]
+        f = self.__matrix.mean(axis=0)
+        for i,m in self.mappings.iteritems():
+            yield m,f[i]
 
     def frequency(self, mapping):
         """
-        Returns frequency of a given mapping, i.e., a tuple (:class:`caspo.core.clause.Clause`, str)
+        Returns frequency of a given :class:`caspo.core.mapping.Mapping`
 
         Parameters
         ----------
-        mapping : tuple
-            A mapping (:class:`caspo.core.clause.Clause`, str)
+        mapping : :class:`caspo.core.mapping.Mapping`
+            A logical conjuntion mapping
 
         Returns
         -------
@@ -385,9 +394,9 @@ class LogicalNetworkList(object):
         Raises
         ------
         ValueError
-            If the given mapping is not found in the mappings of :attr:`hg`
+            If the given mapping is not found in the mappings of the underlying hypergraph of this list
         """
-        return self.matrix[:,self.hg.mappings[mapping]].mean()
+        return self.__matrix[:,self.hg.mappings[mapping]].mean()
 
     def combinatorics(self):
         """
@@ -400,11 +409,11 @@ class LogicalNetworkList(object):
             For each mapping key, the first dict has as value the set of mutually exclusive mappings while
             the second dict has as value the set of mutually inclusive mappings.
         """
-        f = self.matrix.mean(axis=0)
+        f = self.__matrix.mean(axis=0)
         candidates = np.where((f < 1) & (f > 0))[0]
         exclusive, inclusive = defaultdict(set), defaultdict(set)
         for i,j in it.combinations(candidates, 2):
-            xor = np.logical_xor(self.matrix[:,i],self.matrix[:,j])
+            xor = np.logical_xor(self.__matrix[:,i],self.__matrix[:,j])
             if xor.all():
                 exclusive[self.hg.mappings[i]].add(self.hg.mappings[j])
                 exclusive[self.hg.mappings[j]].add(self.hg.mappings[i])
@@ -417,25 +426,26 @@ class LogicalNetworkList(object):
 
     def predictions(self, setup, n_jobs=-1):
         """
-        Returns a `pandas.DataFrame`_ with the weighted average predictions and variance of all readouts for each possible clampings.
-        For each logical network the weight corresponds to the number of networks having the same behavior (:attr:`networks`).
+        Returns a `pandas.DataFrame`_ with the weighted average predictions and variance of all readouts for each possible
+        clampings in the given experimental setup.
+        For each logical network the weight corresponds to the number of networks having the same behavior.
 
         Parameters
         ----------
         setup : :class:`caspo.core.setup.Setup`
             Experimental setup
-        
+
         n_jobs : int
             Number of jobs to run in parallel. Default to -1 (all cores available)
 
         Returns
         -------
         `pandas.DataFrame`_
-            DataFrame with the weighted variance of readouts predictions for each possible clamping
+            DataFrame with the weighted average predictions and variance of all readouts for each possible clamping
 
-        
+
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
-        
+
         .. seealso:: `Wikipedia: Weighted sample variance <https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`_
         """
         stimuli, inhibitors, readouts = setup.stimuli, setup.inhibitors, setup.readouts
@@ -447,28 +457,28 @@ class LogicalNetworkList(object):
         clampings = list(setup.clampings_iter(cues))
         predictions[:,:,:] = Parallel(n_jobs=n_jobs)(delayed(__parallel_predictions__)(n, clampings, readouts, stimuli, inhibitors) for n in self)
 
-        avg = np.average(predictions[:,:,nc:], axis=0, weights=self.networks)
-        var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=self.networks)
+        avg = np.average(predictions[:,:,nc:], axis=0, weights=self.__networks)
+        var = np.average((predictions[:,:,nc:]-avg)**2, axis=0, weights=self.__networks)
 
         rcues = map(lambda c: "TR:%s" % c, setup.cues(True))
         cols = np.concatenate([rcues, map(lambda r: "AVG:%s" % r, readouts), map(lambda r: "VAR:%s" % r, readouts)])
-        
+
         #use the first network predictions to extract all clampings
         df = pd.DataFrame(np.concatenate([predictions[0,:,:nc],avg,var], axis=1), columns=cols)
         df[rcues] = df[rcues].astype(int)
-        
+
         return df
 
     def weighted_mse(self, dataset, n_jobs=-1):
         """
         Returns the weighted MSE over all logical networks with respect to the given :class:`caspo.core.dataset.Dataset` object instance.
-        For each logical network the weight corresponds to the number of networks having the same behavior (:attr:`networks`).
+        For each logical network the weight corresponds to the number of networks having the same behavior.
 
         Parameters
         ----------
         dataset: :class:`caspo.core.dataset.Dataset`
             Dataset to compute MSE
-        
+
         n_jobs : int
             Number of jobs to run in parallel. Default to -1 (all cores available)
 
@@ -480,12 +490,12 @@ class LogicalNetworkList(object):
         predictions = np.zeros((len(self), len(dataset.clampings), len(dataset.setup.readouts)))
         predictions[:,:,:] = Parallel(n_jobs=n_jobs)(delayed(__parallel_predictions__)(n, dataset.clampings, dataset.setup.readouts) for n in self)
         for i,network in enumerate(self):
-            predictions[i,:,:] *= self.networks[i]
+            predictions[i,:,:] *= self.__networks[i]
 
         readouts = dataset.readouts.values
         pos = ~np.isnan(readouts)
 
-        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(self.networks))[pos])
+        return mean_squared_error(readouts[pos], (np.sum(predictions, axis=0) / np.sum(self.__networks))[pos])
 
     def __plot__(self):
         """
@@ -495,14 +505,14 @@ class LogicalNetworkList(object):
         -------
         `networkx.MultiDiGraph`_
             Network object instance ready for plotting
-        
-        
+
+
         .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
         """
         graph = nx.MultiDiGraph()
         n_gates = 1
 
-        for mapping in self.hg.mappings[np.unique(np.where(self.matrix==1)[1])]:
+        for mapping in self.hg.mappings[np.unique(np.where(self.__matrix==1)[1])]:
             graph.add_node(mapping.target)
             if len(mapping.clause) > 1:
                 gate = 'gate-%s' % n_gates
@@ -519,7 +529,7 @@ class LogicalNetworkList(object):
                     graph.add_edge(var, mapping.target, sign=sign, weight=self.frequency(mapping))
 
         return graph
-    
+
 class LogicalNetwork(nx.DiGraph):
     """
     Logical network class extends `networkx.DiGraph`_ with nodes being,
@@ -528,16 +538,16 @@ class LogicalNetwork(nx.DiGraph):
     Attributes
     ----------
     networks : int
-        Number of networks having the same behavior (including this representative network itself)
-    
-    
+        Number of networks having the same behavior (including this network as the representative network)
+
+
     .. _networkx.DiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.digraph.html#networkx.DiGraph
     """
-    
+
     @classmethod
     def from_hypertuples(klass, hg, tuples):
         """
-        Creates a logical network from an iterable of integer tuples matching mappings in the given 
+        Creates a logical network from an iterable of integer tuples matching mappings in the given
         :class:`caspo.core.hypergraph.HyperGraph`
 
         Parameters
@@ -554,7 +564,7 @@ class LogicalNetwork(nx.DiGraph):
             Created object instance
         """
         return klass(map(lambda (i,j): (hg.clauses[j], hg.variable(i)), tuples), networks=1)
-        
+
     @property
     def networks(self):
         return self.graph.get('networks',1)
@@ -578,7 +588,7 @@ class LogicalNetwork(nx.DiGraph):
     @property
     def size(self):
         """
-        int: The size of this logical network
+        int: The size (complexity) of this logical network as the sum of clauses' length
         """
         return sum(map(lambda (c,t): len(c), self.edges_iter()))
 
@@ -621,8 +631,12 @@ class LogicalNetwork(nx.DiGraph):
         ----------
         clamping : :class:`caspo.core.clamping.Clamping`
             The clamping with respect to the fixpoint is computed
+
         steps : int
-            If greater than zero, a maximum of steps is performed
+            If greater than zero, a maximum number of steps is performed. Otherwise
+            it continues until reaching a fixpoint. Note that if no fixpoint exists,
+            e.g. a network with a negative feedback-loop, this will never end unless
+            you provide a maximum number of steps.
 
         Returns
         -------
@@ -666,8 +680,8 @@ class LogicalNetwork(nx.DiGraph):
         `pandas.DataFrame`_
             DataFrame with network predictions for each clamping. If stimuli and inhibitors are given,
             columns are included describing each clamping. Otherwise, columns correspond to readouts only.
-        
-        
+
+
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         cues = stimuli + inhibitors
@@ -686,15 +700,15 @@ class LogicalNetwork(nx.DiGraph):
                 predictions[i,nc+j] = fixpoint.get(readout,0)
 
         return pd.DataFrame(predictions, columns=np.concatenate([stimuli, [i+'i' for i in inhibitors], readouts]))
-    
+
     def mse(self, dataset):
         clampings = dataset.clampings
         readouts = dataset.readouts.columns
         observations = dataset.readouts.values
         pos = ~np.isnan(observations)
-        
+
         return self._mse(clampings, readouts, observations[pos], pos)
-    
+
     def _mse(self, clampings, readouts, observations, pos):
         return mean_squared_error(observations, (self.predictions(clampings, readouts).values)[pos])
 
@@ -741,13 +755,15 @@ class LogicalNetwork(nx.DiGraph):
         Returns
         -------
         `numpy.ndarray`_
-            Binary array with respect to the given mappings describing the logical network
+            Binary array with respect to the given mappings describing the logical network.
+            Position `i` in the array will be 1 if the network has the mapping at position `i`
+            in the given list of mappings.
 
 
         .. _numpy.ndarray: http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray
         """
         arr = np.zeros(len(mappings), np.int8)
-        for i, (clause, target) in mappings.iteritems():
+        for i, (clause, target) in enumerate(mappings):
             if self.has_edge(clause, target):
                 arr[i] = 1
 
@@ -761,8 +777,8 @@ class LogicalNetwork(nx.DiGraph):
         -------
         `networkx.MultiDiGraph`_
             Network object instance ready for plotting
-        
-        
+
+
         .. _networkx.MultiDiGraph: https://networkx.readthedocs.io/en/stable/reference/classes.multidigraph.html#networkx.MultiDiGraph
         """
         graph = nx.MultiDiGraph()

@@ -26,15 +26,20 @@ class Clause(frozenset):
     @classmethod
     def from_str(klass, string):
         """
-        Creates a clause from a given string of the form `a+!b` which translates to `a AND NOT b`.
-        
+        Creates a clause from a given string.
+
+        Parameters
+        ----------
+        string: str
+             A string of the form `a+!b` which translates to `a AND NOT b`.
+
         Returns
         -------
         caspo.core.clause.Clause
             Created object instance
         """
         return klass(map(lambda lit: Literal.from_str(lit), string.split('+')))
-        
+
     def __str__(self):
         """
         Returns the string representation of the clause
@@ -44,20 +49,20 @@ class Clause(frozenset):
     def bool(self, state):
         """
         Returns the Boolean evaluation of the clause with respect to a given state
-        
+
         Parameters
         ----------
         state : dict
-            Key-value mapping describing a Boolean state
-        
+            Key-value mapping describing a Boolean state or assignment
+
         Returns
         -------
         boolean
-            The evaluation of the clause with respect to the given state
+            The evaluation of the clause with respect to the given state or assignment
         """
-        and_value = 1
+        value = 1
         for source, sign in self:
-            and_value = and_value and (state[source] if sign == 1 else not state[source])
-            if not and_value: break
-            
-        return and_value
+            value = value and (state[source] if sign == 1 else not state[source])
+            if not value: break
+
+        return value

@@ -20,25 +20,25 @@ from collections import namedtuple
 
 class Literal(namedtuple('Literal', ['variable', 'signature'])):
     """
-    Literal class describing a variable or its negation
-    
+    A literal is a variable or its negation
+
     Attributes
     ----------
         variable : str
-    
+
         signature : int (either 1 or -1)
     """
-    
+
     @classmethod
     def from_str(klass, string):
         """
         Creates a literal from a string
-        
+
         Parameters
         ----------
         string : str
             If the string starts with '!', it's interpreted as a negated variable
-            
+
         Returns
         -------
         caspo.core.literal.Literal
@@ -50,13 +50,13 @@ class Literal(namedtuple('Literal', ['variable', 'signature'])):
         else:
             signature = 1
             variable = string
-            
+
         return klass(variable, signature)
-        
+
     def __str__(self):
         """
         Returns the string representation of the literal
-        
+
         Returns
         -------
         str
