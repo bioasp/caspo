@@ -1,6 +1,3 @@
-.. toctree::
-   :maxdepth: 2
-
 Modules
 -------
 
@@ -22,6 +19,13 @@ Design
 ^^^^^^
 
 .. automodule:: caspo.design
+    :members:
+
+
+Predict
+^^^^^^^
+
+.. automodule:: caspo.predict
     :members:
 
 
