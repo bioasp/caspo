@@ -17,7 +17,7 @@ requirements:
   build:
     - python
   run:
-    - python    
+    - python
     - pandas
     - scipy
     - scikit-learn
@@ -35,7 +35,7 @@ test:
 
 about:
   home: http://bioasp.github.io/caspo
-  license: GPL 3
+  license: GPL3
   summary: Reasoning on the response of logical networks families
 
 extra:
