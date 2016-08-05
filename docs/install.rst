@@ -87,6 +87,8 @@ Next, go to :ref:`testing-install`.
 
 Using pip
 ---------
+*NOTE: Depending on your platform and whether you use the system's python or a virtual environment,
+this method may require you to install additional compilers and libraries beforehand.*
 
 Essentially, you will need to have python 2.7.x and some of the standard scientific python packages installed.
 Download the file :download:`requirements.txt <../requirements.txt>` and install **caspo** by running::
