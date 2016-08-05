@@ -1,0 +1,31 @@
+language: generic
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - secure: "bxE+pUYs2iPBiZO9GB9t1ejFVcV9Hg1CmjgiyjXbn/enxwJYiRDlFURXVSruAb4pVkd68OQ6wuc/Q1gL2jhMRM7IiOuEElDgUYysAVYyklQOpHE1gxwt6U8YnYPw+XQ0dT29PTY81I2R8FLZiJxKGQjARiJ0da1jDOhJJhuCQKae0rIdINyvhcTrzRByD8kFSAAGS5RUAGK6TACDKno8WdsEXdIs06FH4rmNYgcwqKIqmW4glNDd252Gvoxqr35Rza+BiJT578qL0D609DHbKkvvpMJ/MD8FjvgK1RCiJbwMq54rTGbsbN7nemc2mDIGz+Ip9QHfq45mLFnh7LXN0aNYGhtswkf8DfmAOUBjdq06BQoZG3kXExbko7t2VqlMdACc8n+Cwol685nEMyigJMCE5orPg5KkFzUoV/27rb8B7j662AFhGtmcdeh/8t/3rlBKSH4azo2b4ePIqrTp8+b96FqFApSGYY5fGNxIOPdS/KIQaJia/c+DDxtWEjBcg37x7UiakqLtLXjo3AJDmNPpkLt5jXfhmNsXbi7LDFOe0IE7ZpIft24JrhP7bLxMBBOp7SIBZTCcvTmYYvMZr2nYHJ6LUym9PkiCKa5qquuI6QeyMjju5cBeS7B3YT+hKH7aqBmtstvQDPUGonqYdUc73hmIjG1ZyOzzyuvsRcs="
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh -O miniconda.sh;
+    fi
+
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+
+  - conda config --set show_channel_urls true
+  - conda update --yes conda
+  - conda install --yes conda-build jinja2 anaconda-client
+  - conda config --add channels conda-forge
+  - conda config --add channels svidela
+
+script:
+  - conda build .
+
+after_success:
+  - ./upload.py
