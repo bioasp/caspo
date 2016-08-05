@@ -1,7 +1,9 @@
-3.0.0 (unreleased)
+3.0.0 (2016-08-05)
 ------------------
 - Refactoring removing ZCA-based implementation
 - Use clingo python module (tested with clingo 4.5.x)
 - Re-design subcommands as learn, classify, design, predict, control, visualize, and test
 - Generate default visualizations using matplotlib and seaborn
 - Adds sphinx docs
+- Use travis-ci for building conda packages for OS X and Linux
+- Adds a Dockerfile

@@ -1,5 +1,15 @@
 recursive-include caspo/encodings *.lp
 recursive-include caspo/data *.csv *.sif *.json
+recursive-include docs *.rst
+recursive-include docs *.py
+recursive-include docs *.png
+recursive-include travis-ci *.py
+include travis-ci/Dockerfile
+
+include *.yml *.txt *.sh
+include Dockerfile
 include LICENSE
 include CHANGES
 include README.md
+
+prune docs/_build
