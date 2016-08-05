@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/bioasp/caspo.svg?branch=master)](https://travis-ci.org/bioasp/caspo)
+[![Documentation Status](https://readthedocs.org/projects/caspo/badge/?version=latest)](http://caspo.readthedocs.io/en/latest/?badge=latest)
+
 ### Reasoning on the response of logical signaling networks
 
 The manual identification of logic rules underlying a biological system is
@@ -12,7 +15,6 @@ Altogether, this constitutes a pipeline for automated reasoning on logical signa
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
 ### Documentation
-[![Documentation Status](https://readthedocs.org/projects/caspo/badge/?version=latest)](http://caspo.readthedocs.io/en/latest/?badge=latest)
 
 Detailed documentation about how to install and use **caspo** is available at http://caspo.readthedocs.io.
 
