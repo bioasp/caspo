@@ -38,4 +38,6 @@ script:
     fi
 
 after_success:
-  - ./travis-ci/upload.py
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      ./travis-ci/upload.py;
+    fi
