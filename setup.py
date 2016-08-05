@@ -19,35 +19,38 @@
 from setuptools import setup, find_packages
 import sys, os
 
-from caspo import __package__, __author__, __email__, __license__, __version__
+META_FILE = read(os.path.join("caspo", "__init__.py"))
 
-long_desc = """
-The aim of caspo is to implement a pipeline for automated reasoning on logical signaling networks. 
-Main features include, learning of logical networks from experiments, design new experiments in 
-order to reduce the uncertainty, and finding intervention strategies to control the biological system.
-For more details visit `caspo's website`_.
+def find_meta(meta):
+    """
+    Extract __*meta*__ from META_FILE.
+    """
+    meta_match = re.search(
+        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta),
+        META_FILE, re.M
+    )
+    if meta_match:
+        return meta_match.group(1)
+    raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
-.. _`caspo's website`: http://bioasp.github.io/caspo/
-
-"""
-setup(name=__package__,
-      version=__version__,
-      description="Reasoning on the response of logical signaling networks with Answer Set Programming",
-      long_description=long_desc + open('CHANGES').read(),
-      classifiers=["Intended Audience :: Science/Research", 
+setup(name=find_meta("package"),
+      version=find_meta("version"),
+      description=find_meta("description"),
+      author=find_meta("author"),
+      author_email=find_meta("email"),
+      url=find_meta("url"),
+      license=find_meta("license"),
+      long_description=read("README.md"),
+      classifiers=["Intended Audience :: Science/Research",
                    "Intended Audience :: Healthcare Industry",
                    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
                    "Operating System :: OS Independent",
                    "Programming Language :: Python :: 2.7",
                    "Topic :: Scientific/Engineering :: Artificial Intelligence",
                    "Topic :: Scientific/Engineering :: Bio-Informatics"
-                   ], 
+                   ],
                    # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='logical signaling networks systems biology answer set programming',
-      author=__author__,
-      author_email=__email__,
-      url='http://bioasp.github.io/caspo/',
-      license=__license__,
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
@@ -56,4 +59,4 @@ setup(name=__package__,
               'caspo=caspo.console.main:run',
           ]
       }
-      )
+    )

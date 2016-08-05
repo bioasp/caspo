@@ -17,7 +17,9 @@
 # -*- coding: utf-8 -*-
 
 __package__ = "caspo"
+__description__ = "Reasoning on the response of logical signaling networks with Answer Set Programming"
 __author__ = "Santiago Videla"
 __email__ = "santiago.videla@gmail.com"
 __license__ = "GPLv3+"
 __version__ = "3.0.0"
+__url__ = "http://bioasp.github.io/caspo/"
