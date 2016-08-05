@@ -69,7 +69,7 @@ class Classifier(object):
         The list of logical networks
 
     setup : :class:`caspo.core.setup.Setup`
-        The experimental setup with respect to the input-output behaviors must be computed
+        The experimental setup with respect to which the input-output behaviors must be computed
 
 
     Attributes
