@@ -1,11 +1,10 @@
 
 caspo's documentation
 =====================
-   
+
 .. toctree::
    :maxdepth: 2
-   
-   install
+
    usage
    api
 

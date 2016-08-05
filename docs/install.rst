@@ -107,7 +107,7 @@ Also, the python module of the answer set programming solver `clingo`_ must be a
 After unpacking clingo sources, you will find detailed instructions about how to compile and build the
 python module in the INSTALL file.
 
-Next, go to :ref:`testing-install` please.
+Next, go to :ref:`testing-install`.
 
 .. _testing-install:
 
