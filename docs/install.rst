@@ -88,8 +88,8 @@ Next, go to :ref:`testing-install`.
 Using pip
 ---------
 
-NOTE: Depending on your platform and whether you decide to use the system's python or a virtual environment,
-this method may require you to install additional compilers and libraries beforehand.
+*NOTE: Depending on your platform and whether you decide to use the system's python or a virtual environment,
+this method may require you to install additional compilers and libraries beforehand.*
 
 Essentially, you will need to have python 2.7.x and some of the standard scientific python packages installed.
 Download the file :download:`requirements.txt <../requirements.txt>` and install **caspo** by running::
@@ -107,7 +107,7 @@ Also, the python module of the answer set programming solver `clingo`_ must be a
 After unpacking clingo sources, you will find detailed instructions about how to compile and build the
 python module in the INSTALL file.
 
-Next, go to :ref:`testing-install`.
+Next, go to :ref:`testing-install` please.
 
 .. _testing-install:
 
