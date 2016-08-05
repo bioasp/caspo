@@ -17,7 +17,7 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-import sys, os
+import sys, os, codecs, re
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
