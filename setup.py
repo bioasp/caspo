@@ -19,6 +19,16 @@
 from setuptools import setup, find_packages
 import sys, os
 
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+def read(*parts):
+    """
+    Build an absolute path from *parts* and and return the contents of the
+    resulting file.  Assume UTF-8 encoding.
+    """
+    with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
+        return f.read()
+
 META_FILE = read(os.path.join("caspo", "__init__.py"))
 
 def find_meta(meta):
