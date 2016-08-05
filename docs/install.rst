@@ -88,26 +88,10 @@ Next, go to :ref:`testing-install`.
 Using pip
 ---------
 
-Essentially, you will need to have python 2.7.x and some of the standard scientific python packages installed:
+Essentially, you will need to have python 2.7.x and some of the standard scientific python packages installed.
+Download the file :download:`requirements.txt <../requirements.txt>` and install **caspo** by running::
 
-* joblib==0.10.0
-* matplotlib==1.5.2
-* networkx==1.11
-* numpy==1.11.1
-* pandas==0.18.1
-* pydotplus==2.0.2
-* pyparsing==2.1.1
-* scikit-learn==0.17.1
-* scipy==0.18.0
-* seaborn==0.7.0
-
-Also, the python module of the answer set programming solver `clingo`_ must be available in the PYTHONPATH.
-After unpacking clingo sources, you will find detailed instructions about how to compile and build the
-python module in the INSTALL file.
-
-Finally, install **caspo** using pip by running::
-
-    $ pip install caspo
+    $ pip install -r requirements.txt
 
 Alternatively, you could download **caspo** sources and after unpacking run::
 
@@ -115,6 +99,10 @@ Alternatively, you could download **caspo** sources and after unpacking run::
 
 Note that installing **caspo** in this way **does not** force the installation of any of the runtime dependencies.
 In other words, you take full responsibility of installing all required packages to run **caspo** successfully.
+
+Also, the python module of the answer set programming solver `clingo`_ must be available in the PYTHONPATH.
+After unpacking clingo sources, you will find detailed instructions about how to compile and build the
+python module in the INSTALL file.
 
 Next, go to :ref:`testing-install`.
 
