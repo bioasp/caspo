@@ -498,10 +498,14 @@ Run **caspo visualize**::
 The output of **caspo visualize** will depend on the given arguments.
 Apart from the visualizations already shown when we described previous subcommands, it also provides visualization for a given PKN or a list of logical networks.
 Below we show an original PKN in the left, a compressed PKN in the top right, and the union of logical networks in the bottom right.
+Either all or a sample of logical networks can also be visualized individually using the ``--sample`` argument.
 
 .. image:: /images/visualize.png
    :width: 600 px
 
+Note that PKNs and logical networks visualizations are generated as `DOT files <https://en.wikipedia.org/wiki/DOT_%28graph_description_language%29>`_ which can be either opened using a dot viewer or converted to different formats (pdf, ps, png, among others) using `Graphviz <http://graphviz.org/>`_ running for example::
+
+  $ dot pkn.dot -Tpdf -o pkn.pdf
 
 Test
 ^^^^
