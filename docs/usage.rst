@@ -503,7 +503,8 @@ Either all or a sample of logical networks can also be visualized individually u
 .. image:: /images/visualize.png
    :width: 600 px
 
-Note that PKNs and logical networks visualizations are generated as `DOT files <https://en.wikipedia.org/wiki/DOT_%28graph_description_language%29>`_ which can be either opened using a dot viewer or converted to different formats (pdf, ps, png, among others) using `Graphviz <http://graphviz.org/>`_ running for example::
+Note that PKNs and logical networks visualizations are generated as `DOT files <https://en.wikipedia.org/wiki/DOT_%28graph_description_language%29>`_ which can be either opened using a dot viewer or converted to different formats (pdf, ps, png, among others) using `Graphviz <http://graphviz.org/>`_.
+For example, you can convert from dot to pdf by running::
 
   $ dot pkn.dot -Tpdf -o pkn.pdf
 
