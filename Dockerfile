@@ -28,10 +28,8 @@ ENV LANG C.UTF-8
 
 ###
 
-RUN conda config --set show_channel_urls true && conda update --y conda && \
-    conda config --add channels conda-forge --add channels svidela --add channels bioasp
-
-RUN conda install -y caspo
+RUN conda config --set show_channel_urls true && conda update -y conda
+RUN conda install -y caspo -c bioasp -c svidela -c conda-forge
 
 ENV PYTHONWARNINGS=ignore
 ENTRYPOINT ["caspo"]
