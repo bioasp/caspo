@@ -1,4 +1,4 @@
-{% set version = "3.0.0.dev0" %}
+{% set version = "3.0.1.dev0" %}
 
 package:
   name: caspo
