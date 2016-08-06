@@ -1,4 +1,4 @@
-3.0.0 (2016-08-05)
+3.0.0 (unreleased)
 ------------------
 - Refactoring removing ZCA-based implementation
 - Use clingo python module (tested with clingo 4.5.x)
