@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     cli = get_binstar(argparse.Namespace(token=token, site=None))
 
-    meta = MetaData('.')
+    meta = MetaData('recipe')
     exists = artifact_already_exists(cli, meta, owner)
 
     if not exists:

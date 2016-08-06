@@ -5,10 +5,10 @@ package:
   version: {{ version }}
 
 source:
-  path: .
+  path: ../
 
 build:
-  number: 2
+  number: 3
   script: python setup.py install
   entry_points:
     - caspo = caspo.console.main:run

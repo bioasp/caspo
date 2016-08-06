@@ -31,9 +31,9 @@ install:
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      docker run -v ${TRAVIS_BUILD_DIR}:/work-dir -w /work-dir bioasp/caspo-conda bash -cxe "conda build .; ./travis-ci/cp_artifacts.py";
+      docker run -v ${TRAVIS_BUILD_DIR}:/work-dir -w /work-dir bioasp/caspo-conda bash -cxe "conda build ./recipe; ./travis-ci/cp_artifacts.py";
     else
-      conda build .;
+      conda build recipe;
       ./travis-ci/cp_artifacts.py;
     fi
 
