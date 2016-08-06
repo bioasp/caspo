@@ -1,4 +1,4 @@
-caspo
+caspo==3.0.0.post2
 joblib==0.10.0
 networkx==1.11
 numpy==1.11.1

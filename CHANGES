@@ -1,6 +1,3 @@
-3.0.1 (unreleased)
-------------------
-
 3.0.0 (2016-08-06)
 ------------------
 - Refactoring removing ZCA-based implementation
