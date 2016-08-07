@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/bioasp/caspo.svg?branch=master)](https://travis-ci.org/bioasp/caspo)
-
+[![Documentation Status](https://readthedocs.org/projects/caspo/badge/?version=latest)](http://caspo.readthedocs.io/en/latest/?badge=latest)
 [![license](https://img.shields.io/badge/license-GPLv3+-brightgreen.svg)](https://www.gnu.org/licenses/gpl.html)
 
 ### Reasoning on the response of logical signaling networks
