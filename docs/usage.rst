@@ -173,7 +173,7 @@ Next, each row in the file describes a different intervention strategy.
 Values can be either 1 for active, -1 for inactive, or 0 for neither active nor inactive.
 That is, a 0 means there is no intervention over that node in the corresponding strategy.
 
-.. csv-table:: Toy intervention strategies
+.. csv-table::
     :header: TR:c,TR:b,TR:e,TR:d
 
     0,0,-1,0
@@ -184,7 +184,7 @@ Basic statistics over a set of intervention strategies are described using a csv
 For each Boolean intervention we compute its frequency of occurrence over all strategies in the set.
 Also, mutually exclusive/inclusive pairs of interventions are identified.
 
-.. csv-table:: Toy intervention strategies stats
+.. csv-table::
     :header: intervention,frequency,exclusive,inclusive
 
     c=-1,0.3333,,b=-1
