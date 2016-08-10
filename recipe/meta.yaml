@@ -36,7 +36,7 @@ test:
 
 about:
   home: http://bioasp.github.io/caspo
-  license: GPL
+  license: GPL 3
   license_file: LICENSE
   summary: Reasoning on the response of logical networks families
 
