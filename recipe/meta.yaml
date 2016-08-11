@@ -8,7 +8,7 @@ source:
   path: ../
 
 build:
-  number: 0
+  number: 1
   script: python setup.py install
   entry_points:
     - caspo = caspo.console.main:run
@@ -36,7 +36,8 @@ test:
 
 about:
   home: http://bioasp.github.io/caspo
-  license: GPL3
+  license: GPL 3
+  license_file: LICENSE
   summary: Reasoning on the response of logical networks families
 
 extra:
