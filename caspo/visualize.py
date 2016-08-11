@@ -19,7 +19,7 @@ import os, logging
 import matplotlib
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import write_dot
-
+import numpy as np
 import seaborn as sns
 
 def coloured_network(network, setup, filename):
@@ -410,7 +410,14 @@ def intervention_strategies(df, filepath=None):
         logger.warning("Too many intervention strategies to visualize. A sample of %s strategies will be considered." % LIMIT)
         df = df.sample(LIMIT)
 
-    rwg = matplotlib.colors.ListedColormap(['red','white','green'])
+    values = np.unique(df.values.flatten())
+    if len(values) == 3:
+        rwg = matplotlib.colors.ListedColormap(['red','white','green'])
+    elif 1 in values:
+        rwg = matplotlib.colors.ListedColormap(['white','green'])
+    else:
+        rwg = matplotlib.colors.ListedColormap(['red','white'])
+
     fig = plt.figure(figsize=(max((len(df.columns)-1) * .5, 4), max(len(df)*0.6,2.5)))
 
     df.columns = map(lambda c: c[3:], df.columns)
