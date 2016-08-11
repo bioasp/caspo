@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
-import os
+import os, logging
 import matplotlib
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import write_dot
@@ -403,6 +403,12 @@ def intervention_strategies(df, filepath=None):
 
     .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
     """
+    logger = logging.getLogger("caspo")
+
+    LIMIT = 50
+    if len(df) > LIMIT:
+        logger.warning("Too many intervention strategies to visualize. A sample of %s strategies will be considered." % LIMIT)
+        df = df.sample(LIMIT)
 
     rwg = matplotlib.colors.ListedColormap(['red','white','green'])
     fig = plt.figure(figsize=(max((len(df.columns)-1) * .5, 4), max(len(df)*0.6,2.5)))
@@ -451,6 +457,8 @@ def interventions_frequency(df, filepath=None):
     g = sns.factorplot(x="intervention", y="frequency", data=df, aspect=3, hue='conf', legend=False)
     for tick in g.ax.get_xticklabels():
         tick.set_rotation(90)
+
+    [t.set_color('r') if t.get_text().endswith('-1') else t.set_color('g') for t in g.ax.xaxis.get_ticklabels()]
 
     g.ax.set_ylim([-.05,1.05])
 
