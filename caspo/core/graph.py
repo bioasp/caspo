@@ -127,11 +127,11 @@ class Graph(nx.MultiDiGraph):
             Compressed graph
         """
         done = False
-        designated = setup.nodes
+        designated = set(setup.nodes)
         zipped = self.copy()
 
-        while not done:
-            marked = filter(lambda (n,d): n not in designated and not d.get('compressed',False), self.nodes(data=True))
+        marked = filter(lambda (n,d): n not in designated and not d.get('compressed',False), self.nodes(data=True))
+        while marked:
             for node, data in sorted(marked):
                 backward = zipped.predecessors(node)
                 forward = zipped.successors(node)
@@ -143,7 +143,9 @@ class Graph(nx.MultiDiGraph):
                     self.__merge_target_sources(node,zipped)
 
                 else:
-                    done = True
+                    designated.add(node)
+
+            marked = filter(lambda (n,d): n not in designated and not d.get('compressed',False), self.nodes(data=True))
 
         not_compressed = filter(lambda (n,d): not d.get('compressed', False), zipped.nodes(data=True))
         return zipped.subgraph(map(lambda (n,d): n, not_compressed))
