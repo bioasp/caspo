@@ -10,4 +10,4 @@ if __name__ == '__main__':
     os.mkdir(artifacts_dir)
 
     meta = MetaData('recipe')
-    shutil.copy(bldpkg_path(meta, m.config), artifacts_dir)
+    shutil.copy(bldpkg_path(meta), artifacts_dir)
