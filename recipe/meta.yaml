@@ -8,7 +8,7 @@ source:
   path: ../
 
 build:
-  number: 3
+  number: 4
   script: python setup.py install
   entry_points:
     - caspo = caspo.console.main:run
