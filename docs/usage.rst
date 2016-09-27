@@ -255,6 +255,9 @@ Help on **caspo learn**::
       -h, --help          show this help message and exit
       --threads T         run clingo with given number of threads
       --conf C            threads configurations (Default to many)
+      --optimum O         logical network in CSV format. If many networks are
+                          given, the first network is used (If given, avoids
+                          learning the optimum and go directly to enumeration)
       --fit F             tolerance over fitness (Default to 0)
       --size S            tolerance over size (Default to 0)
       --factor D          discretization over [0,D] (Default to 100)
@@ -268,6 +271,7 @@ Run **caspo learn**::
     $ caspo learn pkn.sif dataset.csv 30 --fit 0.04
 
     Running caspo learn...
+    Number of hyperedges (possible logical mappings) derived from the compressed PKN: 130
     Optimum logical network learned in 1.0537s
     Optimum logical networks has MSE 0.0499 and size 28
     2150 (nearly) optimal logical networks learned in 2.6850s

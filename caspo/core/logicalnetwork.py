@@ -255,6 +255,20 @@ class LogicalNetworkList(object):
             yield LogicalNetwork(it.imap(lambda m: (m[0],m[1]), self.hg.mappings[np.where(arr==1)[0]]), networks=self.__networks[i])
 
     def __getitem__(self, index):
+        """
+        Returns logical network(s) at the given index
+
+        Parameters
+        ----------
+        index : object
+            It can be an int or an iterable of int
+
+
+        Returns
+        -------
+        object
+            Either a :class:`caspo.core.logicalnetwork.LogicalNetwork` or a :class:`caspo.core.logicalnetwork.LogicalNetworkList` object
+        """
         matrix, networks = self.__matrix[index,:], self.__networks[index]
         if hasattr(index,'__iter__'):
             return LogicalNetworkList(self.hg, matrix, networks)

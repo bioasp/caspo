@@ -47,6 +47,7 @@ def run():
     learn.add_argument("pkn", help="prior knowledge network in SIF format")
     learn.add_argument("midas", help="experimental dataset in MIDAS file")
     learn.add_argument("time", type=int, help="time-point to be used in MIDAS")
+    learn.add_argument("--optimum", help="logical network in CSV format. If many networks are given, the first network is used (If given, avoids learning the optimum and go directly to enumeration)", metavar="O")
     learn.add_argument("--fit", dest="fit", type=float, default=0., help="tolerance over fitness (Default to 0)", metavar="F")
     learn.add_argument("--size", dest="size", type=int, default=0, help="tolerance over size (Default to 0)", metavar="S")
     learn.add_argument("--factor", dest="factor", type=int, default=100, choices=[1, 10, 100, 1000], help="discretization over [0,D] (Default to 100)", metavar="D")
