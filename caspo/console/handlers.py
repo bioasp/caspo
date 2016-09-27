@@ -36,6 +36,7 @@ def learn_handler(args):
     zipped = graph.compress(dataset.setup)
 
     learner = learn.Learner(zipped, dataset, args.length, args.discretization, args.factor)
+    logger.info("Number of hyperedges (possible logical mappings) derived from the compressed PKN: %d" % len(learner.hypergraph.hyper))
 
     configure = ft.partial(configure_mt,args) if args.threads else None
     learner.learn(args.fit, args.size, configure)
