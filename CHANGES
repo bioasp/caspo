@@ -1,6 +1,10 @@
 3.0.1 (unreleased)
 ------------------
-- Fixes in strategies visualization
+- Bugfix in strategies visualization
+- Bugfix in graph compression
+- Remove duplicates edges when reading a SIF file
+- Adds --optimum argument in caspo learn
+- Prints number of hyperedges in caspo learn
 
 3.0.0 (2016-08-06)
 ------------------
