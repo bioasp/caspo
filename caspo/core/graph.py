@@ -62,7 +62,7 @@ class Graph(nx.MultiDiGraph):
 
         .. _simple interaction format (SIF): http://wiki.cytoscape.org/Cytoscape_User_Manual/Network_Formats
         """
-        df = pd.read_csv(path, delim_whitespace=True, names=['source','sign','target'])
+        df = pd.read_csv(path, delim_whitespace=True, names=['source','sign','target']).drop_duplicates()
         edges = map(lambda (i,source,sign,target): (source,target,{'sign': sign}), df.itertuples())
         return klass(data=edges)
 
