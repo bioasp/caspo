@@ -128,9 +128,10 @@ def design_handler(args):
         con = pd.concat([pd.Series([i]*len(od), name='id'),ei,eo], axis=1)
         df = pd.concat([df,con], ignore_index=True)
 
-    df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
-    visualize.experimental_designs(df, args.out)
-    visualize.differences_distribution(df, args.out)
+    if df is not None:
+        df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
+        visualize.experimental_designs(df, args.out)
+        visualize.differences_distribution(df, args.out)
 
     return 0
 
@@ -143,28 +144,29 @@ def control_handler(args):
     configure = ft.partial(configure_mt,args) if args.threads else None
     controller.control(args.size, configure)
 
-    df = controller.strategies.to_dataframe(prepend="TR:")
-    df.to_csv(os.path.join(args.out, 'strategies.csv'), index=False)
+    if len(controller.strategies):
+        df = controller.strategies.to_dataframe(prepend="TR:")
+        df.to_csv(os.path.join(args.out, 'strategies.csv'), index=False)
 
-    visualize.intervention_strategies(df, args.out)
+        visualize.intervention_strategies(df, args.out)
 
-    rows = []
-    exclusive, inclusive = controller.strategies.combinatorics()
-    for l,f in controller.strategies.frequencies_iter():
-        row = dict(intervention="%s=%s" % l, frequency=f, exclusive="", inclusive="")
+        rows = []
+        exclusive, inclusive = controller.strategies.combinatorics()
+        for l,f in controller.strategies.frequencies_iter():
+            row = dict(intervention="%s=%s" % l, frequency=f, exclusive="", inclusive="")
 
-        if l in exclusive:
-            row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
+            if l in exclusive:
+                row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
 
-        if l in inclusive:
-            row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
+            if l in inclusive:
+                row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
 
-        rows.append(row)
+            rows.append(row)
 
-    df = pd.DataFrame(rows)
-    order = ["intervention","frequency","inclusive","exclusive"]
-    df[order].to_csv(os.path.join(args.out,'stats-strategies.csv'), index=False)
-    visualize.interventions_frequency(df, args.out)
+        df = pd.DataFrame(rows)
+        order = ["intervention","frequency","inclusive","exclusive"]
+        df[order].to_csv(os.path.join(args.out,'stats-strategies.csv'), index=False)
+        visualize.interventions_frequency(df, args.out)
 
     return 0
 
