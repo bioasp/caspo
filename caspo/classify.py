@@ -135,6 +135,6 @@ class Classifier(object):
         behaviors = __learn_io__(networks, self.setup, configure)
         self.stats['time_io'] = timeit.default_timer() - start
 
-        self._logger.info("%s input-Output logical behaviors found in %.4fs" % (len(behaviors), self.stats['time_io']))
+        self._logger.info("%s input-output logical behaviors found in %.4fs" % (len(behaviors), self.stats['time_io']))
 
         return behaviors

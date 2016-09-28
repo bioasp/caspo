@@ -319,7 +319,7 @@ Run **caspo classify**::
 
     Running caspo classify...
     Classifying 2150 logical networks...
-    Input-Output logical behaviors: 31
+    31 input-output logical behaviors found in 156.9032s
     Weighted MSE: 0.0513
 
 The output of **caspo classify** will be a csv file named *behaviors.csv* describing one representative logical network for each input-output behavior found among given networks.
@@ -550,7 +550,7 @@ Run **caspo test**::
     $ caspo --out out classify out/networks.csv out/setup.json out/dataset.csv 10
 
     Classifying 5 logical networks...
-    Input-Output logical behaviors: 3
+    3 input-output logical behaviors found in 0.2029s
     Weighted MSE: 0.1100
 
     $ caspo --out out design out/behaviors.csv out/setup.json

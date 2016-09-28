@@ -169,7 +169,7 @@ This subcommand will run all subcommands in **caspo** using different testcases 
     $ caspo --out out classify out/networks.csv out/setup.json out/dataset.csv 10
 
     Classifying 5 logical networks...
-    Input-Output logical behaviors: 3
+    3 input-output logical behaviors found in 0.2029s
     Weighted MSE: 0.1100
 
     $ caspo --out out design out/behaviors.csv out/setup.json
