@@ -62,6 +62,7 @@ class Learner(object):
         optimum : :class:`caspo.core.logicalnetwork.LogicalNetwork`
         networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
         encodings : dict
+        stats : dict
     """
     def __init__(self, graph, dataset, length, discrete, factor):
         self.graph = graph
@@ -87,6 +88,13 @@ class Learner(object):
             'opt':      os.path.join(root, 'encodings/learn/optimization.lp'),
             'enum':     os.path.join(root, 'encodings/learn/enumeration.lp'),
             'random':   os.path.join(root, 'encodings/learn/random.lp')
+        }
+
+        self.stats = {
+            'time_optimum': None,
+            'time_enumeration': None,
+            'optimum_mse': None,
+            'optimum_size': None
         }
 
         self._logger = logging.getLogger("caspo")
@@ -204,7 +212,8 @@ class Learner(object):
             clingo.ground([("base", [])])
             clingo.solve(on_model=self.__keep_last__)
 
-            self._logger.info("Optimum logical network learned in %.4fs" % clingo.stats['time_total'])
+            self.stats['time_optimum'] = clingo.stats['time_total']
+            self._logger.info("Optimum logical network learned in %.4fs" % self.stats['time_optimum'])
 
             tuples = (f.args() for f in self.last)
             self.optimum = core.LogicalNetwork.from_hypertuples(self.hypergraph, tuples)
@@ -217,8 +226,11 @@ class Learner(object):
 
         rss = np.sum((np.vectorize(self.discrete)(readouts[pos]) - predictions[pos]*self.factor)**2)
 
+
+        self.stats['optimum_mse'] = mean_squared_error(readouts[pos],predictions[pos])
+        self.stats['optimum_size'] = self.optimum.size
         self._logger.info("Optimum logical networks has MSE %.4f and size %s" %
-                            (mean_squared_error(readouts[pos],predictions[pos]), self.optimum.size))
+                            (self.stats['optimum_mse'], self.stats['optimum_size']))
 
         self.networks.reset()
 
@@ -232,7 +244,8 @@ class Learner(object):
         clingo.ground([("base", [])])
         clingo.solve(on_model=self.__save__)
 
-        self._logger.info("%s (nearly) optimal logical networks learned in %.4fs" % (len(self.networks), clingo.stats['time_total']))
+        self.stats['time_enumeration'] = clingo.stats['time_total']
+        self._logger.info("%s (nearly) optimal logical networks learned in %.4fs" % (len(self.networks), self.stats['time_enumeration']))
 
     def random(self, size, n_and, max_in, n=1):
         """

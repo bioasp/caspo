@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os
+import os, timeit, logging
 
 import multiprocessing as mp
 from joblib import Parallel, delayed
@@ -76,11 +76,18 @@ class Classifier(object):
     ----------
     networks : :class:`caspo.core.logicalnetwork.LogicalNetworkList`
     setup : :class:`caspo.core.setup.Setup`
+    stats : dict
     """
 
     def __init__(self, networks, setup):
         self.networks = networks
         self.setup = setup
+
+        self.stats = {
+            'time_io': None
+        }
+
+        self._logger = logging.getLogger("caspo")
 
     def classify(self, n_jobs=-1, configure=None):
         """
@@ -110,6 +117,7 @@ class Classifier(object):
         caspo.core.logicalnetwork.LogicalNetworkList
             The list of networks with one representative for each behavior
         """
+        start = timeit.default_timer()
         networks = self.networks
 
         n = len(networks)
@@ -124,4 +132,9 @@ class Classifier(object):
             for b in behaviors_parts:
                 networks = networks.concat(b)
 
-        return __learn_io__(networks, self.setup, configure)
+        behaviors = __learn_io__(networks, self.setup, configure)
+        self.stats['time_io'] = timeit.default_timer() - start
+
+        self._logger.info("%s input-Output logical behaviors found in %.4fs" % (len(behaviors), self.stats['time_io']))
+
+        return behaviors

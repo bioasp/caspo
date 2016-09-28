@@ -104,6 +104,7 @@ class Controller(object):
         strategies : :class:`caspo.core.clamping.ClampingList`
         instance : str
         encodings : dict
+        stats : dict
     """
     def __init__(self, networks, scenarios):
         self.networks = networks
@@ -119,6 +120,11 @@ class Controller(object):
         root = os.path.dirname(__file__)
         self.encodings = {
             'control':    os.path.join(root, 'encodings/control/encoding.lp')
+        }
+
+        self.stats = {
+            'time_optimum': None,
+            'time_enumeration': None
         }
 
         self._logger = logging.getLogger("caspo")
@@ -177,7 +183,8 @@ class Controller(object):
         clingo.ground([("base", [])])
         clingo.solve(on_model=self.__save__)
 
-        n,t = len(self._strategies), clingo.stats['time_total']
-        self._logger.info("%s optimal intervention strategies found in %.4fs" % (n,t))
+        self.stats['time_optimum'] = clingo.stats['time_solve']
+        self.stats['time_enumeration'] = clingo.stats['time_total']
+        self._logger.info("%s optimal intervention strategies found in %.4fs" % (len(self._strategies),self.stats['time_enumeration']))
 
         self.strategies = core.ClampingList(self._strategies)

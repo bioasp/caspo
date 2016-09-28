@@ -47,6 +47,7 @@ class Designer(object):
         designs : list[:class:`caspo.core.clamping.ClampingList`]
         instance : str
         encodings : dict
+        stats : dict
     """
     def __init__(self, networks, setup, candidates=None):
         self.networks = networks
@@ -68,6 +69,11 @@ class Designer(object):
             'design': os.path.join(root, 'encodings/design/idesign.lp')
         }
         self.__optimum__ = None
+
+        self.stats = {
+            'time_optimum': None,
+            'time_enumeration': None
+        }
 
         self._logger = logging.getLogger("caspo")
 
@@ -154,4 +160,7 @@ class Designer(object):
                 clingo.assign_external(gringo.Fun("query", [step]), True)
                 ret, step = clingo.solve(on_model=self.__save__), step + 1
 
-        self._logger.info("%s optimal experimental designs found in %.4fs" % (len(self.designs), clingo.stats['time_total']))
+        self.stats['time_optimum'] = clingo.stats['time_solve']
+        self.stats['time_enumeration'] = clingo.stats['time_total']
+
+        self._logger.info("%s optimal experimental designs found in %.4fs" % (len(self.designs), self.stats['time_enumeration']))

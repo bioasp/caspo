@@ -85,8 +85,6 @@ def classify_handler(args):
 
     behaviors = classifier.classify(configure=configure)
 
-    logger.info("Input-Output logical behaviors: %s" % len(behaviors))
-
     setup = setup.filter(behaviors)
 
     if args.midas:
