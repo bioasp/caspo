@@ -167,11 +167,13 @@ class Controller(object):
         if configure:
             def overwrite(args, proxy):
                 for i in xrange(args.threads):
+                    proxy.solver[i].no_lookback = 'false'
                     proxy.solver[i].heuristic = 'domain'
                     proxy.solver[i].dom_mod = '5,16'
 
             configure(clingo.conf, overwrite)
         else:
+            clingo.conf.solver.no_lookback = 'false'
             clingo.conf.solver.heuristic = 'domain'
             clingo.conf.solver.dom_mod = '5,16'
 
