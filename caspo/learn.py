@@ -25,7 +25,7 @@ from random import randint
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
-import gringo
+import clingo
 
 from caspo import core
 
@@ -75,7 +75,7 @@ class Learner(object):
         self.hypergraph = core.HyperGraph.from_graph(self.graph, length)
 
         fs = self.dataset.to_funset(self.discrete).union(self.hypergraph.to_funset())
-        fs.add(gringo.Fun('dfactor', [self.factor]))
+        fs.add(clingo.Function('dfactor', [self.factor]))
         self.instance = ". ".join(map(str, fs)) + ". #show dnf/2."
 
         self.optimum = None
@@ -162,21 +162,21 @@ class Learner(object):
         return int(math.floor(factor*value))
 
     def __keep_last__(self, model):
-        self._last = model.atoms()
+        self.last = model.symbols(shown=True)
 
     def __save__(self, model):
-        tuples = (f.args() for f in model.atoms())
+        tuples = (map(lambda s: s.number, f.arguments) for f in model.symbols(shown=True))
         network = core.LogicalNetwork.from_hypertuples(self.hypergraph, tuples)
         self.networks.append(network)
 
     def __get_clingo__(self, encodings, args=None):
-        clingo = gringo.Control(args or [])
+        solver = clingo.Control(args or [])
 
-        clingo.add("base", [], self.instance)
+        solver.add("base", [], self.instance)
         for enc in encodings:
-            clingo.load(self.encodings[enc])
+            solver.load(self.encodings[enc])
 
-        return clingo
+        return solver
 
     def learn(self, fit=0, size=0, configure=None):
         """
@@ -210,18 +210,18 @@ class Learner(object):
         """
         encodings = ['guess', 'fixpoint', 'rss']
         if self.optimum is None:
-            clingo = self.__get_clingo__(encodings + ['opt'])
+            solver = self.__get_clingo__(encodings + ['opt'])
             if configure is not None:
-                configure(clingo.conf)
+                configure(solver.configuration)
 
-            clingo.ground([("base", [])])
-            clingo.solve(on_model=self.__keep_last__)
+            solver.ground([("base", [])])
+            solver.solve(on_model=self.__keep_last__)
 
-            self.stats['time_optimum'] = clingo.stats['time_total']
+            self.stats['time_optimum'] = solver.statistics['summary']['times']['total']
             self._logger.info("Optimum logical network learned in %.4fs", self.stats['time_optimum'])
 
-            tuples = (f.args() for f in self._last)
-            self.optimum = core.LogicalNetwork.from_hypertuples(self.hypergraph, tuples)
+            tuples = (f.arguments for f in self.last)
+            self.optimum = core.LogicalNetwork.from_hypertuples(self.hypergraph, ((i.number, j.number) for i, j in tuples))
 
         predictions = self.optimum.predictions(self.dataset.clampings, self.dataset.readouts.columns).values
 
@@ -240,15 +240,15 @@ class Learner(object):
 
         args = ['-c maxrss=%s' % int(rss + rss*fit), '-c maxsize=%s' % (self.optimum.size + size)]
 
-        clingo = self.__get_clingo__(encodings + ['enum'], args)
-        clingo.conf.solve.models = '0'
+        solver = self.__get_clingo__(encodings + ['enum'], args)
+        solver.configuration.solve.models = '0'
         if configure is not None:
-            configure(clingo.conf)
+            configure(solver.configuration)
 
-        clingo.ground([("base", [])])
-        clingo.solve(on_model=self.__save__)
+        solver.ground([("base", [])])
+        solver.solve(on_model=self.__save__)
 
-        self.stats['time_enumeration'] = clingo.stats['time_total']
+        self.stats['time_enumeration'] = solver.statistics['summary']['times']['total']
         self._logger.info("%s (nearly) optimal logical networks learned in %.4fs", len(self.networks), self.stats['time_enumeration'])
 
     def random(self, size, n_and, max_in, n=1):

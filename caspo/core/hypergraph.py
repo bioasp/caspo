@@ -21,7 +21,7 @@ from collections import defaultdict
 import itertools as it
 import pandas as pd
 
-import gringo
+import clingo
 
 from .literal import Literal
 from .clause import Clause
@@ -162,24 +162,24 @@ class HyperGraph(object):
 
     def to_funset(self):
         """
-        Converts the hypergraph to a set of `gringo.Fun`_ instances
+        Converts the hypergraph to a set of `clingo.Function`_ instances
 
         Returns
         -------
         set
-            Representation of the hypergraph as a set of `gringo.Fun`_ instances
+            Representation of the hypergraph as a set of `clingo.Function`_ instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
         fs = set()
         for i, n in self.nodes.iteritems():
-            fs.add(gringo.Fun('node', [n, i]))
+            fs.add(clingo.Function('node', [n, i]))
 
         for j, i in self.hyper.iteritems():
-            fs.add(gringo.Fun('hyper', [i, j, len(self.edges[self.edges.hyper_idx == j])]))
+            fs.add(clingo.Function('hyper', [i, j, len(self.edges[self.edges.hyper_idx == j])]))
 
         for j, v, s in self.edges.itertuples(index=False):
-            fs.add(gringo.Fun('edge', [j, v, s]))
+            fs.add(clingo.Function('edge', [j, v, s]))
 
         return fs
