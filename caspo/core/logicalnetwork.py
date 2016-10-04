@@ -27,7 +27,7 @@ from joblib import Parallel, delayed
 
 from sklearn.metrics import mean_squared_error
 
-import gringo
+import clingo
 
 from literal import Literal
 from clause import Clause
@@ -277,17 +277,17 @@ class LogicalNetworkList(object):
 
     def to_funset(self):
         """
-        Converts the list of logical networks to a set of `gringo.Fun`_ instances
+        Converts the list of logical networks to a set of `clingo.Function`_ instances
 
         Returns
         -------
         set
-            Representation of all networks as a set of `gringo.Fun`_ instances
+            Representation of all networks as a set of `clingo.Function`_ instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
-        fs = set((gringo.Fun("variable", [var]) for var in self.hg.nodes))
+        fs = set((clingo.Function("variable", [var]) for var in self.hg.nodes))
 
         formulas = set()
         for network in self:
@@ -297,14 +297,14 @@ class LogicalNetworkList(object):
 
         for i,network in enumerate(self):
             for v,f in network.formulas_iter():
-                fs.add(gringo.Fun("formula", [i, v, formulas[formulas==f].index[0]]))
+                fs.add(clingo.Function("formula", [i, v, formulas[formulas==f].index[0]]))
 
         for formula_idx,formula in formulas.iteritems():
             for clause in formula:
                 clause_idx = self.hg.clauses_idx[clause]
-                fs.add(gringo.Fun("dnf",[formula_idx, clause_idx]))
+                fs.add(clingo.Function("dnf",[formula_idx, clause_idx]))
                 for variable, sign in clause:
-                    fs.add(gringo.Fun("clause", [clause_idx, variable, sign]))
+                    fs.add(clingo.Function("clause", [clause_idx, variable, sign]))
 
         return fs
 

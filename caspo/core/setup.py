@@ -20,7 +20,7 @@ import json
 import itertools as it
 import numpy as np
 
-import gringo
+import clingo
 
 from clamping import Clamping
 
@@ -92,19 +92,19 @@ class Setup(object):
 
     def to_funset(self):
         """
-        Converts the experimental setup to a set of `gringo.Fun`_ object instances
+        Converts the experimental setup to a set of `clingo.Function`_ object instances
 
         Returns
         -------
         set
-            The set of `gringo.Fun`_ object instances
+            The set of `clingo.Function`_ object instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
-        fs = set((gringo.Fun('stimulus',[str(var)]) for var in self.stimuli))
-        fs = fs.union((gringo.Fun('inhibitor',[str(var)]) for var in self.inhibitors))
-        fs = fs.union((gringo.Fun('readout',[str(var)]) for var in self.readouts))
+        fs = set((clingo.Function('stimulus',[str(var)]) for var in self.stimuli))
+        fs = fs.union((clingo.Function('inhibitor',[str(var)]) for var in self.inhibitors))
+        fs = fs.union((clingo.Function('readout',[str(var)]) for var in self.readouts))
 
         return fs
 

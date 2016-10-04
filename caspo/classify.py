@@ -23,7 +23,7 @@ from joblib import Parallel, delayed
 
 import numpy as np
 
-import gringo
+import clingo
 
 from caspo import core
 
@@ -41,15 +41,15 @@ def __learn_io__(networks, setup, configure):
             fs = setup_fs.union(nl.concat(bl).to_funset())
             instance = ". ".join(map(str, fs)) + "."
 
-            clingo = gringo.Control()
+            solver = clingo.Control()
             if configure is not None:
-                configure(clingo.conf)
+                configure(solver.configuration)
 
-            clingo.add("base", [], instance)
-            clingo.load(encoding)
+            solver.add("base", [], instance)
+            solver.load(encoding)
 
-            clingo.ground([("base", [])])
-            if clingo.solve() == gringo.SolveResult.UNSAT:
+            solver.ground([("base", [])])
+            if solver.solve().unsatisfiable:
                 found = True
                 behaviors.add_network(i,rep)
                 break
