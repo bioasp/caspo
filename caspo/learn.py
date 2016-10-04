@@ -160,8 +160,8 @@ class Learner(object):
         self.last = model.symbols(shown=True)
 
     def __save__(self, model):
-        tuples = (map(lambda s: s.number, f.arguments) for f in model.symbols(shown=True))
-        network = core.LogicalNetwork.from_hypertuples(self.hypergraph, tuples)
+        tuples = (f.arguments for f in model.symbols(shown=True))
+        network = core.LogicalNetwork.from_hypertuples(self.hypergraph, ((i.number,j.number) for i,j in tuples))
         self.networks.append(network)
 
     def __get_clingo__(self, encodings, args=[]):
