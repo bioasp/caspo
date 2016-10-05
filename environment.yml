@@ -4,4 +4,4 @@ channels:
   - svidela
   - conda-forge
 dependencies:
-  - caspo
+  - caspo=3.0.1

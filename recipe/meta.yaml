@@ -1,4 +1,4 @@
-{% set version = "3.0.1.dev0" %}
+{% set version = "3.0.1" %}
 
 package:
   name: caspo
@@ -8,7 +8,7 @@ source:
   path: ../
 
 build:
-  number: 9
+  number: 0
   script: python setup.py install
   entry_points:
     - caspo = caspo.console.main:run
