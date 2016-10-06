@@ -30,7 +30,7 @@ class Literal(namedtuple('Literal', ['variable', 'signature'])):
     """
 
     @classmethod
-    def from_str(klass, string):
+    def from_str(cls, string):
         """
         Creates a literal from a string
 
@@ -51,7 +51,7 @@ class Literal(namedtuple('Literal', ['variable', 'signature'])):
             signature = 1
             variable = string
 
-        return klass(variable, signature)
+        return cls(variable, signature)
 
     def __str__(self):
         """

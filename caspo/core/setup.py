@@ -18,11 +18,10 @@
 
 import json
 import itertools as it
-import numpy as np
 
 import gringo
 
-from clamping import Clamping
+from .clamping import Clamping
 
 class Setup(object):
     """
@@ -74,7 +73,7 @@ class Setup(object):
             The next clamping with respect to the experimental setup
         """
         s = cues or list(self.stimuli + self.inhibitors)
-        clampings = it.chain.from_iterable(it.combinations(s,r) for r in xrange(len(s) + 1))
+        clampings = it.chain.from_iterable(it.combinations(s, r) for r in xrange(len(s) + 1))
 
         literals_tpl = {}
         for stimulus in self.stimuli:
@@ -102,14 +101,14 @@ class Setup(object):
 
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
-        fs = set((gringo.Fun('stimulus',[str(var)]) for var in self.stimuli))
-        fs = fs.union((gringo.Fun('inhibitor',[str(var)]) for var in self.inhibitors))
-        fs = fs.union((gringo.Fun('readout',[str(var)]) for var in self.readouts))
+        fs = set((gringo.Fun('stimulus', [str(var)]) for var in self.stimuli))
+        fs = fs.union((gringo.Fun('inhibitor', [str(var)]) for var in self.inhibitors))
+        fs = fs.union((gringo.Fun('readout', [str(var)]) for var in self.readouts))
 
         return fs
 
     @classmethod
-    def from_json(klass, filename):
+    def from_json(cls, filename):
         """
         Creates an experimental setup from a JSON file
 
@@ -126,7 +125,7 @@ class Setup(object):
         with open(filename) as fp:
             raw = json.load(fp)
 
-        return klass(raw['stimuli'],raw['inhibitors'],raw['readouts'])
+        return cls(raw['stimuli'], raw['inhibitors'], raw['readouts'])
 
     def to_json(self, filename):
         """
@@ -157,8 +156,8 @@ class Setup(object):
         cues = self.stimuli + self.inhibitors
         active_cues = set()
         active_readouts = set()
-        for clause,var in networks.mappings:
-            active_cues = active_cues.union((l for (l,s) in clause if l in cues))
+        for clause, var in networks.mappings:
+            active_cues = active_cues.union((l for (l, s) in clause if l in cues))
             if var in self.readouts:
                 active_readouts.add(var)
 

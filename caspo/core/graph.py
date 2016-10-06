@@ -28,7 +28,7 @@ class Graph(nx.MultiDiGraph):
     """
 
     @classmethod
-    def from_tuples(klass, tuples):
+    def from_tuples(cls, tuples):
         """
         Creates a graph from an iterable of tuples describing edges like (source, target, sign)
 
@@ -42,10 +42,10 @@ class Graph(nx.MultiDiGraph):
         caspo.core.graph.Graph
             Created object instance
         """
-        return klass(it.imap(lambda (source,target,sign): (source,target,{'sign': sign}), tuples))
+        return cls(it.imap(lambda (source, target, sign): (source, target, {'sign': sign}), tuples))
 
     @classmethod
-    def read_sif(klass, path):
+    def read_sif(cls, path):
         """
         Creates a graph from a `simple interaction format (SIF)`_ file
 
@@ -62,9 +62,9 @@ class Graph(nx.MultiDiGraph):
 
         .. _simple interaction format (SIF): http://wiki.cytoscape.org/Cytoscape_User_Manual/Network_Formats
         """
-        df = pd.read_csv(path, delim_whitespace=True, names=['source','sign','target']).drop_duplicates()
-        edges = map(lambda (i,source,sign,target): (source,target,{'sign': sign}), df.itertuples())
-        return klass(data=edges)
+        df = pd.read_csv(path, delim_whitespace=True, names=['source', 'sign', 'target']).drop_duplicates()
+        edges = [(source, target, {'sign': sign}) for _, source, sign, target in df.itertuples()]
+        return cls(data=edges)
 
     def predecessors(self, node, exclude_compressed=True):
         """
@@ -85,7 +85,7 @@ class Graph(nx.MultiDiGraph):
         """
         preds = super(Graph, self).predecessors(node)
         if exclude_compressed:
-            return filter(lambda n: not self.node[n].get('compressed', False), preds)
+            return [n for n in preds if not self.node[n].get('compressed', False)]
         else:
             return preds
 
@@ -108,7 +108,7 @@ class Graph(nx.MultiDiGraph):
         """
         succs = super(Graph, self).successors(node)
         if exclude_compressed:
-            return filter(lambda n: not self.node[n].get('compressed', False), succs)
+            return [n for n in succs if not self.node[n].get('compressed', False)]
         else:
             return succs
 
@@ -126,29 +126,28 @@ class Graph(nx.MultiDiGraph):
         caspo.core.graph.Graph
             Compressed graph
         """
-        done = False
         designated = set(setup.nodes)
         zipped = self.copy()
 
-        marked = filter(lambda (n,d): n not in designated and not d.get('compressed',False), self.nodes(data=True))
+        marked = [(n, d) for n, d in self.nodes(data=True) if n not in designated and not d.get('compressed', False)]
         while marked:
-            for node, data in sorted(marked):
+            for node, _ in sorted(marked):
                 backward = zipped.predecessors(node)
                 forward = zipped.successors(node)
 
                 if not backward or (len(backward) == 1 and not backward[0] in forward):
-                    self.__merge_source_targets(node,zipped)
+                    self.__merge_source_targets(node, zipped)
 
                 elif not forward or (len(forward) == 1 and not forward[0] in backward):
-                    self.__merge_target_sources(node,zipped)
+                    self.__merge_target_sources(node, zipped)
 
                 else:
                     designated.add(node)
 
-            marked = filter(lambda (n,d): n not in designated and not d.get('compressed',False), self.nodes(data=True))
+            marked = [(n, d) for n, d in self.nodes(data=True) if n not in designated and not d.get('compressed', False)]
 
-        not_compressed = filter(lambda (n,d): not d.get('compressed', False), zipped.nodes(data=True))
-        return zipped.subgraph(map(lambda (n,d): n, not_compressed))
+        not_compressed = [(n, d) for n, d in zipped.nodes(data=True) if not d.get('compressed', False)]
+        return zipped.subgraph([n for n, _ in not_compressed])
 
     def __merge_source_targets(self, node, zipped):
         predecessor = zipped.predecessors(node)

@@ -19,14 +19,13 @@
 from collections import defaultdict
 
 import itertools as it
-import networkx as nx
 import pandas as pd
 
 import gringo
 
-from literal import Literal
-from clause import Clause
-from mapping import MappingList, Mapping
+from .literal import Literal
+from .clause import Clause
+from .mapping import MappingList, Mapping
 
 class HyperGraph(object):
     """
@@ -71,8 +70,8 @@ class HyperGraph(object):
 
         self.clauses = {}
         self.clauses_idx = {}
-        for i,h in self.edges.groupby('hyper_idx'):
-            literals = map(lambda (_,source,sign): Literal(source,sign), h.itertuples(index=False))
+        for i, h in self.edges.groupby('hyper_idx'):
+            literals = [Literal(source, sign) for _, source, sign in h.itertuples(index=False)]
             clause = Clause(literals)
 
             self.clauses[i] = clause
@@ -80,9 +79,10 @@ class HyperGraph(object):
 
         mappings = []
         for node_idx, variable in self.nodes.iteritems():
-            for hyper_idx,_ in self.hyper[self.hyper==node_idx].iteritems():
+            for hyper_idx, _ in self.hyper[self.hyper == node_idx].iteritems():
                 mappings.append(Mapping(self.clauses[hyper_idx], variable))
 
+        self._mappings = None
         self.mappings = mappings
 
     @property
@@ -110,7 +110,7 @@ class HyperGraph(object):
         return self.nodes.iloc[index]
 
     @classmethod
-    def from_graph(klass, graph, length=0):
+    def from_graph(cls, graph, length=0):
         """
         Creates a hypergraph (expanded graph) from a :class:`caspo.core.graph.Graph` object instance
 
@@ -132,7 +132,7 @@ class HyperGraph(object):
         edges = defaultdict(list)
         j = 0
 
-        for i,node in enumerate(graph.nodes_iter()):
+        for i, node in enumerate(graph.nodes_iter()):
             nodes.append(node)
 
             preds = graph.in_edges(node, data=True)
@@ -142,12 +142,12 @@ class HyperGraph(object):
 
             for literals in it.chain.from_iterable(it.combinations(preds, r+1) for r in xrange(l)):
                 valid = defaultdict(int)
-                for source,target,data in literals:
+                for source, _, _ in literals:
                     valid[source] += 1
 
-                if all(it.imap(lambda c: c==1, valid.values())):
+                if all(it.imap(lambda c: c == 1, valid.values())):
                     hyper.append(i)
-                    for source,target,data in literals:
+                    for source, _, data in literals:
                         edges['hyper_idx'].append(j)
                         edges['name'].append(source)
                         edges['sign'].append(data['sign'])
@@ -158,7 +158,7 @@ class HyperGraph(object):
         hyper = pd.Series(hyper, name='node_idx')
         edges = pd.DataFrame(edges)
 
-        return klass(nodes, hyper, edges)
+        return cls(nodes, hyper, edges)
 
     def to_funset(self):
         """
@@ -173,14 +173,13 @@ class HyperGraph(object):
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
         fs = set()
-        for i,n in self.nodes.iteritems():
-            fs.add(gringo.Fun('node', [n,i]))
+        for i, n in self.nodes.iteritems():
+            fs.add(gringo.Fun('node', [n, i]))
 
-        for j,i in self.hyper.iteritems():
-            fs.add(gringo.Fun('hyper', [i,j,len(self.edges[self.edges.hyper_idx==j])]))
+        for j, i in self.hyper.iteritems():
+            fs.add(gringo.Fun('hyper', [i, j, len(self.edges[self.edges.hyper_idx == j])]))
 
-        for j,v,s in self.edges.itertuples(index=False):
-            fs.add(gringo.Fun('edge', [j,v,s]))
+        for j, v, s in self.edges.itertuples(index=False):
+            fs.add(gringo.Fun('edge', [j, v, s]))
 
         return fs
-

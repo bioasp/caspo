@@ -15,14 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
+import os
+import shutil
+import argparse
+import logging
+import pkg_resources
 
-import os, sys, shutil, argparse, pkg_resources, logging
+import caspo
 
 import matplotlib
 matplotlib.use('agg')
 
-import caspo
-from handlers import *
+from .handlers import learn_handler, classify_handler, predict_handler, design_handler, control_handler, visualize_handler
 
 VERSION = pkg_resources.get_distribution("caspo").version
 LICENSE = """
@@ -58,7 +62,7 @@ def run():
     classify = subparsers.add_parser("classify", parents=[clingo_parser])
     classify.add_argument("networks", help="logical networks in CSV format")
     classify.add_argument("setup", help="experimental setup in JSON format")
-    classify.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point to be used")
+    classify.add_argument("--midas", dest="midas", nargs=2, metavar=("M", "T"), help="experimental dataset in MIDAS file and time-point to be used")
     classify.set_defaults(handler=classify_handler)
 
     predict = subparsers.add_parser("predict")
@@ -69,7 +73,7 @@ def run():
     design = subparsers.add_parser("design", parents=[clingo_parser])
     design.add_argument("networks", help="logical networks in CSV format")
     design.add_argument("setup", help="experimental setup in JSON format")
-    design.add_argument("--stimuli", dest="stimuli", type=int, default=-1,help="maximum number of stimuli per experiment", metavar="S")
+    design.add_argument("--stimuli", dest="stimuli", type=int, default=-1, help="maximum number of stimuli per experiment", metavar="S")
     design.add_argument("--inhibitors", dest="inhibitors", type=int, default=-1, help="maximum number of inhibitors per experiment", metavar="I")
     design.add_argument("--nexp", dest="experiments", type=int, default=10, help="maximum number of experiments (Default to 10)", metavar="E")
     design.add_argument("--list", dest="list", help="list of possible experiments", metavar="L")
@@ -88,7 +92,7 @@ def run():
     visualize.add_argument("--pkn", dest="pkn", help="prior knowledge network in SIF format", metavar="P")
     visualize.add_argument("--setup", help="experimental setup in JSON format", metavar="S")
     visualize.add_argument("--networks", dest="networks", help="logical networks in CSV format", metavar="N")
-    visualize.add_argument("--midas", dest="midas", nargs=2, metavar=("M","T"), help="experimental dataset in MIDAS file and time-point")
+    visualize.add_argument("--midas", dest="midas", nargs=2, metavar=("M", "T"), help="experimental dataset in MIDAS file and time-point")
     visualize.add_argument("--sample", dest="sample", type=int, default=-1, help="visualize a sample of R logical networks or 0 for all (Default to -1 (none))", metavar="R")
     visualize.add_argument("--stats-networks", dest="stats_networks", help="logical mappings frequencies in CSV format", metavar="F")
     visualize.add_argument("--behaviors", dest="behaviors", help="logical networks in CSV format", metavar="B")
@@ -120,7 +124,8 @@ def run():
 
 
     if args.cmd != "test":
-        logger.info("\nRunning caspo %s..." % args.cmd)
+        msg = "\nRunning caspo %s..." % args.cmd
+        logger.info(msg)
         if not os.path.exists(args.out):
             os.mkdir(args.out)
 
@@ -134,7 +139,7 @@ def run():
         threads = args.threads
         conf = args.conf
 
-        logger.info("\nTesting caspo subcommands using test case %s.\n" % testcase)
+        logger.info("\nTesting caspo subcommands using test case %s.\n", testcase)
         from matplotlib import pyplot as plt
 
         if os.path.exists(out):
@@ -155,9 +160,9 @@ def run():
         shutil.copy(os.path.join(path, 'data', args.testcase, 'scenarios.csv'), out)
 
         testcases = {
-            "Toy":        ('10', '0.1' , '5'),
-            "LiverToy":   ('10', '0.1' , '5'),
-            "LiverDREAM": ('30', '0.1' , '2'),
+            "Toy":        ('10', '0.1', '5'),
+            "LiverToy":   ('10', '0.1', '5'),
+            "LiverDREAM": ('30', '0.1', '2'),
             "ExtLiver":   ('30', '0.02', '0'),
         }
 
@@ -184,13 +189,15 @@ def run():
 
 
         cmdline += "\n"
-        logger.info(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), midas=os.path.join(out, 'dataset.csv'),
-                                      time=params[0], fit=params[1], size=params[2], threads=threads))
+        msg = cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), midas=os.path.join(out, 'dataset.csv'),
+                             time=params[0], fit=params[1], size=params[2], threads=threads)
+        logger.info(msg)
         try:
             args.handler(args)
             plt.close('all')
         except Exception as e:
-            logger.critical(header + " Testing on caspo %s has failed. " % args.cmd + header)
+            msg = header + " Testing on caspo %s has failed. " % args.cmd + header
+            logger.critical(msg)
             logger.critical(e)
 
         ###### CLASSIFY #####
@@ -203,9 +210,9 @@ def run():
                                       '--threads', str(threads), '--conf', conf])
         else:
             args = parser.parse_args(['--out', out, 'classify',
-                                     os.path.join(out, 'networks.csv'),
-                                     os.path.join(out, 'setup.json'),
-                                     '--midas', os.path.join(out, 'dataset.csv'), params[0]])
+                                      os.path.join(out, 'networks.csv'),
+                                      os.path.join(out, 'setup.json'),
+                                      '--midas', os.path.join(out, 'dataset.csv'), params[0]])
 
         cmdline = "\n$ caspo --out {out} classify {networks} {setup} {midas} {time}"
         if threads:
@@ -213,13 +220,15 @@ def run():
 
 
         cmdline += "\n"
-        logger.info(cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'), setup=os.path.join(out, 'setup.json'),
-                                   midas=os.path.join(out, 'dataset.csv'),time=params[0], threads=threads))
+        msg = cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'), setup=os.path.join(out, 'setup.json'),
+                             midas=os.path.join(out, 'dataset.csv'), time=params[0], threads=threads)
+        logger.info(msg)
         try:
             args.handler(args)
             plt.close('all')
         except Exception as e:
-            logger.critical(header + " Testing on caspo %s has failed. " % args.cmd + header)
+            msg = header + " Testing on caspo %s has failed. " % args.cmd + header
+            logger.critical(msg)
             logger.critical(e)
 
         ###### DESIGN ######
@@ -239,14 +248,16 @@ def run():
             cmdline += " --threads {threads}"
 
         cmdline += "\n"
-        logger.info(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'),
-                                   setup=os.path.join(out, 'setup.json'), threads=threads))
+        msg = cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'),
+                             setup=os.path.join(out, 'setup.json'), threads=threads)
+        logger.info(msg)
 
         try:
             args.handler(args)
             plt.close('all')
         except Exception as e:
-            logger.critical(header + " Testing on caspo %s has failed. " % args.cmd + header)
+            msg = header + " Testing on caspo %s has failed. " % args.cmd + header
+            logger.critical(msg)
             logger.critical(e)
 
         ###### PREDICT ######
@@ -257,14 +268,16 @@ def run():
 
         cmdline = "\n$ caspo --out {out} predict {behaviors} {setup}\n"
 
-        logger.info(cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), setup=os.path.join(out, 'setup.json')))
+        msg = cmdline.format(out=out, behaviors=os.path.join(out, 'behaviors.csv'), setup=os.path.join(out, 'setup.json'))
+        logger.info(msg)
 
         try:
             args.handler(args)
             plt.close('all')
         except Exception as e:
+            msg = "Testing on caspo %s has failed." % args.cmd
+            logger.info(msg)
             logger.info(e)
-            logger.info("Testing on caspo %s has failed." % args.cmd)
 
 
         ###### CONTROL ######
@@ -284,13 +297,15 @@ def run():
             cmdline += " --threads {threads}"
 
         cmdline += "\n"
-        logger.info(cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'),
-                                      scenarios=os.path.join(out, 'scenarios.csv'), threads=threads))
+        msg = cmdline.format(out=out, networks=os.path.join(out, 'networks.csv'),
+                             scenarios=os.path.join(out, 'scenarios.csv'), threads=threads)
+        logger.info(msg)
         try:
             args.handler(args)
             plt.close('all')
         except Exception as e:
-            logger.critical(header + " Testing on caspo %s has failed. " % args.cmd + header)
+            msg = header + " Testing on caspo %s has failed. " % args.cmd + header
+            logger.critical(msg)
             logger.critical(e)
 
 
@@ -314,13 +329,15 @@ def run():
         --designs={designs} --predictions={predictions}
         --strategies={strategies} --stats-strategies={stats_strategies}\n"""
 
-        logger.info(cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), networks=os.path.join(out, 'networks.csv'),
-                                   midas=os.path.join(out, 'dataset.csv'), time=params[0], setup=os.path.join(out, 'setup.json'),
-                                   stats_networks=os.path.join(out, 'stats-networks.csv'), behaviors=os.path.join(out, 'behaviors.csv'), designs=os.path.join(out, 'designs.csv'),
-                                   predictions=os.path.join(out, 'predictions.csv'), strategies=os.path.join(out, 'strategies.csv'), stats_strategies=os.path.join(out, 'stats-strategies.csv')))
+        msg = cmdline.format(out=out, pkn=os.path.join(out, 'pkn.sif'), networks=os.path.join(out, 'networks.csv'),
+                             midas=os.path.join(out, 'dataset.csv'), time=params[0], setup=os.path.join(out, 'setup.json'),
+                             stats_networks=os.path.join(out, 'stats-networks.csv'), behaviors=os.path.join(out, 'behaviors.csv'), designs=os.path.join(out, 'designs.csv'),
+                             predictions=os.path.join(out, 'predictions.csv'), strategies=os.path.join(out, 'strategies.csv'), stats_strategies=os.path.join(out, 'stats-strategies.csv'))
+        logger.info(msg)
         try:
             args.handler(args)
             plt.close('all')
         except Exception as e:
-            logger.critical(header + " Testing on caspo %s has failed. " % args.cmd + header)
+            msg = header + " Testing on caspo %s has failed. " % args.cmd + header
+            logger.critical(msg)
             logger.critical(e)

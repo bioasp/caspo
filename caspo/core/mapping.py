@@ -18,7 +18,7 @@
 from itertools import izip
 from collections import defaultdict, namedtuple
 
-from clause import Clause
+from .clause import Clause
 
 class MappingList(object):
     """
@@ -43,9 +43,9 @@ class MappingList(object):
             if len(mappings) != len(set(indexes)):
                 raise ValueError("Invalid index")
 
-            it = izip(indexes,mappings)
+            it = izip(indexes, mappings)
 
-        for i, (clause,target) in it:
+        for i, (clause, target) in it:
             self.indexes[clause][target] = i
 
     def __len__(self):
@@ -122,7 +122,7 @@ class Mapping(namedtuple('Mapping', ['clause', 'target'])):
     """
 
     @classmethod
-    def from_str(klass, string):
+    def from_str(cls, string):
         """
         Creates a mapping from a string
 
@@ -139,9 +139,9 @@ class Mapping(namedtuple('Mapping', ['clause', 'target'])):
         if "<-" not in string:
             raise ValueError("Cannot parse the given string to a mapping")
 
-        target,clause_str = string.split('<-')
+        target, clause_str = string.split('<-')
 
-        return klass(Clause.from_str(clause_str), target)
+        return cls(Clause.from_str(clause_str), target)
 
     def __str__(self):
         """

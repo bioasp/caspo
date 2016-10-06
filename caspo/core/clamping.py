@@ -24,7 +24,7 @@ import pandas as pd
 
 import gringo
 
-from literal import Literal
+from .literal import Literal
 
 class ClampingList(list):
     """
@@ -54,11 +54,11 @@ class ClampingList(list):
         fs = set()
         for i, clamping in enumerate(self):
             fs.add(gringo.Fun(lname, [i]))
-            fs = fs.union(clamping.to_funset(i,cname))
+            fs = fs.union(clamping.to_funset(i, cname))
 
         return fs
 
-    def to_dataframe(self, stimuli=[], inhibitors=[], prepend=""):
+    def to_dataframe(self, stimuli=None, inhibitors=None, prepend=""):
         """
         Converts the list of clampigns to a `pandas.DataFrame`_ object instance
 
@@ -81,11 +81,12 @@ class ClampingList(list):
 
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
+        stimuli, inhibitors = stimuli or [], inhibitors or []
         cues = stimuli + inhibitors
         nc = len(cues)
         ns = len(stimuli)
 
-        variables = cues or np.array(list(set((v for (v,s) in it.chain.from_iterable(self)))))
+        variables = cues or np.array(list(set((v for (v, s) in it.chain.from_iterable(self)))))
 
         matrix = np.array([])
         for clamping in self:
@@ -99,9 +100,9 @@ class ClampingList(list):
             else:
                 matrix = np.array([arr])
 
-        return pd.DataFrame(matrix, columns=map(lambda c: prepend + "%s" % c, stimuli + [i+'i' for i in inhibitors] if nc > 0 else variables))
+        return pd.DataFrame(matrix, columns=[prepend + "%s" % c for c in (stimuli + [i+'i' for i in inhibitors] if nc > 0 else variables)])
 
-    def to_csv(self, filename, stimuli=[], inhibitors=[], prepend=""):
+    def to_csv(self, filename, stimuli=None, inhibitors=None, prepend=""):
         """
         Writes the list of clampings to a CSV file
 
@@ -122,7 +123,7 @@ class ClampingList(list):
         self.to_dataframe(stimuli, inhibitors, prepend).to_csv(filename, index=False)
 
     @classmethod
-    def from_dataframe(klass, df, inhibitors=[]):
+    def from_dataframe(cls, df, inhibitors=None):
         """
         Creates a list of clampings from a `pandas.DataFrame`_ object instance.
         Column names are expected to be of the form `TR:species_name`
@@ -149,12 +150,13 @@ class ClampingList(list):
 
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
+        inhibitors = inhibitors or []
         clampings = []
         ni = len(inhibitors)
-        for i,row in df.iterrows():
+        for _, row in df.iterrows():
             if ni > 0:
                 literals = []
-                for v,s in row.iteritems():
+                for v, s in row.iteritems():
                     if v.endswith('i') and v[3:-1] in inhibitors:
                         if s == 1:
                             literals.append(Literal(v[3:-1], -1))
@@ -162,12 +164,13 @@ class ClampingList(list):
                         literals.append(Literal(v[3:], 1 if s == 1 else -1))
                 clampings.append(Clamping(literals))
             else:
-                clampings.append(Clamping(map(lambda (v,s): Literal(v[3:],s), row[row!=0].iteritems())))
 
-        return klass(clampings)
+                clampings.append(Clamping([Literal(v[3:], s) for v, s in row[row != 0].iteritems()]))
+
+        return cls(clampings)
 
     @classmethod
-    def from_csv(klass, filename, inhibitors=[]):
+    def from_csv(cls, filename, inhibitors=None):
         """
         Creates a list of clampings from a CSV file. Column names are expected to be of the form `TR:species_name`
 
@@ -194,7 +197,7 @@ class ClampingList(list):
         .. _pandas.read_csv: http://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html#pandas.read_csv
         """
         df = pd.read_csv(filename)
-        return klass.from_dataframe(df, inhibitors)
+        return cls.from_dataframe(df, inhibitors)
 
     def frequencies_iter(self):
         """
@@ -207,8 +210,8 @@ class ClampingList(list):
         """
         df = self.to_dataframe()
         n = float(len(self))
-        for var,sign in it.product(df.columns, [-1,1]):
-            f = len(df[df[var]==sign]) / n
+        for var, sign in it.product(df.columns, [-1, 1]):
+            f = len(df[df[var] == sign]) / n
             if f > 0:
                 yield Literal(var, sign), f
 
@@ -233,7 +236,7 @@ class ClampingList(list):
         """
         df = self.to_dataframe()
         if literal.variable in df.columns:
-            return len(df[df[literal.variable]==literal.signature]) / float(len(self))
+            return len(df[df[literal.variable] == literal.signature]) / float(len(self))
         else:
             raise ValueError("Variable not found: %s" % literal.variable)
 
@@ -252,7 +255,7 @@ class ClampingList(list):
         literals = set((l for l in it.chain.from_iterable(self)))
         exclusive, inclusive = defaultdict(set), defaultdict(set)
 
-        for l1,l2 in it.combinations(it.ifilter(lambda l: self.frequency(l) < 1., literals), 2):
+        for l1, l2 in it.combinations(it.ifilter(lambda l: self.frequency(l) < 1., literals), 2):
             a1, a2 = df[l1.variable] == l1.signature, df[l2.variable] == l2.signature
             if (a1 != a2).all():
                 exclusive[l1].add(l2)
@@ -288,13 +291,13 @@ class ClampingList(list):
 
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
-        z,p = np.zeros((len(self), len(readouts)), dtype=int), np.zeros(len(self), dtype=int)
-        for n1,n2 in it.combinations(networks,2):
-            r,c = np.where(n1.predictions(self,readouts) != n2.predictions(self,readouts))
-            z[r,c] += 1
+        z, p = np.zeros((len(self), len(readouts)), dtype=int), np.zeros(len(self), dtype=int)
+        for n1, n2 in it.combinations(networks, 2):
+            r, c = np.where(n1.predictions(self, readouts) != n2.predictions(self, readouts))
+            z[r, c] += 1
             p[r] += 1
 
-        df = pd.DataFrame(z, columns=map(lambda c: prepend + "%s" % c, readouts))
+        df = pd.DataFrame(z, columns=[prepend + "%s" % c for c in readouts])
         return pd.concat([df, pd.Series(p, name='pairs')], axis=1)
 
     def drop_literals(self, literals):
@@ -327,7 +330,7 @@ class Clamping(frozenset):
     """
 
     @classmethod
-    def from_tuples(klass, tuples):
+    def from_tuples(cls, tuples):
         """
         Creates a clamping from tuples of the form (variable, sign)
 
@@ -341,7 +344,7 @@ class Clamping(frozenset):
         caspo.core.clamping.Clamping
             Created object instance
         """
-        return klass(it.imap(lambda (v,s): Literal(v,s), tuples))
+        return cls(it.imap(lambda (v, s): Literal(v, s), tuples))
 
     def to_funset(self, index, name="clamped"):
         """
@@ -365,7 +368,7 @@ class Clamping(frozenset):
         """
         fs = set()
         for var, sign in self:
-            fs.add(gringo.Fun(name, [index,var,sign]))
+            fs.add(gringo.Fun(name, [index, var, sign]))
 
         return fs
 
@@ -425,7 +428,7 @@ class Clamping(frozenset):
         arr = np.zeros(len(variables), np.int8)
         dc = dict(self)
 
-        for i,var in enumerate(variables):
+        for i, var in enumerate(variables):
             arr[i] = dc.get(var, arr[i])
 
         return arr

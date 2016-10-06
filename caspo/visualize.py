@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
-import os, logging
+import os
+import logging
 import matplotlib
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import write_dot
@@ -42,16 +43,16 @@ def coloured_network(network, setup, filename):
     NODES_ATTR = {
         'DEFAULT':   {'color': 'black', 'fillcolor': 'white', 'style': 'filled, bold', 'fontname': 'Helvetica', 'fontsize': 18, 'shape': 'ellipse'},
         'STIMULI':   {'color': 'olivedrab3', 'fillcolor': 'olivedrab3'},
-        'INHIBITOR': {'color': 'orangered',  'fillcolor': 'orangered'},
-        'READOUT':   {'color': 'lightblue',  'fillcolor': 'lightblue'},
-        'INHOUT':    {'color': 'orangered',  'fillcolor': 'SkyBlue2', 'style': 'filled, bold, diagonals'},
+        'INHIBITOR': {'color': 'orangered', 'fillcolor': 'orangered'},
+        'READOUT':   {'color': 'lightblue', 'fillcolor': 'lightblue'},
+        'INHOUT':    {'color': 'orangered', 'fillcolor': 'SkyBlue2', 'style': 'filled, bold, diagonals'},
         'GATE' :     {'fillcolor': 'black', 'fixedsize': True, 'width': 0.2, 'height': 0.2, 'label': '.'}
     }
 
     EDGES_ATTR = {
         'DEFAULT': {'dir': 'forward', 'penwidth': 2.5},
-         1  : {'color': 'forestgreen', 'arrowhead': 'normal'},
-        -1  : {'color': 'red', 'arrowhead': 'tee'}
+        1 : {'color': 'forestgreen', 'arrowhead': 'normal'},
+        -1 : {'color': 'red', 'arrowhead': 'tee'}
     }
 
     graph = network.__plot__()
@@ -120,8 +121,8 @@ def networks_distribution(df, filepath=None):
     g = sns.JointGrid(x="mse", y="size", data=df)
 
     g.plot_joint(sns.violinplot, scale='count')
-    g.ax_joint.set_yticks(range(df['size'].min(),df['size'].max() + 1))
-    g.ax_joint.set_yticklabels(range(df['size'].min(),df['size'].max() + 1))
+    g.ax_joint.set_yticks(range(df['size'].min(), df['size'].max() + 1))
+    g.ax_joint.set_yticklabels(range(df['size'].min(), df['size'].max() + 1))
 
     for tick in g.ax_joint.get_xticklabels():
         tick.set_rotation(90)
@@ -129,28 +130,28 @@ def networks_distribution(df, filepath=None):
     g.ax_joint.set_xlabel("MSE")
     g.ax_joint.set_ylabel("Size")
 
-    for i,t in enumerate(g.ax_joint.get_xticklabels()):
+    for i, t in enumerate(g.ax_joint.get_xticklabels()):
         c = df[df['mse'] == t.get_text()].shape[0]
-        g.ax_marg_x.annotate(c, xy=(i,0.5), va="center", ha="center", size=20, rotation=90)
+        g.ax_marg_x.annotate(c, xy=(i, 0.5), va="center", ha="center", size=20, rotation=90)
 
-    for i,t in enumerate(g.ax_joint.get_yticklabels()):
+    for i, t in enumerate(g.ax_joint.get_yticklabels()):
         s = int(t.get_text())
         c = df[df['size'] == s].shape[0]
-        g.ax_marg_y.annotate(c, xy=(0.5,s), va="center", ha="center", size=20)
+        g.ax_marg_y.annotate(c, xy=(0.5, s), va="center", ha="center", size=20)
 
     if filepath:
-        g.savefig(os.path.join(filepath,'networks-distribution.pdf'))
+        g.savefig(os.path.join(filepath, 'networks-distribution.pdf'))
 
-    fig = plt.figure()
-    counts = df[["size","mse"]].reset_index(level=0).groupby(["size","mse"], as_index=False).count()
-    cp = counts.pivot("size","mse","index").sort_index()
+    plt.figure()
+    counts = df[["size", "mse"]].reset_index(level=0).groupby(["size", "mse"], as_index=False).count()
+    cp = counts.pivot("size", "mse", "index").sort_index()
 
     ax = sns.heatmap(cp, annot=True, fmt=".0f", linewidths=.5)
     ax.set_xlabel("MSE")
     ax.set_ylabel("Size")
 
     if filepath:
-        plt.savefig(os.path.join(filepath,'networks-heatmap.pdf'))
+        plt.savefig(os.path.join(filepath, 'networks-heatmap.pdf'))
 
     return g, ax
 
@@ -177,19 +178,19 @@ def mappings_frequency(df, filepath=None):
     """
 
     df = df.sort_values('frequency')
-    df['conf'] = df.frequency.map(lambda f: 0 if f<0.2 else 1 if f<0.8 else 2)
+    df['conf'] = df.frequency.map(lambda f: 0 if f < 0.2 else 1 if f < 0.8 else 2)
 
     g = sns.factorplot(x="mapping", y="frequency", data=df, aspect=3, hue='conf', legend=False)
     for tick in g.ax.get_xticklabels():
         tick.set_rotation(90)
 
-    g.ax.set_ylim([-.05,1.05])
+    g.ax.set_ylim([-.05, 1.05])
 
     g.ax.set_xlabel("Logical mapping")
     g.ax.set_ylabel("Frequency")
 
     if filepath:
-        g.savefig(os.path.join(filepath,'mappings-frequency.pdf'))
+        g.savefig(os.path.join(filepath, 'mappings-frequency.pdf'))
 
     return g
 
@@ -215,7 +216,7 @@ def behaviors_distribution(df, filepath=None):
     .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
     """
 
-    cols = ["networks","index"]
+    cols = ["networks", "index"]
     rcols = ["Logical networks", "Input-Output behaviors"]
     sort_cols = ["networks"]
 
@@ -236,7 +237,7 @@ def behaviors_distribution(df, filepath=None):
 
     g.ax.set_xticks([])
     if filepath:
-        g.savefig(os.path.join(filepath,'behaviors-distribution.pdf'))
+        g.savefig(os.path.join(filepath, 'behaviors-distribution.pdf'))
 
     return g
 
@@ -264,16 +265,16 @@ def experimental_designs(df, filepath=None):
     """
 
     axes = []
-    bw = matplotlib.colors.ListedColormap(['white','black'])
+    bw = matplotlib.colors.ListedColormap(['white', 'black'])
     cols = df.columns
-    for i,dd in df.groupby("id"):
-        cues = dd.drop(filter(lambda c: not c.startswith("TR:"), cols) + ["id"], axis=1).reset_index(drop=True)
-        cues.columns = map(lambda c: c[3:], cues.columns)
+    for i, dd in df.groupby("id"):
+        cues = dd.drop([c for c in cols if not c.startswith("TR:")] + ["id"], axis=1).reset_index(drop=True)
+        cues.columns = [c[3:] for c in cues.columns]
 
-        fig = plt.figure(figsize=(max((len(cues.columns)-1) * .5, 4), max(len(cues)*0.6,2.5)))
+        plt.figure(figsize=(max((len(cues.columns)-1) * .5, 4), max(len(cues)*0.6, 2.5)))
 
         ax = sns.heatmap(cues, linewidths=.5, cbar=False, cmap=bw, linecolor='gray')
-        [t.set_color('r') if t.get_text().endswith('i') else t.set_color('g') for t in ax.xaxis.get_ticklabels()]
+        _ = [t.set_color('r') if t.get_text().endswith('i') else t.set_color('g') for t in ax.xaxis.get_ticklabels()]
 
         ax.set_xlabel("Stimuli (green) and Inhibitors (red)")
         ax.set_ylabel("Experimental condition")
@@ -282,7 +283,7 @@ def experimental_designs(df, filepath=None):
         axes.append(ax)
 
         if filepath:
-            plt.savefig(os.path.join(filepath,'design-%s.pdf' % i))
+            plt.savefig(os.path.join(filepath, 'design-%s.pdf' % i))
 
     return axes
 
@@ -311,12 +312,12 @@ def differences_distribution(df, filepath=None):
 
     axes = []
     cols = df.columns
-    for i,dd in df.groupby("id"):
+    for i, dd in df.groupby("id"):
         palette = sns.color_palette("Set1", len(dd))
-        fig = plt.figure()
+        plt.figure()
 
-        readouts = dd.drop(filter(lambda c: not c.startswith("DIF:"), cols) + ["id"], axis=1).reset_index(drop=True)
-        readouts.columns = map(lambda c: c[4:], readouts.columns)
+        readouts = dd.drop([c for c in cols if not c.startswith("DIF:")] + ["id"], axis=1).reset_index(drop=True)
+        readouts.columns = [c[4:] for c in readouts.columns]
 
         ax1 = readouts.T.plot(kind='bar', stacked=True, color=palette)
 
@@ -325,9 +326,9 @@ def differences_distribution(df, filepath=None):
         plt.tight_layout()
 
         if filepath:
-            plt.savefig(os.path.join(filepath,'design-%s-readouts.pdf' % i))
+            plt.savefig(os.path.join(filepath, 'design-%s-readouts.pdf' % i))
 
-        fig = plt.figure()
+        plt.figure()
         behaviors = dd[["pairs"]].reset_index(drop=True)
         ax2 = behaviors.plot.bar(color=palette, legend=False)
 
@@ -336,9 +337,9 @@ def differences_distribution(df, filepath=None):
         plt.tight_layout()
 
         if filepath:
-            plt.savefig(os.path.join(filepath,'design-%s-behaviors.pdf' % i))
+            plt.savefig(os.path.join(filepath, 'design-%s-behaviors.pdf' % i))
 
-        axes.append((ax1,ax2))
+        axes.append((ax1, ax2))
 
     return axes
 
@@ -367,7 +368,7 @@ def predictions_variance(df, filepath=None):
     df = df.filter(regex="^VAR:")
 
     by_readout = df.mean(axis=0).reset_index(level=0)
-    by_readout.columns=['Readout','Prediction variance (mean)']
+    by_readout.columns = ['Readout', 'Prediction variance (mean)']
 
     by_readout['Readout'] = by_readout.Readout.map(lambda n: n[4:])
 
@@ -377,7 +378,7 @@ def predictions_variance(df, filepath=None):
         tick.set_rotation(90)
 
     if filepath:
-        g1.savefig(os.path.join(filepath,'predictions-variance.pdf'))
+        g1.savefig(os.path.join(filepath, 'predictions-variance.pdf'))
 
     return g1
 
@@ -407,20 +408,21 @@ def intervention_strategies(df, filepath=None):
 
     LIMIT = 50
     if len(df) > LIMIT:
-        logger.warning("Too many intervention strategies to visualize. A sample of %s strategies will be considered." % LIMIT)
+        msg = "Too many intervention strategies to visualize. A sample of %s strategies will be considered." % LIMIT
+        logger.warning(msg)
         df = df.sample(LIMIT)
 
     values = np.unique(df.values.flatten())
     if len(values) == 3:
-        rwg = matplotlib.colors.ListedColormap(['red','white','green'])
+        rwg = matplotlib.colors.ListedColormap(['red', 'white', 'green'])
     elif 1 in values:
-        rwg = matplotlib.colors.ListedColormap(['white','green'])
+        rwg = matplotlib.colors.ListedColormap(['white', 'green'])
     else:
-        rwg = matplotlib.colors.ListedColormap(['red','white'])
+        rwg = matplotlib.colors.ListedColormap(['red', 'white'])
 
-    fig = plt.figure(figsize=(max((len(df.columns)-1) * .5, 4), max(len(df)*0.6,2.5)))
+    plt.figure(figsize=(max((len(df.columns)-1) * .5, 4), max(len(df)*0.6, 2.5)))
 
-    df.columns = map(lambda c: c[3:], df.columns)
+    df.columns = [c[3:] for c in df.columns]
     ax = sns.heatmap(df, linewidths=.5, cbar=False, cmap=rwg, linecolor='gray')
 
     ax.set_xlabel("Species")
@@ -432,7 +434,7 @@ def intervention_strategies(df, filepath=None):
     plt.tight_layout()
 
     if filepath:
-        plt.savefig(os.path.join(filepath,'strategies.pdf'))
+        plt.savefig(os.path.join(filepath, 'strategies.pdf'))
 
     return ax
 
@@ -459,20 +461,20 @@ def interventions_frequency(df, filepath=None):
     """
 
     df = df.sort_values('frequency')
-    df['conf'] = df.frequency.map(lambda f: 0 if f<0.2 else 1 if f<0.8 else 2)
+    df['conf'] = df.frequency.map(lambda f: 0 if f < 0.2 else 1 if f < 0.8 else 2)
 
     g = sns.factorplot(x="intervention", y="frequency", data=df, aspect=3, hue='conf', legend=False)
     for tick in g.ax.get_xticklabels():
         tick.set_rotation(90)
 
-    [t.set_color('r') if t.get_text().endswith('-1') else t.set_color('g') for t in g.ax.xaxis.get_ticklabels()]
+    _ = [t.set_color('r') if t.get_text().endswith('-1') else t.set_color('g') for t in g.ax.xaxis.get_ticklabels()]
 
-    g.ax.set_ylim([-.05,1.05])
+    g.ax.set_ylim([-.05, 1.05])
 
     g.ax.set_xlabel("Intervention")
     g.ax.set_ylabel("Frequency")
 
     if filepath:
-        g.savefig(os.path.join(filepath,'interventions-frequency.pdf'))
+        g.savefig(os.path.join(filepath, 'interventions-frequency.pdf'))
 
     return g

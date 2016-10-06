@@ -74,7 +74,6 @@ representative networks having unique input-output behaviors first.""")
 
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
-
-        self._logger.info("Computing all predictions and their variance for %s logical networks..." % len(self.networks))
+        self._logger.info("Computing all predictions and their variance for %s logical networks...", len(self.networks))
 
         return self.networks.predictions(self.setup.filter(self.networks))

@@ -16,8 +16,9 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import math, os, logging
-import itertools as it
+import math
+import os
+import logging
 from functools import partial
 from random import randint
 
@@ -97,9 +98,11 @@ class Learner(object):
             'optimum_size': None
         }
 
+        self._last = None
         self._logger = logging.getLogger("caspo")
 
-    def round(self, factor, value):
+    @staticmethod
+    def round(factor, value):
         """
         Discretize a given value using a given factor and the closest integer function
 
@@ -118,7 +121,8 @@ class Learner(object):
         """
         return int(round(factor*value))
 
-    def ceil(self, factor, value):
+    @staticmethod
+    def ceil(factor, value):
         """
         Discretize a given value using a given factor and the ceil integer function
 
@@ -137,7 +141,8 @@ class Learner(object):
         """
         return int(math.ceil(factor*value))
 
-    def floor(self, factor, value):
+    @staticmethod
+    def floor(factor, value):
         """
         Discretize a given value using a given factor and the floor integer function
 
@@ -157,15 +162,15 @@ class Learner(object):
         return int(math.floor(factor*value))
 
     def __keep_last__(self, model):
-        self.last = model.atoms()
+        self._last = model.atoms()
 
     def __save__(self, model):
         tuples = (f.args() for f in model.atoms())
         network = core.LogicalNetwork.from_hypertuples(self.hypergraph, tuples)
         self.networks.append(network)
 
-    def __get_clingo__(self, encodings, args=[]):
-        clingo = gringo.Control(args)
+    def __get_clingo__(self, encodings, args=None):
+        clingo = gringo.Control(args or [])
 
         clingo.add("base", [], self.instance)
         for enc in encodings:
@@ -213,24 +218,23 @@ class Learner(object):
             clingo.solve(on_model=self.__keep_last__)
 
             self.stats['time_optimum'] = clingo.stats['time_total']
-            self._logger.info("Optimum logical network learned in %.4fs" % self.stats['time_optimum'])
+            self._logger.info("Optimum logical network learned in %.4fs", self.stats['time_optimum'])
 
-            tuples = (f.args() for f in self.last)
+            tuples = (f.args() for f in self._last)
             self.optimum = core.LogicalNetwork.from_hypertuples(self.hypergraph, tuples)
 
-        ds = self.dataset
-        predictions = self.optimum.predictions(ds.clampings, ds.readouts.columns).values
+        predictions = self.optimum.predictions(self.dataset.clampings, self.dataset.readouts.columns).values
 
-        readouts = ds.readouts.values
+        readouts = self.dataset.readouts.values
         pos = ~np.isnan(readouts)
 
         rss = np.sum((np.vectorize(self.discrete)(readouts[pos]) - predictions[pos]*self.factor)**2)
 
 
-        self.stats['optimum_mse'] = mean_squared_error(readouts[pos],predictions[pos])
+        self.stats['optimum_mse'] = mean_squared_error(readouts[pos], predictions[pos])
         self.stats['optimum_size'] = self.optimum.size
-        self._logger.info("Optimum logical networks has MSE %.4f and size %s" %
-                            (self.stats['optimum_mse'], self.stats['optimum_size']))
+
+        self._logger.info("Optimum logical networks has MSE %.4f and size %s", self.stats['optimum_mse'], self.stats['optimum_size'])
 
         self.networks.reset()
 
@@ -245,7 +249,7 @@ class Learner(object):
         clingo.solve(on_model=self.__save__)
 
         self.stats['time_enumeration'] = clingo.stats['time_total']
-        self._logger.info("%s (nearly) optimal logical networks learned in %.4fs" % (len(self.networks), self.stats['time_enumeration']))
+        self._logger.info("%s (nearly) optimal logical networks learned in %.4fs", len(self.networks), self.stats['time_enumeration'])
 
     def random(self, size, n_and, max_in, n=1):
         """
@@ -274,7 +278,7 @@ class Learner(object):
 
         clingo = self.__get_clingo__(args, encodings)
         clingo.conf.solve.models = str(n)
-        clingo.conf.solver.seed = str(randint(0,32767))
+        clingo.conf.solver.seed = str(randint(0, 32767))
         clingo.conf.solver.sign_def = '3'
 
         clingo.ground([("base", [])])

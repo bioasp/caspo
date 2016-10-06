@@ -16,7 +16,7 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-from literal import Literal
+from .literal import Literal
 
 class Clause(frozenset):
     """
@@ -24,7 +24,7 @@ class Clause(frozenset):
     """
 
     @classmethod
-    def from_str(klass, string):
+    def from_str(cls, string):
         """
         Creates a clause from a given string.
 
@@ -38,13 +38,13 @@ class Clause(frozenset):
         caspo.core.clause.Clause
             Created object instance
         """
-        return klass(map(lambda lit: Literal.from_str(lit), string.split('+')))
+        return cls([Literal.from_str(lit) for lit in string.split('+')])
 
     def __str__(self):
         """
         Returns the string representation of the clause
         """
-        return "+".join(map(str, sorted(self)))
+        return "+".join([str(c) for c in sorted(self)])
 
     def bool(self, state):
         """
@@ -63,6 +63,7 @@ class Clause(frozenset):
         value = 1
         for source, sign in self:
             value = value and (state[source] if sign == 1 else not state[source])
-            if not value: break
+            if not value:
+                break
 
         return value

@@ -16,7 +16,8 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging
+import os
+import logging
 import itertools as it
 
 import gringo
@@ -57,10 +58,10 @@ class Designer(object):
 
         fs = networks.to_funset().union(setup.to_funset())
         if candidates:
-            fs = fs.union(self.candidates.to_funset("listing","listed"))
-            fs.add(gringo.Fun("mode",[2]))
+            fs = fs.union(self.candidates.to_funset("listing", "listed"))
+            fs.add(gringo.Fun("mode", [2]))
         else:
-            fs.add(gringo.Fun("mode",[1]))
+            fs.add(gringo.Fun("mode", [1]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show clamped/3."
 
@@ -80,9 +81,9 @@ class Designer(object):
     def __save__(self, model):
         if self.__optimum__ == model.optimization():
             clampings = []
-            keyfunc = lambda (i,v,s): i
-            for i,c in it.groupby(sorted((f.args() for f in model.atoms()), key=keyfunc), keyfunc):
-                clampings.append(core.Clamping.from_tuples(((v,s) for _,v,s in c)))
+            keyfunc = lambda (i, v, s): i
+            for _, c in it.groupby(sorted((f.args() for f in model.atoms()), key=keyfunc), keyfunc):
+                clampings.append(core.Clamping.from_tuples(((v, s) for _, v, s in c)))
 
             self.designs.append(core.ClampingList(clampings))
         else:
@@ -139,11 +140,11 @@ class Designer(object):
         clingo.add("base", [], self.instance)
         clingo.load(self.encodings['design'])
 
-        clingo.ground([("base",[])])
+        clingo.ground([("base", [])])
 
         if relax:
-            parts = map(lambda step: ("step", [step]), xrange(1,max_experiments+1))
-            parts.append(("diff",[max_experiments+1]))
+            parts = [("step", [step]) for step in xrange(1, max_experiments+1)]
+            parts.append(("diff", [max_experiments + 1]))
             clingo.ground(parts)
             ret = clingo.solve(on_model=self.__save__)
         else:
@@ -163,4 +164,4 @@ class Designer(object):
         self.stats['time_optimum'] = clingo.stats['time_solve']
         self.stats['time_enumeration'] = clingo.stats['time_total']
 
-        self._logger.info("%s optimal experimental designs found in %.4fs" % (len(self.designs), self.stats['time_enumeration']))
+        self._logger.info("%s optimal experimental designs found in %.4fs", len(self.designs), self.stats['time_enumeration'])

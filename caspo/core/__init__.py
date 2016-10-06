@@ -16,11 +16,11 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-from setup import *
-from clamping import *
-from clause import *
-from graph import *
-from hypergraph import *
-from literal import *
-from logicalnetwork import *
-from dataset import *
+from .setup import Setup
+from .clamping import ClampingList, Clamping
+from .clause import Clause
+from .graph import Graph
+from .hypergraph import HyperGraph
+from .literal import Literal
+from .logicalnetwork import LogicalNetworkList, LogicalNetwork
+from .dataset import Dataset

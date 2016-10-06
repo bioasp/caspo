@@ -16,7 +16,8 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging
+import os
+import logging
 
 import itertools as it
 import pandas as pd
@@ -59,8 +60,9 @@ class ScenarioList(object):
         if not allow_goals:
             self.exclude = self.exclude.union(self.df_goals.columns)
 
-    def __clamping_list__(self, df):
-        return core.ClampingList([core.Clamping(map(lambda (v,s): core.Literal(v,s), row[row != 0].iteritems())) for _,row in df.iterrows()])
+    @staticmethod
+    def __clamping_list__(df):
+        return core.ClampingList([core.Clamping([core.Literal(v, s) for v, s in row[row != 0].iteritems()]) for _, row in df.iterrows()])
 
     @property
     def constraints(self):
@@ -82,7 +84,7 @@ class ScenarioList(object):
 
         .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
         """
-        return self.constraints.to_funset("scenario","constrained").union(self.goals.to_funset("scenario","goal"))
+        return self.constraints.to_funset("scenario", "constrained").union(self.goals.to_funset("scenario", "goal"))
 
 
 class Controller(object):
@@ -113,7 +115,7 @@ class Controller(object):
 
         fs = networks.to_funset().union(scenarios.to_funset())
         for v in it.ifilter(lambda n: n not in scenarios.exclude, networks.hg.nodes):
-            fs.add(gringo.Fun("candidate",[v]))
+            fs.add(gringo.Fun("candidate", [v]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show intervention/2."
 
@@ -127,9 +129,10 @@ class Controller(object):
             'time_enumeration': None
         }
 
+        self._strategies = None
         self._logger = logging.getLogger("caspo")
 
-    def __save__(self,model):
+    def __save__(self, model):
         tuples = (f.args() for f in model.atoms())
         self._strategies.append(core.Clamping.from_tuples(tuples))
 
@@ -187,6 +190,7 @@ class Controller(object):
 
         self.stats['time_optimum'] = clingo.stats['time_solve']
         self.stats['time_enumeration'] = clingo.stats['time_total']
-        self._logger.info("%s optimal intervention strategies found in %.4fs" % (len(self._strategies),self.stats['time_enumeration']))
+
+        self._logger.info("%s optimal intervention strategies found in %.4fs", len(self._strategies), self.stats['time_enumeration'])
 
         self.strategies = core.ClampingList(self._strategies)

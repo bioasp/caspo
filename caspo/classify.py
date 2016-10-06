@@ -16,7 +16,9 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, timeit, logging
+import os
+import timeit
+import logging
 
 import multiprocessing as mp
 from joblib import Parallel, delayed
@@ -28,17 +30,16 @@ import gringo
 from caspo import core
 
 def __learn_io__(networks, setup, configure):
-    root = os.path.dirname(__file__)
-    encoding = os.path.join(root, 'encodings/classify/io.lp')
+    encoding = os.path.join(os.path.dirname(__file__), 'encodings/classify/io.lp')
     setup_fs = setup.to_funset()
 
     behaviors = core.LogicalNetworkList.from_hypergraph(networks.hg)
     for rep in networks:
         found = False
-        nl = core.LogicalNetworkList.from_hypergraph(networks.hg, [rep])
-        for i,behavior in enumerate(behaviors):
-            bl = core.LogicalNetworkList.from_hypergraph(networks.hg, [behavior])
-            fs = setup_fs.union(nl.concat(bl).to_funset())
+        nlist = core.LogicalNetworkList.from_hypergraph(networks.hg, [rep])
+        for i, behavior in enumerate(behaviors):
+            blist = core.LogicalNetworkList.from_hypergraph(networks.hg, [behavior])
+            fs = setup_fs.union(nlist.concat(blist).to_funset())
             instance = ". ".join(map(str, fs)) + "."
 
             clingo = gringo.Control()
@@ -51,7 +52,7 @@ def __learn_io__(networks, setup, configure):
             clingo.ground([("base", [])])
             if clingo.solve() == gringo.SolveResult.UNSAT:
                 found = True
-                behaviors.add_network(i,rep)
+                behaviors.add_network(i, rep)
                 break
 
         if not found:
@@ -124,17 +125,17 @@ class Classifier(object):
         cpu = n_jobs if n_jobs > -1 else mp.cpu_count()
 
         if cpu > 1:
-            lp = int(np.ceil(n / float(cpu))) if n > cpu else 1
-            parts = networks.split(np.arange(lp, n, lp))
+            lpart = int(np.ceil(n / float(cpu))) if n > cpu else 1
+            parts = networks.split(np.arange(lpart, n, lpart))
 
             behaviors_parts = Parallel(n_jobs=n_jobs)(delayed(__learn_io__)(part, self.setup, configure) for part in parts)
             networks = core.LogicalNetworkList.from_hypergraph(networks.hg)
-            for b in behaviors_parts:
-                networks = networks.concat(b)
+            for behavior in behaviors_parts:
+                networks = networks.concat(behavior)
 
         behaviors = __learn_io__(networks, self.setup, configure)
         self.stats['time_io'] = timeit.default_timer() - start
 
-        self._logger.info("%s input-output logical behaviors found in %.4fs" % (len(behaviors), self.stats['time_io']))
+        self._logger.info("%s input-output logical behaviors found in %.4fs", len(behaviors), self.stats['time_io'])
 
         return behaviors

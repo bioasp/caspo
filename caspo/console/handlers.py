@@ -16,7 +16,9 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import os, logging, random
+import os
+import logging
+import random
 import functools as ft
 import pandas as pd
 
@@ -36,19 +38,19 @@ def learn_handler(args):
     zipped = graph.compress(dataset.setup)
 
     learner = learn.Learner(zipped, dataset, args.length, args.discretization, args.factor)
-    logger.info("Number of hyperedges (possible logical mappings) derived from the compressed PKN: %d" % len(learner.hypergraph.hyper))
+    logger.info("Number of hyperedges (possible logical mappings) derived from the compressed PKN: %d", len(learner.hypergraph.hyper))
 
     if args.optimum:
         learner.optimum = core.LogicalNetworkList.from_csv(args.optimum)[0]
 
-    configure = ft.partial(configure_mt,args) if args.threads else None
+    configure = ft.partial(configure_mt, args) if args.threads else None
     learner.learn(args.fit, args.size, configure)
 
-    logger.info("Weighted MSE: %.4f" % learner.networks.weighted_mse(dataset))
+    logger.info("Weighted MSE: %.4f", learner.networks.weighted_mse(dataset))
 
     rows = []
     exclusive, inclusive = learner.networks.combinatorics()
-    for m,f in learner.networks.frequencies_iter():
+    for m, f in learner.networks.frequencies_iter():
         row = dict(mapping="%s" % str(m), frequency=f, exclusive="", inclusive="")
         if m in exclusive:
             row["exclusive"] = ";".join(map(str, exclusive[m]))
@@ -59,13 +61,13 @@ def learn_handler(args):
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    order = ["mapping","frequency","inclusive","exclusive"]
-    df[order].to_csv(os.path.join(args.out,'stats-networks.csv'), index=False)
+    order = ["mapping", "frequency", "inclusive", "exclusive"]
+    df[order].to_csv(os.path.join(args.out, 'stats-networks.csv'), index=False)
 
     visualize.mappings_frequency(df, args.out)
 
     df = learner.networks.to_dataframe(dataset=dataset, size=True)
-    df.to_csv(os.path.join(args.out,'networks.csv'), index=False)
+    df.to_csv(os.path.join(args.out, 'networks.csv'), index=False)
 
     visualize.networks_distribution(df, args.out)
 
@@ -81,7 +83,7 @@ def classify_handler(args):
 
     classifier = classify.Classifier(networks, setup)
 
-    logger.info("Classifying %s logical networks..." % len(networks))
+    logger.info("Classifying %s logical networks...", len(networks))
 
     behaviors = classifier.classify(configure=configure)
 
@@ -89,13 +91,13 @@ def classify_handler(args):
 
     if args.midas:
         dataset = core.Dataset(args.midas[0], int(args.midas[1]))
-        logger.info("Weighted MSE: %.4f" % behaviors.weighted_mse(dataset))
+        logger.info("Weighted MSE: %.4f", behaviors.weighted_mse(dataset))
 
         df = behaviors.to_dataframe(networks=True, dataset=dataset)
     else:
         df = behaviors.to_dataframe(networks=True)
 
-    df.to_csv(os.path.join(args.out,'behaviors.csv'), index=False)
+    df.to_csv(os.path.join(args.out, 'behaviors.csv'), index=False)
     visualize.behaviors_distribution(df, args.out)
 
 def predict_handler(args):
@@ -105,7 +107,7 @@ def predict_handler(args):
     predictor = predict.Predictor(networks, setup)
     df = predictor.predict()
 
-    df.to_csv(os.path.join(args.out,'predictions.csv'), index=False)
+    df.to_csv(os.path.join(args.out, 'predictions.csv'), index=False)
     visualize.predictions_variance(df, args.out)
 
     return 0
@@ -117,16 +119,16 @@ def design_handler(args):
 
     designer = design.Designer(networks, setup, listing)
 
-    configure = ft.partial(configure_mt,args) if args.threads else None
+    configure = ft.partial(configure_mt, args) if args.threads else None
     designer.design(args.stimuli, args.inhibitors, args.experiments, args.relax, configure)
 
     df = None
-    for i,od in enumerate(designer.designs):
+    for i, od in enumerate(designer.designs):
         ei = od.to_dataframe(stimuli=setup.stimuli, inhibitors=setup.inhibitors, prepend="TR:")
         eo = od.differences(networks, setup.readouts, prepend="DIF:")
 
-        con = pd.concat([pd.Series([i]*len(od), name='id'),ei,eo], axis=1)
-        df = pd.concat([df,con], ignore_index=True)
+        con = pd.concat([pd.Series([i]*len(od), name='id'), ei, eo], axis=1)
+        df = pd.concat([df, con], ignore_index=True)
 
     if df is not None:
         df.to_csv(os.path.join(args.out, 'designs.csv'), index=False)
@@ -141,7 +143,7 @@ def control_handler(args):
 
     controller = control.Controller(networks, scenarios)
 
-    configure = ft.partial(configure_mt,args) if args.threads else None
+    configure = ft.partial(configure_mt, args) if args.threads else None
     controller.control(args.size, configure)
 
     if len(controller.strategies):
@@ -152,20 +154,20 @@ def control_handler(args):
 
         rows = []
         exclusive, inclusive = controller.strategies.combinatorics()
-        for l,f in controller.strategies.frequencies_iter():
+        for l, f in controller.strategies.frequencies_iter():
             row = dict(intervention="%s=%s" % l, frequency=f, exclusive="", inclusive="")
 
             if l in exclusive:
-                row["exclusive"] = ";".join(map(lambda m: "%s=%s" % m, exclusive[l]))
+                row["exclusive"] = ";".join(["%s=%s" % m for m in exclusive[l]])
 
             if l in inclusive:
-                row["inclusive"] = ";".join(map(lambda m: "%s=%s" % m, inclusive[l]))
+                row["inclusive"] = ";".join(["%s=%s" % m for m in inclusive[l]])
 
             rows.append(row)
 
         df = pd.DataFrame(rows)
-        order = ["intervention","frequency","inclusive","exclusive"]
-        df[order].to_csv(os.path.join(args.out,'stats-strategies.csv'), index=False)
+        order = ["intervention", "frequency", "inclusive", "exclusive"]
+        df[order].to_csv(os.path.join(args.out, 'stats-strategies.csv'), index=False)
         visualize.interventions_frequency(df, args.out)
 
     return 0
@@ -176,15 +178,15 @@ def visualize_handler(args):
     if args.setup:
         setup = core.Setup.from_json(args.setup)
     else:
-        setup = core.Setup([],[],[])
+        setup = core.Setup([], [], [])
 
     if args.pkn:
         graph = core.Graph.read_sif(args.pkn)
-        visualize.coloured_network(graph, setup, os.path.join(args.out,'pkn.dot'))
+        visualize.coloured_network(graph, setup, os.path.join(args.out, 'pkn.dot'))
 
         zipped = graph.compress(setup)
         if zipped.nodes != graph.nodes:
-            visualize.coloured_network(zipped, setup, os.path.join(args.out,'pkn-zip.dot'))
+            visualize.coloured_network(zipped, setup, os.path.join(args.out, 'pkn-zip.dot'))
 
     if args.networks:
         networks = core.LogicalNetworkList.from_csv(args.networks)
@@ -194,15 +196,15 @@ def visualize_handler(args):
                 try:
                     sample = random.sample(networks, args.sample)
                 except ValueError as e:
-                    logger.warning("Warning: %s, there are only %s logical networks." % (str(e), len(networks)))
+                    logger.warning("Warning: %s, there are only %s logical networks.", str(e), len(networks))
                     sample = networks
             else:
                 sample = networks
 
             for i, network in enumerate(sample):
-                visualize.coloured_network(network, setup, os.path.join(args.out,'network-%s.dot' % i))
+                visualize.coloured_network(network, setup, os.path.join(args.out, 'network-%s.dot' % i))
 
-        visualize.coloured_network(networks, setup, os.path.join(args.out,'networks-union.dot'))
+        visualize.coloured_network(networks, setup, os.path.join(args.out, 'networks-union.dot'))
 
         if args.midas:
             dataset = core.Dataset(args.midas[0], int(args.midas[1]))
