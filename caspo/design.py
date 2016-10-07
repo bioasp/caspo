@@ -145,6 +145,7 @@ class Designer(object):
         if relax:
             parts = [("step", [step]) for step in xrange(1, max_experiments+1)]
             parts.append(("diff", [max_experiments + 1]))
+
             solver.ground(parts)
             ret = solver.solve(on_model=self.__save__)
         else:

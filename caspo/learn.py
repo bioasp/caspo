@@ -218,6 +218,7 @@ class Learner(object):
             solver.solve(on_model=self.__keep_last__)
 
             self.stats['time_optimum'] = solver.statistics['summary']['times']['total']
+
             self._logger.info("Optimum logical network learned in %.4fs", self.stats['time_optimum'])
 
             tuples = (f.arguments for f in self.last)

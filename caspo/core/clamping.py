@@ -368,11 +368,7 @@ class Clamping(frozenset):
         """
         fs = set()
         for var, sign in self:
-<<<<<<< HEAD
-            fs.add(gringo.Fun(name, [index, var, sign]))
-=======
-            fs.add(clingo.Function(name, [index,var,sign]))
->>>>>>> changes to work with clingo-5
+            fs.add(clingo.Function(name, [index, var, sign]))
 
         return fs
 

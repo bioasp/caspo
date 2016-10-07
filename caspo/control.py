@@ -190,6 +190,7 @@ class Controller(object):
 
         self.stats['time_optimum'] = solver.statistics['summary']['times']['solve']
         self.stats['time_enumeration'] = solver.statistics['summary']['times']['total']
+
         self._logger.info("%s optimal intervention strategies found in %.4fs", len(self._strategies), self.stats['time_enumeration'])
 
         self.strategies = core.ClampingList(self._strategies)
