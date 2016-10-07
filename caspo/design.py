@@ -82,7 +82,7 @@ class Designer(object):
         if self.__optimum__ == model.cost:
             clampings = []
             keyfunc = lambda (i, v, s): i.number
-            for i,c in it.groupby(sorted((f.arguments for f in model.symbols(shown=True)), key=keyfunc), keyfunc):
+            for i, c in it.groupby(sorted((f.arguments for f in model.symbols(shown=True)), key=keyfunc), keyfunc):
                 clampings.append(core.Clamping.from_tuples(((v.string, s.number) for _, v, s in c)))
 
             self.designs.append(core.ClampingList(clampings))

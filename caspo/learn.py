@@ -166,7 +166,7 @@ class Learner(object):
 
     def __save__(self, model):
         tuples = (f.arguments for f in model.symbols(shown=True))
-        network = core.LogicalNetwork.from_hypertuples(self.hypergraph, ((i.number,j.number) for i,j in tuples))
+        network = core.LogicalNetwork.from_hypertuples(self.hypergraph, ((i.number, j.number) for i, j in tuples))
         self.networks.append(network)
 
     def __get_clingo__(self, encodings, args=None):
