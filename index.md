@@ -1,63 +1,34 @@
----
-layout: index
-title:  caspo
-tagline: Reasoning on the response of logical signaling networks with Answer Set Programming
----
+[![Build Status](https://travis-ci.org/bioasp/caspo.svg?branch=master)](https://travis-ci.org/bioasp/caspo)
+[![Documentation Status](https://readthedocs.org/projects/caspo/badge/?version=latest)](http://caspo.readthedocs.io/en/latest/?badge=latest)
+[![license](https://img.shields.io/badge/license-GPLv3+-brightgreen.svg)](https://www.gnu.org/licenses/gpl.html)
 
 ### Reasoning on the response of logical signaling networks
 
 The manual identification of logic rules underlying a biological system is
-often hard, error-prone and time consuming. 
+often hard, error-prone and time consuming.
 Further, it has been shown that, if the inherent experimental noise is considered, many different logical networks
-can be compatible with a set of experimental observations. 
+can be compatible with a set of experimental observations.
 Thus, automated **inference of logical networks from experimental data** would allow for
-identifying admissible large-scale logic models saving a lot of efforts and without any a priori bias. 
+identifying admissible large-scale logic models saving a lot of efforts and without any a priori bias.
 Next, once a family a logical networks has been identified, one can suggest or **design new experiments** in order to reduce the uncertainty provided by this family.
-Finally, one can **look for intervention strategies** (i.e. inclusion minimal sets of knock-ins and knock-outs) that force
-a set of target species or compounds into a desired steady state. 
-Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks. 
+Finally, one can **look for intervention strategies** that force a set of target species or compounds into a desired steady state.
+Altogether, this constitutes a pipeline for automated reasoning on logical signaling networks.
 Hence, the aim of **caspo** is to implement such a pipeline providing a powerful and easy-to-use software tool for systems biologists.
 
-### Installation
+### Documentation
 
-If you are already using [Python](https://www.python.org/download/releases/2.7.6) with [NumPy](http://www.numpy.org/), you should be able to install **caspo** from [pypi](https://pypi.python.org/pypi/caspo) simply by running:
-```
-$ pip install caspo
-```
-If you are not using Python and/or NumPy, please visit the [wiki](https://github.com/bioasp/caspo/wiki) for detailed instructions.
-
-### Usage
-Ask for help by running:
-
-```
-$ caspo --help
-usage: caspo [-h] [--quiet] [--out O] [--version]
-             {control,visualize,design,learn,test,analyze} ...
-
-Reasoning on the response of logical signaling networks with ASP
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --quiet               do not print anything to standard output
-  --out O               output directory path (Default to './out')
-  --version             show program's version number and exit
-
-caspo subcommands:
-  for specific help on each subcommand use: caspo {cmd} --help
-
-  {control,visualize,design,learn,test,analyze}
-```
-
-Also, you may want to check out some examples at our [notebook](http://nbviewer.ipython.org/github/bioasp/caspo/tree/master/notebook/)
+Detailed documentation about how to install and use **caspo** is available at http://caspo.readthedocs.io.
 
 ### Samples
 
 Sample files are included with **caspo** and available for [download](http://bioasp.github.io/caspo/data.zip)
 
 ### Related publications
-* Reasoning on the Response of Logical Signaling Networks with ASP. (2014). John Wiley & Sons, Inc. [DOI](http://dx.doi.org/10.1002/9781119005223.ch2)
+*  Designing experiments to discriminate families of logic models. (2015). Frontiers in Bioengineering and Biotechnology 3:131. [DOI](http://dx.doi.org/10.3389/fbioe.2015.00131)
 
-* Learning Boolean logic models of signaling networks with ASP. (2014). Theoretical Computer Science. [DOI](http://dx.doi.org/10.1016/j.tcs.2014.06.022)
+* Learning Boolean logic models of signaling networks with ASP. (2015). Theoretical Computer Science. [DOI](http://dx.doi.org/10.1016/j.tcs.2014.06.022)
+
+* Reasoning on the Response of Logical Signaling Networks with ASP. (2014). John Wiley & Sons, Inc. [DOI](http://dx.doi.org/10.1002/9781119005223.ch2)
 
 * Minimal intervention strategies in logical signaling networks with ASP. (2013). Theory and Practice of Logic Programming. [DOI](http://dx.doi.org/10.1017/S1471068413000422)
 
