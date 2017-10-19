@@ -17,7 +17,7 @@ Hence, the aim of **caspo** is to implement such a pipeline providing a powerful
 
 ### Documentation
 
-Detailed documentation about how to install and use **caspo** is available at http://caspo.readthedocs.io.
+Detailed documentation about how to install and use **caspo** is available [here](http://caspo.readthedocs.io).
 
 ### Samples
 
