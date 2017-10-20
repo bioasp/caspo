@@ -19,6 +19,7 @@ requirements:
     - wheel 0.29.0
   run:
     - python
+    - wheel 0.29.0
     - pandas
     - scipy
     - scikit-learn
