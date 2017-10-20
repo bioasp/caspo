@@ -16,6 +16,7 @@ build:
 requirements:
   build:
     - python
+    - wheel 0.29.0
   run:
     - python
     - pandas
