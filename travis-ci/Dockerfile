@@ -9,9 +9,9 @@ RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificate
     git mercurial subversion
 
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
-    /bin/bash /Miniconda2-latest-Linux-x86_64.sh -b -p /opt/conda && \
-    rm Miniconda2-latest-Linux-x86_64.sh
+    wget --quiet https://repo.continuum.io/miniconda/Miniconda2-4.1.11-Linux-x86_64.sh && \
+    /bin/bash /Miniconda2-4.1.11-Linux-x86_64.sh -b -p /opt/conda && \
+    rm Miniconda2-4.1.11-Linux-x86_64.sh
 
 ENV PATH /opt/conda/bin:$PATH
 
