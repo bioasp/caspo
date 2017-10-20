@@ -16,7 +16,7 @@ RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
 ENV PATH /opt/conda/bin:$PATH
 
 RUN conda config --set show_channel_urls true && \
-    conda install --yes conda-build=1.21 jinja2 anaconda-client && conda config --add channels conda-forge --add channels svidela
+    conda install --no-update-dependencies --yes conda-build=1.21 jinja2 anaconda-client && conda config --add channels conda-forge --add channels svidela
 
 RUN apt-get install -y curl grep sed dpkg && \
     TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
