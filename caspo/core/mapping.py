@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
-from itertools import izip
+
 from collections import defaultdict, namedtuple
 
 from .clause import Clause
@@ -43,7 +43,7 @@ class MappingList(object):
             if len(mappings) != len(set(indexes)):
                 raise ValueError("Invalid index")
 
-            it = izip(indexes, mappings)
+            it = zip(indexes, mappings)
 
         for i, (clause, target) in it:
             self.indexes[clause][target] = i

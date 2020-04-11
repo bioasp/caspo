@@ -42,7 +42,7 @@ class Graph(nx.MultiDiGraph):
         caspo.core.graph.Graph
             Created object instance
         """
-        return cls(it.imap(lambda (source, target, sign): (source, target, {'sign': sign}), tuples))
+        return cls(it.imap(lambda source_target_sign: (source_target_sign[0], source_target_sign[1], {'sign': source_target_sign[2]}), tuples))
 
     @classmethod
     def read_sif(cls, path):
@@ -154,10 +154,10 @@ class Graph(nx.MultiDiGraph):
         edges = []
         for target in zipped.successors(node):
             if predecessor:
-                for source_edge in zipped[predecessor[0]][node].itervalues():
-                    for target_edge in zipped[node][target].itervalues():
+                for source_edge in zipped[predecessor[0]][node].values():
+                    for target_edge in zipped[node][target].values():
                         sign = {'sign': source_edge['sign']*target_edge['sign']}
-                        if not zipped.has_edge(predecessor[0], target) or sign not in zipped[predecessor[0]][target].values():
+                        if not zipped.has_edge(predecessor[0], target) or sign not in list(zipped[predecessor[0]][target].values()):
                             edges.append((predecessor[0], target, sign))
 
         self.node[node]['compressed'] = zipped.node[node]['compressed'] = True
@@ -168,10 +168,10 @@ class Graph(nx.MultiDiGraph):
         edges = []
         for source in zipped.predecessors(node):
             if successor:
-                for target_edge in zipped[source][node].itervalues():
-                    for source_edge in zipped[node][successor[0]].itervalues():
+                for target_edge in zipped[source][node].values():
+                    for source_edge in zipped[node][successor[0]].values():
                         sign = {'sign': target_edge['sign']*source_edge['sign']}
-                        if not zipped.has_edge(source, successor[0]) or sign not in zipped[source][successor[0]].values():
+                        if not zipped.has_edge(source, successor[0]) or sign not in list(zipped[source][successor[0]].values()):
                             edges.append((source, successor[0], {'sign': target_edge['sign']*source_edge['sign']}))
 
         self.node[node]['compressed'] = zipped.node[node]['compressed'] = True

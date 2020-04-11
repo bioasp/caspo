@@ -59,7 +59,7 @@ def coloured_network(network, setup, filename):
 
     for node in graph.nodes():
         _type = 'DEFAULT'
-        for attr, value in NODES_ATTR[_type].items():
+        for attr, value in list(NODES_ATTR[_type].items()):
             graph.node[node][attr] = value
 
         if 'gate' in graph.node[node]:
@@ -74,15 +74,15 @@ def coloured_network(network, setup, filename):
             _type = 'INHIBITOR'
 
         if _type != 'DEFAULT':
-            for attr, value in NODES_ATTR[_type].items():
+            for attr, value in list(NODES_ATTR[_type].items()):
                 graph.node[node][attr] = value
 
     for source, target in graph.edges():
         for k in graph.edge[source][target]:
-            for attr, value in EDGES_ATTR['DEFAULT'].items():
+            for attr, value in list(EDGES_ATTR['DEFAULT'].items()):
                 graph.edge[source][target][k][attr] = value
 
-            for attr, value in EDGES_ATTR[graph.edge[source][target][k]['sign']].items():
+            for attr, value in list(EDGES_ATTR[graph.edge[source][target][k]['sign']].items()):
                 graph.edge[source][target][k][attr] = value
 
             if 'weight' in graph.edge[source][target][k]:
@@ -121,8 +121,8 @@ def networks_distribution(df, filepath=None):
     g = sns.JointGrid(x="mse", y="size", data=df)
 
     g.plot_joint(sns.violinplot, scale='count')
-    g.ax_joint.set_yticks(range(df['size'].min(), df['size'].max() + 1))
-    g.ax_joint.set_yticklabels(range(df['size'].min(), df['size'].max() + 1))
+    g.ax_joint.set_yticks(list(range(df['size'].min(), df['size'].max() + 1)))
+    g.ax_joint.set_yticklabels(list(range(df['size'].min(), df['size'].max() + 1)))
 
     for tick in g.ax_joint.get_xticklabels():
         tick.set_rotation(90)
