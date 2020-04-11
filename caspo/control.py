@@ -62,7 +62,7 @@ class ScenarioList(object):
 
     @staticmethod
     def __clamping_list__(df):
-        return core.ClampingList([core.Clamping([core.Literal(v, s) for v, s in row[row != 0].iteritems()]) for _, row in df.iterrows()])
+        return core.ClampingList([core.Clamping([core.Literal(v, s) for v, s in row[row != 0].items()]) for _, row in df.iterrows()])
 
     @property
     def constraints(self):
@@ -169,7 +169,7 @@ class Controller(object):
         solver.configuration.solve.models = '0'
         if configure:
             def overwrite(args, proxy):
-                for i in xrange(args.threads):
+                for i in range(args.threads):
                     proxy.solver[i].no_lookback = 'false'
                     proxy.solver[i].heuristic = 'domain'
                     proxy.solver[i].dom_mod = '5,16'

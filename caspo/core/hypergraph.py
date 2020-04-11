@@ -78,8 +78,8 @@ class HyperGraph(object):
             self.clauses_idx[clause] = i
 
         mappings = []
-        for node_idx, variable in self.nodes.iteritems():
-            for hyper_idx, _ in self.hyper[self.hyper == node_idx].iteritems():
+        for node_idx, variable in self.nodes.items():
+            for hyper_idx, _ in self.hyper[self.hyper == node_idx].items():
                 mappings.append(Mapping(self.clauses[hyper_idx], variable))
 
         self._mappings = None
@@ -140,12 +140,12 @@ class HyperGraph(object):
             if length > 0:
                 l = min(length, l)
 
-            for literals in it.chain.from_iterable(it.combinations(preds, r+1) for r in xrange(l)):
+            for literals in it.chain.from_iterable(it.combinations(preds, r+1) for r in range(l)):
                 valid = defaultdict(int)
                 for source, _, _ in literals:
                     valid[source] += 1
 
-                if all(it.imap(lambda c: c == 1, valid.values())):
+                if all(it.imap(lambda c: c == 1, list(valid.values()))):
                     hyper.append(i)
                     for source, _, data in literals:
                         edges['hyper_idx'].append(j)
@@ -173,10 +173,10 @@ class HyperGraph(object):
         .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
         fs = set()
-        for i, n in self.nodes.iteritems():
+        for i, n in self.nodes.items():
             fs.add(clingo.Function('node', [n, i]))
 
-        for j, i in self.hyper.iteritems():
+        for j, i in self.hyper.items():
             fs.add(clingo.Function('hyper', [i, j, len(self.edges[self.edges.hyper_idx == j])]))
 
         for j, v, s in self.edges.itertuples(index=False):

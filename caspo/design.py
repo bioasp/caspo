@@ -81,7 +81,7 @@ class Designer(object):
     def __save__(self, model):
         if self.__optimum__ == model.cost:
             clampings = []
-            keyfunc = lambda (i, v, s): i.number
+            keyfunc = lambda i_v_s: i_v_s[0].number
             for i, c in it.groupby(sorted((f.arguments for f in model.symbols(shown=True)), key=keyfunc), keyfunc):
                 clampings.append(core.Clamping.from_tuples(((v.string, s.number) for _, v, s in c)))
 
@@ -143,7 +143,7 @@ class Designer(object):
         solver.ground([("base", [])])
 
         if relax:
-            parts = [("step", [step]) for step in xrange(1, max_experiments+1)]
+            parts = [("step", [step]) for step in range(1, max_experiments+1)]
             parts.append(("diff", [max_experiments + 1]))
 
             solver.ground(parts)

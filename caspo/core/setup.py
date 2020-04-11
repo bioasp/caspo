@@ -73,7 +73,7 @@ class Setup(object):
             The next clamping with respect to the experimental setup
         """
         s = cues or list(self.stimuli + self.inhibitors)
-        clampings = it.chain.from_iterable(it.combinations(s, r) for r in xrange(len(s) + 1))
+        clampings = it.chain.from_iterable(it.combinations(s, r) for r in range(len(s) + 1))
 
         literals_tpl = {}
         for stimulus in self.stimuli:
@@ -87,7 +87,7 @@ class Setup(object):
                 else:
                     literals[cues] = -1
 
-            yield Clamping(literals.iteritems())
+            yield Clamping(iter(literals.items()))
 
     def to_funset(self):
         """

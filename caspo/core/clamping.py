@@ -156,7 +156,7 @@ class ClampingList(list):
         for _, row in df.iterrows():
             if ni > 0:
                 literals = []
-                for v, s in row.iteritems():
+                for v, s in row.items():
                     if v.endswith('i') and v[3:-1] in inhibitors:
                         if s == 1:
                             literals.append(Literal(v[3:-1], -1))
@@ -165,7 +165,7 @@ class ClampingList(list):
                 clampings.append(Clamping(literals))
             else:
 
-                clampings.append(Clamping([Literal(v[3:], s) for v, s in row[row != 0].iteritems()]))
+                clampings.append(Clamping([Literal(v[3:], s) for v, s in row[row != 0].items()]))
 
         return cls(clampings)
 
@@ -344,7 +344,7 @@ class Clamping(frozenset):
         caspo.core.clamping.Clamping
             Created object instance
         """
-        return cls(it.imap(lambda (v, s): Literal(v, s), tuples))
+        return cls(it.imap(lambda v_s: Literal(v_s[0], v_s[1]), tuples))
 
     def to_funset(self, index, name="clamped"):
         """
@@ -404,7 +404,7 @@ class Clamping(frozenset):
         boolean
             True if the given variable is present in the clamping, False otherwise
         """
-        return dict(self).has_key(variable)
+        return variable in dict(self)
 
     def to_array(self, variables):
         """

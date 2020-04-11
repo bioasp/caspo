@@ -290,7 +290,7 @@ class LogicalNetworkList(object):
 
         formulas = set()
         for network in self:
-            formulas = formulas.union(it.imap(lambda (_, f): f, network.formulas_iter()))
+            formulas = formulas.union(it.imap(lambda __f: __f[1], network.formulas_iter()))
 
         formulas = pd.Series(list(formulas))
 
@@ -298,7 +298,7 @@ class LogicalNetworkList(object):
             for v, f in network.formulas_iter():
                 fs.add(clingo.Function("formula", [i, v, formulas[formulas == f].index[0]]))
 
-        for formula_idx, formula in formulas.iteritems():
+        for formula_idx, formula in formulas.items():
             for clause in formula:
                 clause_idx = self.hg.clauses_idx[clause]
 
@@ -335,7 +335,7 @@ class LogicalNetworkList(object):
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         length = len(self)
-        df = pd.DataFrame(self.__matrix, columns=map(str, self.hg.mappings))
+        df = pd.DataFrame(self.__matrix, columns=list(map(str, self.hg.mappings)))
 
         if networks:
             df = pd.concat([df, pd.DataFrame({'networks': self.__networks})], axis=1)
@@ -388,7 +388,7 @@ class LogicalNetworkList(object):
             The next pair (mapping,frequency)
         """
         f = self.__matrix.mean(axis=0)
-        for i, m in self.mappings.iteritems():
+        for i, m in self.mappings.items():
             yield m, f[i]
 
     def frequency(self, mapping):

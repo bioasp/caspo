@@ -73,7 +73,7 @@ class Dataset(pd.DataFrame):
         clampings = []
         for _, row in self.filter(regex='^TR').iterrows():
             literals = []
-            for var, sign in row.iteritems():
+            for var, sign in row.items():
                 if self.is_stimulus(var):
                     literals.append(Literal(var[3:], 1 if sign == 1 else -1))
                 else:
@@ -157,7 +157,7 @@ class Dataset(pd.DataFrame):
         fs = fs.union(self.setup.to_funset())
 
         for i, row in self.readouts.iterrows():
-            for var, val in row.iteritems():
+            for var, val in row.items():
                 if not np.isnan(val):
                     fs.add(clingo.Function('obs', [i, var, discrete(val)]))
 
