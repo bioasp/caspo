@@ -7,6 +7,10 @@ MAINTAINER Loïc Paulevé <loic.pauleve@labri.fr>
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
 
+ENV PYTHONWARNINGS=ignore
+ENTRYPOINT ["/usr/bin/tini", "--", "caspo"]
+CMD ["--help"]
+
 RUN apt-get update --fix-missing && \
     mkdir /usr/share/man/man1 && touch /usr/share/man/man1/rmid.1.gz.dpkg-tmp && \
     apt-get install -y --no-install-recommends \
@@ -36,7 +40,3 @@ RUN CONDA_VERSION="latest" && \
     conda config --add channels bioasp && \
     conda install -y caspo && \
     conda clean -y --all && rm -rf /opt/conda/pkgs
-
-ENV PYTHONWARNINGS=ignore
-ENTRYPOINT ["caspo"]
-CMD ["--help"]
