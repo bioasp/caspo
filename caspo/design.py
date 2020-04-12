@@ -82,7 +82,7 @@ class Designer(object):
         if self.__optimum__ == model.cost:
             clampings = []
             keyfunc = lambda i_v_s: i_v_s[0].number
-            for i, c in it.groupby(sorted((f.arguments for f in model.symbols(shown=True)), key=keyfunc), keyfunc):
+            for _, c in it.groupby(sorted((f.arguments for f in model.symbols(shown=True)), key=keyfunc), keyfunc):
                 clampings.append(core.Clamping.from_tuples(((v.string, s.number) for _, v, s in c)))
 
             self.designs.append(core.ClampingList(clampings))
@@ -147,7 +147,7 @@ class Designer(object):
             parts.append(("diff", [max_experiments + 1]))
 
             solver.ground(parts)
-            ret = solver.solve(on_model=self.__save__)
+            solver.solve(on_model=self.__save__)
         else:
             step, sat = 0, False
             while step <= max_experiments and not sat:

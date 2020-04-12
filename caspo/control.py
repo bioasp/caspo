@@ -19,7 +19,6 @@
 import os
 import logging
 
-import itertools as it
 import pandas as pd
 
 import clingo

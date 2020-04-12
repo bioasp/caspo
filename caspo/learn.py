@@ -277,10 +277,10 @@ class Learner(object):
 
         self.networks.reset()
 
-        clingo = self.__get_clingo__(args, encodings)
-        clingo.conf.solve.models = str(n)
-        clingo.conf.solver.seed = str(randint(0, 32767))
-        clingo.conf.solver.sign_def = '3'
+        solver = self.__get_clingo__(args, encodings)
+        solver.conf.solve.models = str(n)
+        solver.conf.solver.seed = str(randint(0, 32767))
+        solver.conf.solver.sign_def = '3'
 
-        clingo.ground([("base", [])])
-        clingo.solve(on_model=self.__save__)
+        solver.ground([("base", [])])
+        solver.solve(on_model=self.__save__)
