@@ -27,7 +27,7 @@ install:
   - conda update --yes conda
   - conda install --yes conda-build jinja2 anaconda-client
   - conda config --add channels conda-forge
-  - conda config --add channels svidela
+  - conda config --add channels potassco
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
