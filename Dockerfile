@@ -34,7 +34,7 @@ RUN CONDA_VERSION="latest" && \
     rm ~/miniconda.sh && \
     conda update -n base -c defaults conda && \
     conda config --set auto_update_conda False && \
-    conda config --set show_channel_urls true \
+    conda config --set show_channel_urls true && \
     conda config --add channels conda-forge && \
     conda config --add channels potassco && \
     conda config --add channels bioasp && \
