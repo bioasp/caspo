@@ -87,7 +87,7 @@ class Setup(object):
                 else:
                     literals[cues] = -1
 
-            yield Clamping(iter(literals.items()))
+            yield Clamping(literals.items())
 
     def to_funset(self):
         """

@@ -41,7 +41,7 @@ class Graph(nx.MultiDiGraph):
         caspo.core.graph.Graph
             Created object instance
         """
-        return cls(map(lambda source_target_sign: (source_target_sign[0], source_target_sign[1], {'sign': source_target_sign[2]}), tuples))
+        return cls((source, target, {'sign': sign}) for source, target, sign in tuples)
 
     @classmethod
     def read_sif(cls, path):
