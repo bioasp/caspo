@@ -145,7 +145,7 @@ class HyperGraph(object):
                 for source, _, _ in literals:
                     valid[source] += 1
 
-                if all(map(lambda c: c == 1, list(valid.values()))):
+                if all(c == 1 for c in valid.values()):
                     hyper.append(i)
                     for source, _, data in literals:
                         edges['hyper_idx'].append(j)

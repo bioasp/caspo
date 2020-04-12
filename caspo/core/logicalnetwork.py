@@ -251,7 +251,8 @@ class LogicalNetworkList(object):
             The next logical network in the list
         """
         for i, arr in enumerate(self.__matrix):
-            yield LogicalNetwork(map(lambda m: (m[0], m[1]), self.hg.mappings[np.where(arr == 1)[0]]), networks=self.__networks[i])
+            yield LogicalNetwork(((clause, target) for clause, target in self.hg.mappings[np.where(arr == 1)[0]]), networks=self.__networks[i])
+
 
     def __getitem__(self, index):
         """
@@ -272,7 +273,7 @@ class LogicalNetworkList(object):
         if hasattr(index, '__iter__'):
             return LogicalNetworkList(self.hg, matrix, networks)
         else:
-            return LogicalNetwork(map(lambda m: (m[0], m[1]), self.hg.mappings[np.where(matrix == 1)[0]]), networks=networks)
+            return LogicalNetwork(((clause, target) for clause, target in self.hg.mappings[np.where(matrix == 1)[0]]), networks=networks)
 
     def to_funset(self):
         """
@@ -290,7 +291,7 @@ class LogicalNetworkList(object):
 
         formulas = set()
         for network in self:
-            formulas = formulas.union(map(lambda __f: __f[1], network.formulas_iter()))
+            formulas = formulas.union(f for v, f in network.formulas_iter())
 
         formulas = pd.Series(list(formulas))
 
@@ -335,7 +336,7 @@ class LogicalNetworkList(object):
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         length = len(self)
-        df = pd.DataFrame(self.__matrix, columns=list(map(str, self.hg.mappings)))
+        df = pd.DataFrame(self.__matrix, columns=[str(m) for m in self.hg.mappings])
 
         if networks:
             df = pd.concat([df, pd.DataFrame({'networks': self.__networks})], axis=1)
@@ -761,7 +762,7 @@ class LogicalNetwork(nx.DiGraph):
         tuple[str,frozenset[caspo.core.clause.Clause]]
             The next tuple of the form (variable, set of clauses) in the logical network.
         """
-        for var in filter(self.has_node, self.variables()):
+        for var in (v for v in self.variables() if self.has_node(v)):
             yield var, frozenset(self.predecessors(var))
 
     def to_array(self, mappings):
