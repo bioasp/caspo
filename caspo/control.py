@@ -114,7 +114,7 @@ class Controller(object):
         self.strategies = core.ClampingList()
 
         fs = networks.to_funset().union(scenarios.to_funset())
-        for v in it.ifilter(lambda n: n not in scenarios.exclude, networks.hg.nodes):
+        for v in filter(lambda n: n not in scenarios.exclude, networks.hg.nodes):
             fs.add(clingo.Function("candidate", [v]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show intervention/2."

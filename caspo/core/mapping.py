@@ -97,7 +97,7 @@ class MappingList(object):
                 except TypeError:
                     raise TypeError("Mapping object can be indexed by either a Mapping, an iterable of integers or an integer")
 
-    def iteritems(self):
+    def items(self):
         """
         Iterates over all mappings
 
