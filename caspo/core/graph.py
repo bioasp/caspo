@@ -16,7 +16,6 @@
 # along with caspo.  If not, see <http://www.gnu.org/licenses/>.import random
 # -*- coding: utf-8 -*-
 
-import itertools as it
 import pandas as pd
 import networkx as nx
 
@@ -42,7 +41,7 @@ class Graph(nx.MultiDiGraph):
         caspo.core.graph.Graph
             Created object instance
         """
-        return cls(it.imap(lambda source_target_sign: (source_target_sign[0], source_target_sign[1], {'sign': source_target_sign[2]}), tuples))
+        return cls(map(lambda source_target_sign: (source_target_sign[0], source_target_sign[1], {'sign': source_target_sign[2]}), tuples))
 
     @classmethod
     def read_sif(cls, path):
@@ -64,7 +63,7 @@ class Graph(nx.MultiDiGraph):
         """
         df = pd.read_csv(path, delim_whitespace=True, names=['source', 'sign', 'target']).drop_duplicates()
         edges = [(source, target, {'sign': sign}) for _, source, sign, target in df.itertuples()]
-        return cls(data=edges)
+        return cls(edges)
 
     def predecessors(self, node, exclude_compressed=True):
         """
@@ -85,7 +84,7 @@ class Graph(nx.MultiDiGraph):
         """
         preds = super(Graph, self).predecessors(node)
         if exclude_compressed:
-            return [n for n in preds if not self.node[n].get('compressed', False)]
+            return [n for n in preds if not self.nodes[n].get('compressed', False)]
         else:
             return preds
 
@@ -108,7 +107,7 @@ class Graph(nx.MultiDiGraph):
         """
         succs = super(Graph, self).successors(node)
         if exclude_compressed:
-            return [n for n in succs if not self.node[n].get('compressed', False)]
+            return [n for n in succs if not self.nodes[n].get('compressed', False)]
         else:
             return succs
 
@@ -160,7 +159,7 @@ class Graph(nx.MultiDiGraph):
                         if not zipped.has_edge(predecessor[0], target) or sign not in list(zipped[predecessor[0]][target].values()):
                             edges.append((predecessor[0], target, sign))
 
-        self.node[node]['compressed'] = zipped.node[node]['compressed'] = True
+        self.nodes[node]['compressed'] = zipped.nodes[node]['compressed'] = True
         zipped.add_edges_from(edges)
 
     def __merge_target_sources(self, node, zipped):
@@ -174,7 +173,7 @@ class Graph(nx.MultiDiGraph):
                         if not zipped.has_edge(source, successor[0]) or sign not in list(zipped[source][successor[0]].values()):
                             edges.append((source, successor[0], {'sign': target_edge['sign']*source_edge['sign']}))
 
-        self.node[node]['compressed'] = zipped.node[node]['compressed'] = True
+        self.nodes[node]['compressed'] = zipped.nodes[node]['compressed'] = True
         zipped.add_edges_from(edges)
 
     def __plot__(self):

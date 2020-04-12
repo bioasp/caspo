@@ -132,7 +132,7 @@ class HyperGraph(object):
         edges = defaultdict(list)
         j = 0
 
-        for i, node in enumerate(graph.nodes_iter()):
+        for i, node in enumerate(graph.nodes()):
             nodes.append(node)
 
             preds = graph.in_edges(node, data=True)
@@ -145,7 +145,7 @@ class HyperGraph(object):
                 for source, _, _ in literals:
                     valid[source] += 1
 
-                if all(it.imap(lambda c: c == 1, list(valid.values()))):
+                if all(map(lambda c: c == 1, list(valid.values()))):
                     hyper.append(i)
                     for source, _, data in literals:
                         edges['hyper_idx'].append(j)

@@ -255,7 +255,7 @@ class ClampingList(list):
         literals = set((l for l in it.chain.from_iterable(self)))
         exclusive, inclusive = defaultdict(set), defaultdict(set)
 
-        for l1, l2 in it.combinations(it.ifilter(lambda l: self.frequency(l) < 1., literals), 2):
+        for l1, l2 in it.combinations(filter(lambda l: self.frequency(l) < 1., literals), 2):
             a1, a2 = df[l1.variable] == l1.signature, df[l2.variable] == l2.signature
             if (a1 != a2).all():
                 exclusive[l1].add(l2)
@@ -344,7 +344,7 @@ class Clamping(frozenset):
         caspo.core.clamping.Clamping
             Created object instance
         """
-        return cls(it.imap(lambda v_s: Literal(v_s[0], v_s[1]), tuples))
+        return cls(map(lambda v_s: Literal(v_s[0], v_s[1]), tuples))
 
     def to_funset(self, index, name="clamped"):
         """
