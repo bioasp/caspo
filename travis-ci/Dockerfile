@@ -9,14 +9,14 @@ RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificate
     git mercurial subversion
 
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
-    /bin/bash /Miniconda2-latest-Linux-x86_64.sh -b -p /opt/conda && \
-    rm Miniconda2-latest-Linux-x86_64.sh
+    wget --quiet https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    /bin/bash /Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
+    rm Miniconda3-latest-Linux-x86_64.sh
 
 ENV PATH /opt/conda/bin:$PATH
 
 RUN conda config --set show_channel_urls true && conda update --yes conda && \
-    conda install --yes conda-build=1.21 jinja2 anaconda-client && conda config --add channels conda-forge --add channels svidela
+    conda install --yes conda-build jinja2 anaconda-client && conda config --add channels conda-forge --add channels svidela
 
 RUN apt-get install -y curl grep sed dpkg && \
     TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
