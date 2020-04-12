@@ -23,6 +23,10 @@ Detailed documentation about how to install and use **caspo** is available at ht
 
 Sample files are included with **caspo** and available for [download](http://bioasp.github.io/caspo/data.zip)
 
+### Citation
+
+caspo: a toolbox for automated reasoning on the response of logical signaling networks families. (2017). Bioinformatics. [DOI](https://doi.org/10.1093/bioinformatics/btw738)
+
 ### Related publications
 *  Designing experiments to discriminate families of logic models. (2015). Frontiers in Bioengineering and Biotechnology 3:131. [DOI](http://dx.doi.org/10.3389/fbioe.2015.00131)
 
