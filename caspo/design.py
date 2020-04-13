@@ -20,7 +20,7 @@ import os
 import logging
 import itertools as it
 
-import clingo # pylint: disable=import-error
+import clingo
 
 from caspo import core
 

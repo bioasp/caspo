@@ -25,7 +25,7 @@ from joblib import Parallel, delayed
 
 import numpy as np
 
-import clingo  # pylint: disable=import-error
+import clingo
 
 from caspo import core
 

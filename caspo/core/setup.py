@@ -19,7 +19,7 @@
 import json
 import itertools as it
 
-import clingo # pylint: disable=import-error
+import clingo
 
 from .clamping import Clamping
 

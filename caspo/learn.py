@@ -25,7 +25,7 @@ from random import randint
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
-import clingo # pylint: disable=import-error
+import clingo
 
 from caspo import core
 

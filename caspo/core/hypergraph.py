@@ -21,7 +21,7 @@ from collections import defaultdict
 import itertools as it
 import pandas as pd
 
-import clingo # pylint: disable=import-error
+import clingo
 
 from .literal import Literal
 from .clause import Clause
