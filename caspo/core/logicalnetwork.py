@@ -27,7 +27,7 @@ from joblib import Parallel, delayed
 
 from sklearn.metrics import mean_squared_error
 
-import clingo # pylint: disable=import-error
+import clingo
 
 from .clause import Clause
 from .mapping import Mapping
