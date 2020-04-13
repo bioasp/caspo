@@ -19,7 +19,7 @@
 import json
 import itertools as it
 
-import gringo
+import clingo # pylint: disable=import-error
 
 from .clamping import Clamping
 
@@ -73,7 +73,7 @@ class Setup(object):
             The next clamping with respect to the experimental setup
         """
         s = cues or list(self.stimuli + self.inhibitors)
-        clampings = it.chain.from_iterable(it.combinations(s, r) for r in xrange(len(s) + 1))
+        clampings = it.chain.from_iterable(it.combinations(s, r) for r in range(len(s) + 1))
 
         literals_tpl = {}
         for stimulus in self.stimuli:
@@ -87,23 +87,23 @@ class Setup(object):
                 else:
                     literals[cues] = -1
 
-            yield Clamping(literals.iteritems())
+            yield Clamping(literals.items())
 
     def to_funset(self):
         """
-        Converts the experimental setup to a set of `gringo.Fun`_ object instances
+        Converts the experimental setup to a set of `clingo.Function`_ object instances
 
         Returns
         -------
         set
-            The set of `gringo.Fun`_ object instances
+            The set of `clingo.Function`_ object instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
-        fs = set((gringo.Fun('stimulus', [str(var)]) for var in self.stimuli))
-        fs = fs.union((gringo.Fun('inhibitor', [str(var)]) for var in self.inhibitors))
-        fs = fs.union((gringo.Fun('readout', [str(var)]) for var in self.readouts))
+        fs = set((clingo.Function('stimulus', [str(var)]) for var in self.stimuli))
+        fs = fs.union((clingo.Function('inhibitor', [str(var)]) for var in self.inhibitors))
+        fs = fs.union((clingo.Function('readout', [str(var)]) for var in self.readouts))
 
         return fs
 

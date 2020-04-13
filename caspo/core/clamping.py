@@ -22,7 +22,7 @@ import itertools as it
 import numpy as np
 import pandas as pd
 
-import gringo
+import clingo # pylint: disable=import-error
 
 from .literal import Literal
 
@@ -33,7 +33,7 @@ class ClampingList(list):
 
     def to_funset(self, lname="clamping", cname="clamped"):
         """
-        Converts the list of clampings to a set of `gringo.Fun`_ instances
+        Converts the list of clampings to a set of `clingo.Function`_ instances
 
         Parameters
         ----------
@@ -46,14 +46,14 @@ class ClampingList(list):
         Returns
         -------
         set
-            Representation of all clampings as a set of `gringo.Fun`_ instances
+            Representation of all clampings as a set of `clingo.Function`_ instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
         fs = set()
         for i, clamping in enumerate(self):
-            fs.add(gringo.Fun(lname, [i]))
+            fs.add(clingo.Function(lname, [i]))
             fs = fs.union(clamping.to_funset(i, cname))
 
         return fs
@@ -156,7 +156,7 @@ class ClampingList(list):
         for _, row in df.iterrows():
             if ni > 0:
                 literals = []
-                for v, s in row.iteritems():
+                for v, s in row.items():
                     if v.endswith('i') and v[3:-1] in inhibitors:
                         if s == 1:
                             literals.append(Literal(v[3:-1], -1))
@@ -165,7 +165,7 @@ class ClampingList(list):
                 clampings.append(Clamping(literals))
             else:
 
-                clampings.append(Clamping([Literal(v[3:], s) for v, s in row[row != 0].iteritems()]))
+                clampings.append(Clamping([Literal(v[3:], s) for v, s in row[row != 0].items()]))
 
         return cls(clampings)
 
@@ -255,7 +255,7 @@ class ClampingList(list):
         literals = set((l for l in it.chain.from_iterable(self)))
         exclusive, inclusive = defaultdict(set), defaultdict(set)
 
-        for l1, l2 in it.combinations(it.ifilter(lambda l: self.frequency(l) < 1., literals), 2):
+        for l1, l2 in it.combinations((l for l in literals if self.frequency(l) < 1), 2):
             a1, a2 = df[l1.variable] == l1.signature, df[l2.variable] == l2.signature
             if (a1 != a2).all():
                 exclusive[l1].add(l2)
@@ -344,11 +344,11 @@ class Clamping(frozenset):
         caspo.core.clamping.Clamping
             Created object instance
         """
-        return cls(it.imap(lambda (v, s): Literal(v, s), tuples))
+        return cls(Literal(v, s) for v, s in tuples)
 
     def to_funset(self, index, name="clamped"):
         """
-        Converts the clamping to a set of `gringo.Fun`_ object instances
+        Converts the clamping to a set of `clingo.Function`_ object instances
 
         Parameters
         ----------
@@ -361,14 +361,14 @@ class Clamping(frozenset):
         Returns
         -------
         set
-            The set of `gringo.Fun`_ object instances
+            The set of `clingo.Function`_ object instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
         fs = set()
         for var, sign in self:
-            fs.add(gringo.Fun(name, [index, var, sign]))
+            fs.add(clingo.Function(name, [index, var, sign]))
 
         return fs
 
@@ -404,7 +404,7 @@ class Clamping(frozenset):
         boolean
             True if the given variable is present in the clamping, False otherwise
         """
-        return dict(self).has_key(variable)
+        return variable in dict(self)
 
     def to_array(self, variables):
         """

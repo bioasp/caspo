@@ -27,7 +27,7 @@ from joblib import Parallel, delayed
 
 from sklearn.metrics import mean_squared_error
 
-import gringo
+import clingo # pylint: disable=import-error
 
 from .clause import Clause
 from .mapping import Mapping
@@ -251,7 +251,8 @@ class LogicalNetworkList(object):
             The next logical network in the list
         """
         for i, arr in enumerate(self.__matrix):
-            yield LogicalNetwork(it.imap(lambda m: (m[0], m[1]), self.hg.mappings[np.where(arr == 1)[0]]), networks=self.__networks[i])
+            yield LogicalNetwork(((clause, target) for clause, target in self.hg.mappings[np.where(arr == 1)[0]]), networks=self.__networks[i])
+
 
     def __getitem__(self, index):
         """
@@ -272,38 +273,39 @@ class LogicalNetworkList(object):
         if hasattr(index, '__iter__'):
             return LogicalNetworkList(self.hg, matrix, networks)
         else:
-            return LogicalNetwork(it.imap(lambda m: (m[0], m[1]), self.hg.mappings[np.where(matrix == 1)[0]]), networks=networks)
+            return LogicalNetwork(((clause, target) for clause, target in self.hg.mappings[np.where(matrix == 1)[0]]), networks=networks)
 
     def to_funset(self):
         """
-        Converts the list of logical networks to a set of `gringo.Fun`_ instances
+        Converts the list of logical networks to a set of `clingo.Function`_ instances
 
         Returns
         -------
         set
-            Representation of all networks as a set of `gringo.Fun`_ instances
+            Representation of all networks as a set of `clingo.Function`_ instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
-        fs = set((gringo.Fun("variable", [var]) for var in self.hg.nodes))
+        fs = set((clingo.Function("variable", [var]) for var in self.hg.nodes))
 
         formulas = set()
         for network in self:
-            formulas = formulas.union(it.imap(lambda (_, f): f, network.formulas_iter()))
+            formulas = formulas.union(f for v, f in network.formulas_iter())
 
         formulas = pd.Series(list(formulas))
 
         for i, network in enumerate(self):
             for v, f in network.formulas_iter():
-                fs.add(gringo.Fun("formula", [i, v, formulas[formulas == f].index[0]]))
+                fs.add(clingo.Function("formula", [i, v, int(formulas[formulas == f].index[0])]))
 
-        for formula_idx, formula in formulas.iteritems():
+        for formula_idx, formula in formulas.items():
             for clause in formula:
                 clause_idx = self.hg.clauses_idx[clause]
-                fs.add(gringo.Fun("dnf", [formula_idx, clause_idx]))
+
+                fs.add(clingo.Function("dnf", [formula_idx, clause_idx]))
                 for variable, sign in clause:
-                    fs.add(gringo.Fun("clause", [clause_idx, variable, sign]))
+                    fs.add(clingo.Function("clause", [clause_idx, variable, sign]))
 
         return fs
 
@@ -334,7 +336,7 @@ class LogicalNetworkList(object):
         .. _pandas.DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
         """
         length = len(self)
-        df = pd.DataFrame(self.__matrix, columns=map(str, self.hg.mappings))
+        df = pd.DataFrame(self.__matrix, columns=[str(m) for m in self.hg.mappings])
 
         if networks:
             df = pd.concat([df, pd.DataFrame({'networks': self.__networks})], axis=1)
@@ -387,7 +389,7 @@ class LogicalNetworkList(object):
             The next pair (mapping,frequency)
         """
         f = self.__matrix.mean(axis=0)
-        for i, m in self.mappings.iteritems():
+        for i, m in self.mappings.items():
             yield m, f[i]
 
     def frequency(self, mapping):
@@ -588,7 +590,7 @@ class LogicalNetwork(nx.DiGraph):
             The underlying interaction graph
         """
         edges = set()
-        for clause, target in self.edges_iter():
+        for clause, target in self.edges():
             for source, signature in clause:
                 edges.add((source, target, signature))
 
@@ -599,7 +601,7 @@ class LogicalNetwork(nx.DiGraph):
         """
         int: The size (complexity) of this logical network as the sum of clauses' length
         """
-        return sum([len(c) for c, _ in self.edges_iter()])
+        return sum([len(c) for c, _ in self.edges()])
 
     def step(self, state, clamping):
         """
@@ -624,7 +626,7 @@ class LogicalNetwork(nx.DiGraph):
                 ns[var] = int(clamping.bool(var))
             else:
                 or_value = 0
-                for clause, _ in self.in_edges_iter(var):
+                for clause, _ in self.in_edges(var):
                     or_value = or_value or clause.bool(state)
                     if or_value:
                         break
@@ -743,7 +745,7 @@ class LogicalNetwork(nx.DiGraph):
             Unique variables names
         """
         variables = set()
-        for v in self.nodes_iter():
+        for v in self.nodes():
             if isinstance(v, Clause):
                 for l in v:
                     variables.add(l.variable)
@@ -760,7 +762,7 @@ class LogicalNetwork(nx.DiGraph):
         tuple[str,frozenset[caspo.core.clause.Clause]]
             The next tuple of the form (variable, set of clauses) in the logical network.
         """
-        for var in it.ifilter(self.has_node, self.variables()):
+        for var in (v for v in self.variables() if self.has_node(v)):
             yield var, frozenset(self.predecessors(var))
 
     def to_array(self, mappings):

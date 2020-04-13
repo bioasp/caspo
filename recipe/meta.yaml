@@ -10,16 +10,15 @@ source:
 build:
   number: 0
   script: python setup.py install
+  noarch: python
   entry_points:
     - caspo = caspo.console.main:run
 
 requirements:
   build:
-    - python
-    - wheel 0.29.0
+    - python >=3
   run:
-    - python
-    - wheel 0.29.0
+    - python >=3
     - pandas
     - scipy
     - scikit-learn
@@ -27,9 +26,9 @@ requirements:
     - seaborn
     - graphviz
     - pyparsing
-    - pydotplus
+    - pydot
     - joblib
-    - clingo 4*
+    - clingo 5*
 
 test:
   commands:

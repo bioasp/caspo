@@ -19,7 +19,7 @@
 import pandas as pd
 import numpy as np
 
-import gringo
+import clingo # pylint: disable=import-error
 
 from .setup import Setup
 from .literal import Literal
@@ -73,7 +73,7 @@ class Dataset(pd.DataFrame):
         clampings = []
         for _, row in self.filter(regex='^TR').iterrows():
             literals = []
-            for var, sign in row.iteritems():
+            for var, sign in row.items():
                 if self.is_stimulus(var):
                     literals.append(Literal(var[3:], 1 if sign == 1 else -1))
                 else:
@@ -138,7 +138,7 @@ class Dataset(pd.DataFrame):
 
     def to_funset(self, discrete):
         """
-        Converts the dataset to a set of `gringo.Fun`_ instances
+        Converts the dataset to a set of `clingo.Function`_ instances
 
         Parameters
         ----------
@@ -148,17 +148,17 @@ class Dataset(pd.DataFrame):
         Returns
         -------
         set
-            Representation of the dataset as a set of `gringo.Fun`_ instances
+            Representation of the dataset as a set of `clingo.Function`_ instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
         fs = self.clampings.to_funset("exp")
         fs = fs.union(self.setup.to_funset())
 
         for i, row in self.readouts.iterrows():
-            for var, val in row.iteritems():
+            for var, val in row.items():
                 if not np.isnan(val):
-                    fs.add(gringo.Fun('obs', [i, var, discrete(val)]))
+                    fs.add(clingo.Function('obs', [i, var, discrete(val)]))
 
         return fs

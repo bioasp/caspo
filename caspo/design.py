@@ -20,7 +20,7 @@ import os
 import logging
 import itertools as it
 
-import gringo
+import clingo # pylint: disable=import-error
 
 from caspo import core
 
@@ -59,9 +59,9 @@ class Designer(object):
         fs = networks.to_funset().union(setup.to_funset())
         if candidates:
             fs = fs.union(self.candidates.to_funset("listing", "listed"))
-            fs.add(gringo.Fun("mode", [2]))
+            fs.add(clingo.Function("mode", [2]))
         else:
-            fs.add(gringo.Fun("mode", [1]))
+            fs.add(clingo.Function("mode", [1]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show clamped/3."
 
@@ -79,15 +79,15 @@ class Designer(object):
         self._logger = logging.getLogger("caspo")
 
     def __save__(self, model):
-        if self.__optimum__ == model.optimization():
+        if self.__optimum__ == model.cost:
             clampings = []
-            keyfunc = lambda (i, v, s): i
-            for _, c in it.groupby(sorted((f.args() for f in model.atoms()), key=keyfunc), keyfunc):
-                clampings.append(core.Clamping.from_tuples(((v, s) for _, v, s in c)))
+            keyfunc = lambda i_v_s: i_v_s[0].number
+            for _, c in it.groupby(sorted((f.arguments for f in model.symbols(shown=True)), key=keyfunc), keyfunc):
+                clampings.append(core.Clamping.from_tuples(((v.string, s.number) for _, v, s in c)))
 
             self.designs.append(core.ClampingList(clampings))
         else:
-            self.__optimum__ = model.optimization()
+            self.__optimum__ = model.cost
 
     def design(self, max_stimuli=-1, max_inhibitors=-1, max_experiments=10, relax=False, configure=None):
         """
@@ -132,36 +132,37 @@ class Designer(object):
 
         args = ['-c maxstimuli=%s' % max_stimuli, '-c maxinhibitors=%s' % max_inhibitors, '-Wno-atom-undefined']
 
-        clingo = gringo.Control(args)
-        clingo.conf.solve.opt_mode = 'optN'
+        solver = clingo.Control(args)
+        solver.configuration.solve.opt_mode = 'optN'
         if configure is not None:
-            configure(clingo.conf)
+            configure(solver.configuration)
 
-        clingo.add("base", [], self.instance)
-        clingo.load(self.encodings['design'])
+        solver.add("base", [], self.instance)
+        solver.load(self.encodings['design'])
 
-        clingo.ground([("base", [])])
+        solver.ground([("base", [])])
 
         if relax:
-            parts = [("step", [step]) for step in xrange(1, max_experiments+1)]
+            parts = [("step", [step]) for step in range(1, max_experiments+1)]
             parts.append(("diff", [max_experiments + 1]))
-            clingo.ground(parts)
-            ret = clingo.solve(on_model=self.__save__)
+
+            solver.ground(parts)
+            solver.solve(on_model=self.__save__)
         else:
-            step, ret = 0, gringo.SolveResult.UNKNOWN
-            while step <= max_experiments and ret != gringo.SolveResult.SAT:
+            step, sat = 0, False
+            while step <= max_experiments and not sat:
                 parts = []
                 parts.append(("check", [step]))
                 if step > 0:
-                    clingo.release_external(gringo.Fun("query", [step-1]))
+                    solver.release_external(clingo.Function("query", [step-1]))
                     parts.append(("step", [step]))
-                    clingo.cleanup_domains()
+                    solver.cleanup()
 
-                clingo.ground(parts)
-                clingo.assign_external(gringo.Fun("query", [step]), True)
-                ret, step = clingo.solve(on_model=self.__save__), step + 1
+                solver.ground(parts)
+                solver.assign_external(clingo.Function("query", [step]), True)
+                sat, step = solver.solve(on_model=self.__save__).satisfiable, step + 1
 
-        self.stats['time_optimum'] = clingo.stats['time_solve']
-        self.stats['time_enumeration'] = clingo.stats['time_total']
+        self.stats['time_optimum'] = solver.statistics['summary']['times']['solve']
+        self.stats['time_enumeration'] = solver.statistics['summary']['times']['total']
 
         self._logger.info("%s optimal experimental designs found in %.4fs", len(self.designs), self.stats['time_enumeration'])

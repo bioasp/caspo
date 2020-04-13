@@ -60,9 +60,9 @@ def coloured_network(network, setup, filename):
     for node in graph.nodes():
         _type = 'DEFAULT'
         for attr, value in NODES_ATTR[_type].items():
-            graph.node[node][attr] = value
+            graph.nodes[node][attr] = value
 
-        if 'gate' in graph.node[node]:
+        if 'gate' in graph.nodes[node]:
             _type = 'GATE'
         elif node in setup.stimuli:
             _type = 'STIMULI'
@@ -75,18 +75,18 @@ def coloured_network(network, setup, filename):
 
         if _type != 'DEFAULT':
             for attr, value in NODES_ATTR[_type].items():
-                graph.node[node][attr] = value
+                graph.nodes[node][attr] = value
 
     for source, target in graph.edges():
-        for k in graph.edge[source][target]:
+        for k in graph[source][target]:
             for attr, value in EDGES_ATTR['DEFAULT'].items():
-                graph.edge[source][target][k][attr] = value
+                graph[source][target][k][attr] = value
 
-            for attr, value in EDGES_ATTR[graph.edge[source][target][k]['sign']].items():
-                graph.edge[source][target][k][attr] = value
+            for attr, value in EDGES_ATTR[graph[source][target][k]['sign']].items():
+                graph[source][target][k][attr] = value
 
-            if 'weight' in graph.edge[source][target][k]:
-                graph.edge[source][target][k]['penwidth'] = 5 * graph.edge[source][target][k]['weight']
+            if 'weight' in graph[source][target][k]:
+                graph[source][target][k]['penwidth'] = 5 * graph[source][target][k]['weight']
 
     write_dot(graph, filename)
 
@@ -121,8 +121,8 @@ def networks_distribution(df, filepath=None):
     g = sns.JointGrid(x="mse", y="size", data=df)
 
     g.plot_joint(sns.violinplot, scale='count')
-    g.ax_joint.set_yticks(range(df['size'].min(), df['size'].max() + 1))
-    g.ax_joint.set_yticklabels(range(df['size'].min(), df['size'].max() + 1))
+    g.ax_joint.set_yticks(list(range(df['size'].min(), df['size'].max() + 1)))
+    g.ax_joint.set_yticklabels(list(range(df['size'].min(), df['size'].max() + 1)))
 
     for tick in g.ax_joint.get_xticklabels():
         tick.set_rotation(90)
@@ -180,7 +180,8 @@ def mappings_frequency(df, filepath=None):
     df = df.sort_values('frequency')
     df['conf'] = df.frequency.map(lambda f: 0 if f < 0.2 else 1 if f < 0.8 else 2)
 
-    g = sns.factorplot(x="mapping", y="frequency", data=df, aspect=3, hue='conf', legend=False)
+    g = sns.catplot(x="mapping", y="frequency", data=df, aspect=3, hue='conf',
+            legend=False, kind="point")
     for tick in g.ax.get_xticklabels():
         tick.set_rotation(90)
 
@@ -231,9 +232,9 @@ def behaviors_distribution(df, filepath=None):
     df.columns = rcols
 
     if "MSE" in df.columns:
-        g = sns.factorplot(x='Input-Output behaviors', y='Logical networks', hue='MSE', data=df, aspect=3, kind='bar', legend_out=False)
+        g = sns.catplot(x='Input-Output behaviors', y='Logical networks', hue='MSE', data=df, aspect=3, kind='bar', legend_out=False)
     else:
-        g = sns.factorplot(x='Input-Output behaviors', y='Logical networks', data=df, aspect=3, kind='bar', legend_out=False)
+        g = sns.catplot(x='Input-Output behaviors', y='Logical networks', data=df, aspect=3, kind='bar', legend_out=False)
 
     g.ax.set_xticks([])
     if filepath:
@@ -372,7 +373,7 @@ def predictions_variance(df, filepath=None):
 
     by_readout['Readout'] = by_readout.Readout.map(lambda n: n[4:])
 
-    g1 = sns.factorplot(x='Readout', y='Prediction variance (mean)', data=by_readout, kind='bar', aspect=2)
+    g1 = sns.catplot(x='Readout', y='Prediction variance (mean)', data=by_readout, kind='bar', aspect=2)
 
     for tick in g1.ax.get_xticklabels():
         tick.set_rotation(90)
@@ -463,7 +464,7 @@ def interventions_frequency(df, filepath=None):
     df = df.sort_values('frequency')
     df['conf'] = df.frequency.map(lambda f: 0 if f < 0.2 else 1 if f < 0.8 else 2)
 
-    g = sns.factorplot(x="intervention", y="frequency", data=df, aspect=3, hue='conf', legend=False)
+    g = sns.catplot(x="intervention", y="frequency", data=df, aspect=3, hue='conf', legend=False, kind="point")
     for tick in g.ax.get_xticklabels():
         tick.set_rotation(90)
 

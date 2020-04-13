@@ -19,10 +19,9 @@
 import os
 import logging
 
-import itertools as it
 import pandas as pd
 
-import gringo
+import clingo # pylint: disable=import-error
 
 from caspo import core
 
@@ -62,7 +61,7 @@ class ScenarioList(object):
 
     @staticmethod
     def __clamping_list__(df):
-        return core.ClampingList([core.Clamping([core.Literal(v, s) for v, s in row[row != 0].iteritems()]) for _, row in df.iterrows()])
+        return core.ClampingList([core.Clamping([core.Literal(v, s) for v, s in row[row != 0].items()]) for _, row in df.iterrows()])
 
     @property
     def constraints(self):
@@ -74,15 +73,15 @@ class ScenarioList(object):
 
     def to_funset(self):
         """
-        Converts the intervention scenarios to a set of `gringo.Fun`_ instances
+        Converts the intervention scenarios to a set of `clingo.Function`_ instances
 
         Returns
         -------
         set
-            Representation of the intervention scenarios as a set of `gringo.Fun`_ instances
+            Representation of the intervention scenarios as a set of `clingo.Function`_ instances
 
 
-        .. _gringo.Fun: http://potassco.sourceforge.net/gringo.html#Fun
+        .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
         return self.constraints.to_funset("scenario", "constrained").union(self.goals.to_funset("scenario", "goal"))
 
@@ -114,8 +113,8 @@ class Controller(object):
         self.strategies = core.ClampingList()
 
         fs = networks.to_funset().union(scenarios.to_funset())
-        for v in it.ifilter(lambda n: n not in scenarios.exclude, networks.hg.nodes):
-            fs.add(gringo.Fun("candidate", [v]))
+        for v in (n for n in networks.hg.nodes if n not in scenarios.exclude):
+            fs.add(clingo.Function("candidate", [v]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show intervention/2."
 
@@ -133,8 +132,8 @@ class Controller(object):
         self._logger = logging.getLogger("caspo")
 
     def __save__(self, model):
-        tuples = (f.args() for f in model.atoms())
-        self._strategies.append(core.Clamping.from_tuples(tuples))
+        tuples = (f.arguments for f in model.symbols(shown=True))
+        self._strategies.append(core.Clamping.from_tuples(((v.string, s.number) for v, s in tuples)))
 
     def control(self, size=0, configure=None):
         """
@@ -164,32 +163,32 @@ class Controller(object):
         """
         self._strategies = []
 
-        clingo = gringo.Control(['-c maxsize=%s' % size])
+        solver = clingo.Control(['-c maxsize=%s' % size])
 
-        clingo.conf.solve.models = '0'
+        solver.configuration.solve.models = '0'
         if configure:
             def overwrite(args, proxy):
-                for i in xrange(args.threads):
+                for i in range(args.threads):
                     proxy.solver[i].no_lookback = 'false'
                     proxy.solver[i].heuristic = 'domain'
                     proxy.solver[i].dom_mod = '5,16'
 
-            configure(clingo.conf, overwrite)
+            configure(solver.configuration, overwrite)
         else:
-            clingo.conf.solver.no_lookback = 'false'
-            clingo.conf.solver.heuristic = 'domain'
-            clingo.conf.solver.dom_mod = '5,16'
+            solver.configuration.solver.no_lookback = 'false'
+            solver.configuration.solver.heuristic = 'domain'
+            solver.configuration.solver.dom_mod = '5,16'
 
-        clingo.conf.solve.enum_mode = 'domRec'
+        solver.configuration.solve.enum_mode = 'domRec'
 
-        clingo.add("base", [], self.instance)
-        clingo.load(self.encodings['control'])
+        solver.add("base", [], self.instance)
+        solver.load(self.encodings['control'])
 
-        clingo.ground([("base", [])])
-        clingo.solve(on_model=self.__save__)
+        solver.ground([("base", [])])
+        solver.solve(on_model=self.__save__)
 
-        self.stats['time_optimum'] = clingo.stats['time_solve']
-        self.stats['time_enumeration'] = clingo.stats['time_total']
+        self.stats['time_optimum'] = solver.statistics['summary']['times']['solve']
+        self.stats['time_enumeration'] = solver.statistics['summary']['times']['total']
 
         self._logger.info("%s optimal intervention strategies found in %.4fs", len(self._strategies), self.stats['time_enumeration'])
 
