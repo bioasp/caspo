@@ -22,7 +22,7 @@ import itertools as it
 import numpy as np
 import pandas as pd
 
-import clingo
+import clingo # pylint: disable=import-error
 
 from .literal import Literal
 

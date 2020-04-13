@@ -19,7 +19,7 @@
 import pandas as pd
 import numpy as np
 
-import clingo
+import clingo # pylint: disable=import-error
 
 from .setup import Setup
 from .literal import Literal

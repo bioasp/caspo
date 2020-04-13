@@ -21,7 +21,7 @@ import logging
 
 import pandas as pd
 
-import clingo
+import clingo # pylint: disable=import-error
 
 from caspo import core
 
