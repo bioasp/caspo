@@ -13,15 +13,18 @@ jobs:
       - uses: actions/checkout@v2
         with:
             ref: ${VERSION}
-      - run: docker build -t bioasp/caspo:latest .
-      - run: docker run --rm bioasp/caspo:latest test --fatal --testcase LiverDREAM
-      - run: docker tag bioasp/caspo:latest bioasp/caspo:${VERSION//*v}
-      - name: Login to docker hub
+      - name: build
+        run: docker build -t bioasp/caspo:latest --build-arg CASPO_VERSION=${VERSION//*v} .
+      - name: test
+        run: docker run --rm bioasp/caspo:latest test --fatal --testcase LiverDREAM
+      - name: tag
+        run: docker tag bioasp/caspo:latest bioasp/caspo:${VERSION//*v}
+      - name: login
         uses: actions-hub/docker/login@master
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Push image
+      - name: push
         uses: actions-hub/docker@master
         with:
             args: push bioasp/caspo:latest bioasp/caspo:${VERSION//*v}
