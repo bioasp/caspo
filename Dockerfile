@@ -27,6 +27,7 @@ RUN TINI_VERSION="0.18.0" && \
     dpkg -i tini_${TINI_VERSION}-amd64.deb && \
     rm *.deb
 
+
 RUN CONDA_VERSION="latest" && \
     echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
     wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh -O ~/miniconda.sh && \
@@ -38,5 +39,8 @@ RUN CONDA_VERSION="latest" && \
     conda config --add channels conda-forge && \
     conda config --add channels potassco && \
     conda config --add channels bioasp && \
-    conda install -y caspo && \
+    conda clean -y --all && rm -rf /opt/conda/pkgs
+
+ARG CASPO_VERSION
+RUN conda install -y caspo=${CASPO_VERSION} && \
     conda clean -y --all && rm -rf /opt/conda/pkgs
