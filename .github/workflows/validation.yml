@@ -1,0 +1,16 @@
+name: Validation
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Validation
+      uses: docker://colomoto/conda-builder:latest
+      with:
+        subdir: recipe
+        anaconda_user: no
+        anaconda_token: no
+        conda_build_options: --no-anaconda-upload

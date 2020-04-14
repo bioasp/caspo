@@ -1,0 +1,28 @@
+name: Docker
+
+on:
+  repository_dispatch:
+    types: [docker]
+
+jobs:
+  docker:
+    env:
+        VERSION: ${{ github.event.client_payload.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+            ref: ${VERSION}
+      - run: docker build -t bioasp/caspo:latest .
+      - run: docker run --rm bioasp/caspo:latest test --fatal --testcase LiverDREAM
+      - run: docker tag bioasp/caspo:latest bioasp/caspo:${VERSION//*v}
+      - name: Login to docker hub
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push image
+        uses: actions-hub/docker@master
+        with:
+            args: push bioasp/caspo:latest bioasp/caspo:${VERSION//*v}
+
