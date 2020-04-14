@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.ref }}
+    steps:
+    - uses: actions/checkout@v2
+    - run: sed -i "s:9999:${VERSION//*v/}:" caspo/__init__.py recipe/meta.yaml
+    - name: Conda publish
+      uses: docker://colomoto/conda-builder:latest
+      with:
+        subdir: recipe
+        anaconda_user: bioasp
+        anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
+    - uses: actions/setup-python@v1
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+    - name: Trigger Docker building
+      uses: peter-evans/repository-dispatch@v1
+      with:
+          token: ${{ secrets.PAT }}
+          event-type: docker
+          client-payload: '{"ref": "${{ github.ref }}"}'
