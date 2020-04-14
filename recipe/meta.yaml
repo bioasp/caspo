@@ -1,4 +1,4 @@
-{% set version = "3.0.2.dev0" %}
+{% set version = "9999" %}
 
 package:
   name: caspo
@@ -33,7 +33,7 @@ requirements:
 test:
   commands:
     - caspo --help
-    - caspo test
+    - caspo test --fatal --testcase LiverDREAM
 
 about:
   home: http://bioasp.github.io/caspo
