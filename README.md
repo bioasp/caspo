@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/bioasp/caspo.svg?branch=master)](https://travis-ci.org/bioasp/caspo)
+[![Conda package](https://anaconda.org/bioasp/caspo/badges/version.svg)](https://anaconda.org/bioasp/caspo)
 [![Documentation Status](https://readthedocs.org/projects/caspo/badge/?version=latest)](http://caspo.readthedocs.io/en/latest/?badge=latest)
 [![license](https://img.shields.io/badge/license-GPLv3+-brightgreen.svg)](https://www.gnu.org/licenses/gpl.html)
+[![Gitter](https://badges.gitter.im/bioasp/community.svg)](https://gitter.im/bioasp/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ### Reasoning on the response of logical signaling networks
 
