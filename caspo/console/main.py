@@ -104,6 +104,7 @@ def run():
 
     test = subparsers.add_parser("test", parents=[clingo_parser])
     test.add_argument("--testcase", help="testcase name", choices=["Toy", "LiverToy", "LiverDREAM", "ExtLiver"], default="Toy")
+    test.add_argument("--fatal", help="raise fatal error on failure", action="store_true")
 
     parser.add_argument("--quiet", dest="quiet", action="store_true", help="do not print anything to standard output")
     parser.add_argument("--out", dest="out", default='out', help="output directory path (Default to './out')", metavar="O")
@@ -135,6 +136,7 @@ def run():
             logger.critical("A critical error has occurred. Please file an issue at http://github.com/bioasp/caspo/issues.")
     else:
         testcase = args.testcase
+        fatal_test = args.fatal
         out = args.out
         threads = args.threads
         conf = args.conf
@@ -199,6 +201,8 @@ def run():
             msg = header + " Testing on caspo %s has failed. " % args.cmd + header
             logger.critical(msg)
             logger.critical(e)
+            if fatal_test:
+                raise e
 
         ###### CLASSIFY #####
 
@@ -230,6 +234,8 @@ def run():
             msg = header + " Testing on caspo %s has failed. " % args.cmd + header
             logger.critical(msg)
             logger.critical(e)
+            if fatal_test:
+                raise e
 
         ###### DESIGN ######
 
@@ -259,6 +265,8 @@ def run():
             msg = header + " Testing on caspo %s has failed. " % args.cmd + header
             logger.critical(msg)
             logger.critical(e)
+            if fatal_test:
+                raise e
 
         ###### PREDICT ######
 
@@ -278,6 +286,8 @@ def run():
             msg = "Testing on caspo %s has failed." % args.cmd
             logger.info(msg)
             logger.info(e)
+            if fatal_test:
+                raise e
 
 
         ###### CONTROL ######
@@ -307,6 +317,8 @@ def run():
             msg = header + " Testing on caspo %s has failed. " % args.cmd + header
             logger.critical(msg)
             logger.critical(e)
+            if fatal_test:
+                raise e
 
 
         ###### VISUALIZE ######
@@ -341,3 +353,5 @@ def run():
             msg = header + " Testing on caspo %s has failed. " % args.cmd + header
             logger.critical(msg)
             logger.critical(e)
+            if fatal_test:
+                raise e
