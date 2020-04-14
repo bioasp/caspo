@@ -1,8 +1,6 @@
-FROM debian:stable-slim
-
-MAINTAINER Loïc Paulevé <loic.pauleve@labri.fr>
-
 # adapted from colomoto/colomoto-docker-base
+
+FROM debian:stable-slim
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
@@ -26,7 +24,6 @@ RUN TINI_VERSION="0.18.0" && \
     wget --quiet https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}-amd64.deb && \
     dpkg -i tini_${TINI_VERSION}-amd64.deb && \
     rm *.deb
-
 
 RUN CONDA_VERSION="latest" && \
     echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
