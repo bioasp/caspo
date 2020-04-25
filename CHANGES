@@ -1,5 +1,7 @@
-3.0.2 (unreleased)
+4.0.0 (unreleased)
 ------------------
+- Migrate to Python 3
+- Migrate to Clingo 5
 
 3.0.1 (2016-10-05)
 ------------------
