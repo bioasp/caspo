@@ -7,12 +7,13 @@ on:
 jobs:
   docker:
     env:
-        VERSION: ${{ github.event.client_payload.ref }}
+        REF: ${{ github.event.client_payload.ref }}
     runs-on: ubuntu-latest
     steps:
+      - run: echo ::set-env name=VERSION::${REF##*/}
       - uses: actions/checkout@v2
         with:
-            ref: ${VERSION}
+            ref: ${{ env.VERSION }}
       - name: build
         run: docker build -t bioasp/caspo:latest --build-arg CASPO_VERSION=${VERSION//*v} .
       - name: test
