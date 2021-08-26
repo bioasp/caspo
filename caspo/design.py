@@ -59,9 +59,9 @@ class Designer(object):
         fs = networks.to_funset().union(setup.to_funset())
         if candidates:
             fs = fs.union(self.candidates.to_funset("listing", "listed"))
-            fs.add(clingo.Function("mode", [2]))
+            fs.add(clingo.Function("mode", [clingo.Number(2)]))
         else:
-            fs.add(clingo.Function("mode", [1]))
+            fs.add(clingo.Function("mode", [clingo.Number(1)]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show clamped/3."
 
@@ -143,8 +143,8 @@ class Designer(object):
         solver.ground([("base", [])])
 
         if relax:
-            parts = [("step", [step]) for step in range(1, max_experiments+1)]
-            parts.append(("diff", [max_experiments + 1]))
+            parts = [("step", [clingo.Number(step)]) for step in range(1, max_experiments+1)]
+            parts.append(("diff", [clingo.Number(max_experiments + 1)]))
 
             solver.ground(parts)
             solver.solve(on_model=self.__save__)
@@ -152,14 +152,16 @@ class Designer(object):
             step, sat = 0, False
             while step <= max_experiments and not sat:
                 parts = []
-                parts.append(("check", [step]))
+                parts.append(("check", [clingo.Number(step)]))
                 if step > 0:
-                    solver.release_external(clingo.Function("query", [step-1]))
-                    parts.append(("step", [step]))
+                    solver.release_external(clingo.Function("query",
+                        [clingo.Number(step-1)]))
+                    parts.append(("step", [clingo.Number(step)]))
                     solver.cleanup()
 
                 solver.ground(parts)
-                solver.assign_external(clingo.Function("query", [step]), True)
+                solver.assign_external(clingo.Function("query",
+                    [clingo.Number(step)]), True)
                 sat, step = solver.solve(on_model=self.__save__).satisfiable, step + 1
 
         self.stats['time_optimum'] = solver.statistics['summary']['times']['solve']

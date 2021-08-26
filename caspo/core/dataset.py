@@ -159,6 +159,7 @@ class Dataset(pd.DataFrame):
         for i, row in self.readouts.iterrows():
             for var, val in row.items():
                 if not np.isnan(val):
-                    fs.add(clingo.Function('obs', [i, var, discrete(val)]))
+                    fs.add(clingo.Function('obs', [clingo.Number(i),
+                        clingo.String(var), clingo.Number(discrete(val))]))
 
         return fs

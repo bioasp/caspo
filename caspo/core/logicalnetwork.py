@@ -287,7 +287,7 @@ class LogicalNetworkList(object):
 
         .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
-        fs = set((clingo.Function("variable", [var]) for var in self.hg.nodes))
+        fs = set((clingo.Function("variable", [clingo.String(var)]) for var in self.hg.nodes))
 
         formulas = set()
         for network in self:
@@ -297,15 +297,18 @@ class LogicalNetworkList(object):
 
         for i, network in enumerate(self):
             for v, f in network.formulas_iter():
-                fs.add(clingo.Function("formula", [i, v, int(formulas[formulas == f].index[0])]))
+                fs.add(clingo.Function("formula", [clingo.Number(i),
+                    clingo.String(v), clingo.Number(int(formulas[formulas == f].index[0]))]))
 
         for formula_idx, formula in formulas.items():
             for clause in formula:
                 clause_idx = self.hg.clauses_idx[clause]
 
-                fs.add(clingo.Function("dnf", [formula_idx, clause_idx]))
+                fs.add(clingo.Function("dnf", [clingo.Number(formula_idx),
+                    clingo.Number(clause_idx)]))
                 for variable, sign in clause:
-                    fs.add(clingo.Function("clause", [clause_idx, variable, sign]))
+                    fs.add(clingo.Function("clause", [clingo.Number(clause_idx),
+                        clingo.String(variable), clingo.Number(sign)]))
 
         return fs
 

@@ -28,7 +28,7 @@ requirements:
     - pyparsing
     - pydot
     - joblib
-    - clingo 5*
+    - clingo 5.5.*
 
 test:
   commands:

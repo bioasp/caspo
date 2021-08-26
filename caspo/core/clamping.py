@@ -53,7 +53,7 @@ class ClampingList(list):
         """
         fs = set()
         for i, clamping in enumerate(self):
-            fs.add(clingo.Function(lname, [i]))
+            fs.add(clingo.Function(lname, [clingo.Number(i)]))
             fs = fs.union(clamping.to_funset(i, cname))
 
         return fs
@@ -368,7 +368,7 @@ class Clamping(frozenset):
         """
         fs = set()
         for var, sign in self:
-            fs.add(clingo.Function(name, [index, var, sign]))
+            fs.add(clingo.Function(name, [clingo.Number(index), clingo.String(var), clingo.Number(sign)]))
 
         return fs
 

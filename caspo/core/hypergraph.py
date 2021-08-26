@@ -174,12 +174,14 @@ class HyperGraph(object):
         """
         fs = set()
         for i, n in self.nodes.items():
-            fs.add(clingo.Function('node', [n, i]))
+            fs.add(clingo.Function('node', [clingo.String(n), clingo.Number(i)]))
 
         for j, i in self.hyper.items():
-            fs.add(clingo.Function('hyper', [i, j, len(self.edges[self.edges.hyper_idx == j])]))
+            fs.add(clingo.Function('hyper', [clingo.Number(i), clingo.Number(j),
+                clingo.Number(len(self.edges[self.edges.hyper_idx == j]))]))
 
         for j, v, s in self.edges.itertuples(index=False):
-            fs.add(clingo.Function('edge', [j, v, s]))
+            fs.add(clingo.Function('edge', [clingo.Number(j), clingo.String(v),
+                clingo.Number(s)]))
 
         return fs

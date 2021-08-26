@@ -114,7 +114,7 @@ class Controller(object):
 
         fs = networks.to_funset().union(scenarios.to_funset())
         for v in (n for n in networks.hg.nodes if n not in scenarios.exclude):
-            fs.add(clingo.Function("candidate", [v]))
+            fs.add(clingo.Function("candidate", [clingo.String(v)]))
 
         self.instance = ". ".join(map(str, fs)) + ". #show intervention/2."
 

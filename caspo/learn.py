@@ -75,7 +75,7 @@ class Learner(object):
         self.hypergraph = core.HyperGraph.from_graph(self.graph, length)
 
         fs = self.dataset.to_funset(self.discrete).union(self.hypergraph.to_funset())
-        fs.add(clingo.Function('dfactor', [self.factor]))
+        fs.add(clingo.Function('dfactor', [clingo.Number(self.factor)]))
         self.instance = ". ".join(map(str, fs)) + ". #show dnf/2."
 
         self.optimum = None

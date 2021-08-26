@@ -101,9 +101,9 @@ class Setup(object):
 
         .. _clingo.Function: https://potassco.github.io/clingo/python-api/current/clingo.html#-Function
         """
-        fs = set((clingo.Function('stimulus', [str(var)]) for var in self.stimuli))
-        fs = fs.union((clingo.Function('inhibitor', [str(var)]) for var in self.inhibitors))
-        fs = fs.union((clingo.Function('readout', [str(var)]) for var in self.readouts))
+        fs = set((clingo.Function('stimulus', [clingo.String(str(var))]) for var in self.stimuli))
+        fs = fs.union((clingo.Function('inhibitor', [clingo.String(str(var))]) for var in self.inhibitors))
+        fs = fs.union((clingo.Function('readout', [clingo.String(str(var))]) for var in self.readouts))
 
         return fs
 
