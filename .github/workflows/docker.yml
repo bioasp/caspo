@@ -25,8 +25,12 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - name: push
+      - name: push:VERSION
         uses: actions-hub/docker@master
         with:
-            args: push bioasp/caspo:latest bioasp/caspo:${VERSION//*v}
+            args: push bioasp/caspo:${VERSION//*v}
+      - name: push:latest
+        uses: actions-hub/docker@master
+        with:
+            args: push bioasp/caspo:latest
 
