@@ -10,7 +10,7 @@ jobs:
         REF: ${{ github.event.client_payload.ref }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo ::set-env name=VERSION::${REF##*/}
+      - run: echo VERSION=${REF##*/} >> $GITHUB_ENV
       - uses: actions/checkout@v2
         with:
             ref: ${{ env.VERSION }}
