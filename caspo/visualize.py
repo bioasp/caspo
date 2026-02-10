@@ -120,7 +120,7 @@ def networks_distribution(df, filepath=None):
 
     g = sns.JointGrid(x="mse", y="size", data=df)
 
-    g.plot_joint(sns.violinplot, scale='count')
+    g.plot_joint(sns.violinplot, density_norm='count')
     g.ax_joint.set_yticks(list(range(df['size'].min(), df['size'].max() + 1)))
     g.ax_joint.set_yticklabels(list(range(df['size'].min(), df['size'].max() + 1)))
 
@@ -144,7 +144,7 @@ def networks_distribution(df, filepath=None):
 
     plt.figure()
     counts = df[["size", "mse"]].reset_index(level=0).groupby(["size", "mse"], as_index=False).count()
-    cp = counts.pivot("size", "mse", "index").sort_index()
+    cp = counts.pivot(index="size", columns="mse", values="index").sort_index()
 
     ax = sns.heatmap(cp, annot=True, fmt=".0f", linewidths=.5)
     ax.set_xlabel("MSE")
