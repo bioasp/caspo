@@ -19,7 +19,6 @@ import os
 import shutil
 import argparse
 import logging
-import pkg_resources
 
 import caspo
 
@@ -28,7 +27,7 @@ matplotlib.use('agg')
 
 from .handlers import learn_handler, classify_handler, predict_handler, design_handler, control_handler, visualize_handler
 
-VERSION = pkg_resources.get_distribution("caspo").version
+VERSION = caspo.__version__
 LICENSE = """
 Copyright (C) Santiago Videla
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
