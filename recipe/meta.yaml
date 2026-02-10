@@ -28,6 +28,7 @@ requirements:
     - pyparsing
     - pydot
     - joblib
+    - setuptools
     - clingo >=5.4
 
 test:
