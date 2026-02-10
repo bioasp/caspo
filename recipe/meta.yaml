@@ -17,6 +17,7 @@ build:
 requirements:
   build:
     - python >=3
+    - setuptools
   run:
     - python >=3
     - pandas
@@ -28,7 +29,6 @@ requirements:
     - pyparsing
     - pydot
     - joblib
-    - setuptools
     - clingo >=5.4
 
 test:
