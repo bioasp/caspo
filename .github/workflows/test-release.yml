@@ -1,4 +1,4 @@
-name: Release
+name: Test package
 
 on: [push, pull_request]
 
