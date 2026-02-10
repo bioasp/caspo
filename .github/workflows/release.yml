@@ -40,7 +40,7 @@ jobs:
         conda config --set anaconda_upload yes
     - name: build
       run: |
-        cd conda
+        cd recipe
         conda build --user colomoto --token $ANACONDA_TOKEN -c defaults -c conda-forge -c potassco .
       env:
         ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
