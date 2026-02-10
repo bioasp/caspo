@@ -40,3 +40,4 @@ nosetests.xml
 
 # docs
 _build
+out
